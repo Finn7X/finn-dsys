@@ -1,101 +1,147 @@
-import Image from "next/image";
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Github, Twitter, Mail } from "lucide-react";
 
-export default function Home() {
+const HomePage = () => {
+  const recentPosts = [
+    {
+      title: "Getting Started with Next.js",
+      excerpt: "Learn how to build modern web applications with Next.js",
+      date: "2025-02-20",
+      readTime: "5 min"
+    },
+    {
+      title: "The Power of Tailwind CSS",
+      excerpt: "Why Tailwind CSS is becoming the go-to styling solution",
+      date: "2025-02-18",
+      readTime: "4 min"
+    },
+    {
+      title: "Building with shadcn/ui",
+      excerpt: "Create beautiful interfaces with shadcn/ui components",
+      date: "2025-02-15",
+      readTime: "6 min"
+    }
+  ];
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        {/* Navigation */}
+        <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
+          <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 className="text-xl font-bold">Finn Days</h1>
+            <div className="space-x-6">
+              <Button variant="ghost">Blog</Button>
+              <Button variant="ghost">Projects</Button>
+              <Button variant="ghost">About</Button>
+            </div>
+          </div>
+        </nav>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        {/* Hero Section */}
+        <section className="pt-32 pb-20 px-4">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Welcome to Finn Days
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Exploring technology, sharing knowledge, and documenting my journey in web development
+            </p>
+            <div className="flex justify-center space-x-4">
+              <Button className="gap-2">
+                <Mail size={18} />
+                Subscribe
+              </Button>
+              <Button variant="outline" className="gap-2">
+                <Github size={18} />
+                GitHub
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent Posts */}
+        <section className="py-16 px-4 bg-gray-50">
+          <div className="container mx-auto max-w-4xl">
+            <h2 className="text-3xl font-bold mb-8">Recent Posts</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {recentPosts.map((post, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
+                        <span>{post.date}</span>
+                        <span>{post.readTime} read</span>
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+                      <p className="text-gray-600">{post.excerpt}</p>
+                      <Button variant="link" className="mt-4 px-0">
+                        Read more →
+                      </Button>
+                    </CardContent>
+                  </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Skills/Interest Section */}
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h2 className="text-3xl font-bold mb-8">What I Do</h2>
+            <div className="grid gap-8 md:grid-cols-3">
+              <div className="p-6">
+                <div className="text-purple-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Web Development</h3>
+                <p className="text-gray-600">Building modern web applications with React and Next.js</p>
+              </div>
+              <div className="p-6">
+                <div className="text-blue-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Technical Writing</h3>
+                <p className="text-gray-600">Sharing knowledge through detailed tutorials and articles</p>
+              </div>
+              <div className="p-6">
+                <div className="text-green-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Open Source</h3>
+                <p className="text-gray-600">Contributing to and creating open source projects</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-gray-50 py-12 px-4">
+          <div className="container mx-auto max-w-4xl text-center">
+            <div className="flex justify-center space-x-6 mb-6">
+              <Button variant="ghost" size="icon">
+                <Github size={20} />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Twitter size={20} />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Mail size={20} />
+              </Button>
+            </div>
+            <p className="text-gray-600">
+              © 2025 Finn Days. Built with Next.js and Tailwind CSS.
+            </p>
+          </div>
+        </footer>
+      </div>
   );
-}
+};
+
+export default HomePage;
