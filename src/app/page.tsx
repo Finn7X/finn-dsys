@@ -30,7 +30,14 @@ const HomePage = () => {
         {/* Navigation */}
         <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
           <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 className="text-xl font-bold">Finn Days</h1>
+            <div className="flex items-center gap-4"> {/* 添加容器并用 gap 控制间距 */}
+              <img
+                  src="/favicon.svg"
+                  alt="Finn Days Logo"
+                  className="w-8 h-8"  // 设置 logo 大小为 32px，与 SVG 原始尺寸匹配
+              />
+              <h1 className="text-xl font-bold">Finn Days</h1>
+            </div>
             <div className="space-x-6">
               <Button variant="ghost">Blog</Button>
               <Button variant="ghost">Projects</Button>
@@ -50,11 +57,11 @@ const HomePage = () => {
             </p>
             <div className="flex justify-center space-x-4">
               <Button className="gap-2">
-                <Mail size={18} />
+                <Mail size={18}/>
                 Subscribe
               </Button>
               <Button variant="outline" className="gap-2">
-                <Github size={18} />
+                <Github size={18}/>
                 GitHub
               </Button>
             </div>
@@ -93,7 +100,8 @@ const HomePage = () => {
               <div className="p-6">
                 <div className="text-purple-600 mb-4">
                   <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Web Development</h3>
@@ -102,7 +110,8 @@ const HomePage = () => {
               <div className="p-6">
                 <div className="text-blue-600 mb-4">
                   <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Technical Writing</h3>
@@ -111,7 +120,7 @@ const HomePage = () => {
               <div className="p-6">
                 <div className="text-green-600 mb-4">
                   <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Open Source</h3>
@@ -126,13 +135,13 @@ const HomePage = () => {
           <div className="container mx-auto max-w-4xl text-center">
             <div className="flex justify-center space-x-6 mb-6">
               <Button variant="ghost" size="icon">
-                <Github size={20} />
+                <Github size={20}/>
               </Button>
               <Button variant="ghost" size="icon">
-                <Twitter size={20} />
+                <Twitter size={20}/>
               </Button>
               <Button variant="ghost" size="icon">
-                <Mail size={20} />
+                <Mail size={20}/>
               </Button>
             </div>
             <p className="text-gray-600">
