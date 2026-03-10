@@ -1,0 +1,61 @@
+/* MDX content typography styles */
+
+.prose-custom {
+    @apply leading-7;
+}
+
+/* Code blocks */
+[data-rehype-pretty-code-figure] {
+    @apply my-4;
+}
+
+[data-rehype-pretty-code-figure] pre {
+    @apply overflow-x-auto rounded-lg border bg-muted/50 p-4 text-sm leading-relaxed;
+}
+
+[data-rehype-pretty-code-figure] code {
+    @apply grid;
+}
+
+[data-rehype-pretty-code-figure] [data-line] {
+    @apply px-4 -mx-4;
+}
+
+[data-rehype-pretty-code-figure] [data-highlighted-line] {
+    @apply bg-primary/10 border-l-2 border-primary;
+}
+
+/* Code title (e.g. title="file.ts") */
+[data-rehype-pretty-code-title] {
+    @apply rounded-t-lg border border-b-0 bg-muted px-4 py-2 text-xs font-medium text-muted-foreground;
+}
+
+[data-rehype-pretty-code-title] + pre {
+    @apply rounded-t-none;
+}
+
+/* Line numbers */
+code[data-line-numbers] {
+    counter-reset: line;
+}
+
+code[data-line-numbers] > [data-line]::before {
+    counter-increment: line;
+    content: counter(line);
+    @apply mr-4 inline-block w-4 text-right text-muted-foreground;
+}
+
+/* Inline code */
+:not(pre) > code {
+    @apply rounded bg-muted px-1.5 py-0.5 font-mono text-sm;
+}
+
+/* Heading anchor links */
+.subheading-anchor {
+    @apply no-underline;
+}
+
+.subheading-anchor:hover::after {
+    content: " #";
+    @apply text-muted-foreground;
+}
