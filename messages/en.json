@@ -1,0 +1,93 @@
+{
+    "metadata": {
+        "title": "Finn Days",
+        "description": "Exploring technology, sharing knowledge, and documenting my journey in web development"
+    },
+    "nav": {
+        "blog": "Blog",
+        "projects": "Projects",
+        "tags": "Tags",
+        "about": "About"
+    },
+    "home": {
+        "hero": {
+            "title": "Welcome to Finn Days",
+            "description": "Exploring technology, sharing knowledge, and documenting my journey in web development",
+            "subscribe": "Subscribe",
+            "github": "GitHub"
+        },
+        "recentPosts": "Recent Posts",
+        "viewAll": "View All",
+        "skills": {
+            "title": "What I Do",
+            "webDev": {
+                "title": "Web Development",
+                "description": "Building modern web applications with React and Next.js"
+            },
+            "writing": {
+                "title": "Technical Writing",
+                "description": "Sharing knowledge through detailed tutorials and articles"
+            },
+            "openSource": {
+                "title": "Open Source",
+                "description": "Contributing to and creating open source projects"
+            }
+        }
+    },
+    "blog": {
+        "title": "Blog",
+        "description": "Tech blog sharing articles about Web development, React, Next.js and more",
+        "allPosts": "All",
+        "posts": "posts",
+        "noPostsTitle": "No Posts Yet",
+        "noPostsForTag": "No posts found for tag \"{tag}\"",
+        "noPosts": "No posts published yet",
+        "viewAll": "View all posts",
+        "readMore": "Read more",
+        "publishedOn": "Published on {date}",
+        "updatedOn": "Updated on {date}",
+        "readingTime": "{time}",
+        "prev": "Previous",
+        "next": "Next",
+        "toc": "Table of Contents"
+    },
+    "tags": {
+        "title": "Tags",
+        "description": "Browse articles by tag",
+        "allTags": "All Tags",
+        "tagCount": "{count} tags",
+        "postCount": "{count} posts"
+    },
+    "about": {
+        "title": "About",
+        "description": "Learn more about me",
+        "techStack": "Tech Stack",
+        "experience": "Experience",
+        "contact": "Contact",
+        "contactCta": "Want to get in touch?",
+        "sendEmail": "Send Email"
+    },
+    "projects": {
+        "title": "Projects",
+        "description": "My open source projects and works",
+        "featured": "Featured Projects",
+        "other": "Other Projects",
+        "noProjects": "Projects coming soon",
+        "viewSource": "Source",
+        "viewDemo": "Demo"
+    },
+    "common": {
+        "backToHome": "Back to Home",
+        "copied": "Copied",
+        "copyCode": "Copy code",
+        "loading": "Loading...",
+        "notFound": "Page Not Found",
+        "notFoundDescription": "The page you are looking for does not exist",
+        "switchLang": "中文"
+    },
+    "footer": {
+        "builtWith": "Built with {nextjs} and {tailwind}",
+        "copyright": "© {year} Finn Days. All rights reserved.",
+        "rss": "RSS Feed"
+    }
+}

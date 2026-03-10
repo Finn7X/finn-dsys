@@ -1,0 +1,93 @@
+{
+    "metadata": {
+        "title": "Finn Days",
+        "description": "探索技术、分享知识、记录 Web 开发之旅"
+    },
+    "nav": {
+        "blog": "博客",
+        "projects": "项目",
+        "tags": "标签",
+        "about": "关于"
+    },
+    "home": {
+        "hero": {
+            "title": "Welcome to Finn Days",
+            "description": "探索技术、分享知识、记录 Web 开发之旅",
+            "subscribe": "订阅",
+            "github": "GitHub"
+        },
+        "recentPosts": "最新文章",
+        "viewAll": "查看全部",
+        "skills": {
+            "title": "我在做什么",
+            "webDev": {
+                "title": "Web 开发",
+                "description": "使用 React 和 Next.js 构建现代 Web 应用"
+            },
+            "writing": {
+                "title": "技术写作",
+                "description": "通过详细的教程和文章分享知识"
+            },
+            "openSource": {
+                "title": "开源项目",
+                "description": "参与和创建开源项目"
+            }
+        }
+    },
+    "blog": {
+        "title": "博客",
+        "description": "技术博客，分享 Web 开发、React、Next.js 等技术文章",
+        "allPosts": "全部",
+        "posts": "篇文章",
+        "noPostsTitle": "暂无文章",
+        "noPostsForTag": "标签 \"{tag}\" 下还没有文章",
+        "noPosts": "还没有发布文章",
+        "viewAll": "查看所有文章",
+        "readMore": "阅读更多",
+        "publishedOn": "发布于 {date}",
+        "updatedOn": "更新于 {date}",
+        "readingTime": "{time}",
+        "prev": "上一篇",
+        "next": "下一篇",
+        "toc": "目录"
+    },
+    "tags": {
+        "title": "标签",
+        "description": "按标签浏览文章",
+        "allTags": "所有标签",
+        "tagCount": "{count} 个标签",
+        "postCount": "{count} 篇文章"
+    },
+    "about": {
+        "title": "关于",
+        "description": "了解更多关于我的信息",
+        "techStack": "技术栈",
+        "experience": "经历",
+        "contact": "联系方式",
+        "contactCta": "想要联系我？",
+        "sendEmail": "发送邮件"
+    },
+    "projects": {
+        "title": "项目",
+        "description": "我的开源项目和作品",
+        "featured": "精选项目",
+        "other": "其他项目",
+        "noProjects": "项目正在建设中",
+        "viewSource": "源码",
+        "viewDemo": "演示"
+    },
+    "common": {
+        "backToHome": "返回首页",
+        "copied": "已复制",
+        "copyCode": "复制代码",
+        "loading": "加载中...",
+        "notFound": "页面未找到",
+        "notFoundDescription": "你访问的页面不存在",
+        "switchLang": "English"
+    },
+    "footer": {
+        "builtWith": "使用 {nextjs} 和 {tailwind} 构建",
+        "copyright": "© {year} Finn Days. All rights reserved.",
+        "rss": "RSS 订阅"
+    }
+}
