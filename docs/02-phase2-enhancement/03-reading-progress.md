@@ -206,7 +206,8 @@ export function ReadingProgress() {
 // src/app/blog/[slug]/page.tsx（相关部分）
 import { ReadingProgress } from "@/components/blog/reading-progress";
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   return (
     <>
       {/* 阅读进度条 - 仅在文章详情页显示 */}

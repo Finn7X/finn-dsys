@@ -317,11 +317,12 @@ const handleCopyLink = async () => {
 ```typescript
 // src/app/blog/[slug]/page.tsx（相关部分）
 import { ShareButtons } from "@/components/blog/share-buttons";
-import { siteConfig } from "@/lib/constants";
+import { siteConfig } from "@/config/site";
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug);
-  const postUrl = `${siteConfig.url}/blog/${params.slug}`;
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+  const postUrl = `${siteConfig.url}/blog/${slug}`;
 
   return (
     <article className="container mx-auto max-w-3xl py-16 px-4">

@@ -495,7 +495,7 @@ ranking:
 
 ```typescript
 // src/lib/search-simple.ts
-import { allPosts } from "@/lib/velite"; // 假设 Velite 导出所有文章
+import { posts } from "#site/content"; // Velite 生成的内容
 
 interface SimpleSearchResult {
   title: string;
@@ -509,7 +509,7 @@ export function simpleSearch(query: string): SimpleSearchResult[] {
 
   const normalizedQuery = query.toLowerCase();
 
-  return allPosts
+  return posts
     .filter((post) => {
       const titleMatch = post.title.toLowerCase().includes(normalizedQuery);
       const bodyMatch = post.body?.toLowerCase().includes(normalizedQuery);

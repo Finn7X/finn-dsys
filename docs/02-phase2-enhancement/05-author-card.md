@@ -15,10 +15,10 @@
 
 ### 数据源设计
 
-作者信息存储在 `src/lib/constants.ts` 中的站点配置对象内，集中管理便于修改：
+作者信息存储在 `src/config/site.ts` 中的站点配置对象内，集中管理便于修改：
 
 ```typescript
-// src/lib/constants.ts
+// src/config/site.ts
 
 export const siteConfig = {
   title: "Finn Days",
@@ -47,7 +47,7 @@ export const siteConfig = {
 
 ### 步骤 1：更新站点配置
 
-确保 `src/lib/constants.ts` 中包含完整的作者信息（见上方数据源设计）。
+确保 `src/config/site.ts` 中包含完整的作者信息（见上方数据源设计）。
 
 ### 步骤 2：创建 AuthorCard 组件
 
@@ -56,7 +56,7 @@ export const siteConfig = {
 import Image from "next/image";
 import { Github, Twitter, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/constants";
+import { siteConfig } from "@/config/site";
 
 export function AuthorCard() {
   const { author } = siteConfig;
@@ -153,7 +153,7 @@ export function AuthorCard() {
 import Image from "next/image";
 import { Github, Twitter, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/constants";
+import { siteConfig } from "@/config/site";
 
 interface Author {
   name: string;
@@ -230,8 +230,9 @@ import { AuthorCard } from "@/components/blog/author-card";
 import { ShareButtons } from "@/components/blog/share-buttons";
 import { Comments } from "@/components/blog/comments";
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug);
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
 
   return (
     <article className="container mx-auto max-w-3xl py-16 px-4">
@@ -295,7 +296,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
 | 文件路径 | 说明 | 操作 |
 |---------|------|------|
-| `src/lib/constants.ts` | 站点配置（添加 author 信息） | 新建/修改 |
+| `src/config/site.ts` | 站点配置（添加 author 信息） | 新建/修改 |
 | `src/components/blog/author-card.tsx` | 作者卡片组件 | 新建 |
 | `src/app/blog/[slug]/page.tsx` | 文章详情页 | 修改（集成组件） |
 | `public/images/avatar.jpg` | 作者头像图片 | 新增资源 |
@@ -341,6 +342,6 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
 1. **头像尺寸**：`next/image` 的 `width` 和 `height` 属性是渲染尺寸，实际图片文件应大于此尺寸以保证在高 DPI 屏幕上清晰（推荐 400x400 以上）
 2. **默认头像**：如果头像文件不存在，可以添加一个 fallback 方案（如显示姓名首字母）
-3. **数据一致性**：作者信息集中在 `constants.ts` 中管理，修改一处即可全站生效，避免在多个组件中硬编码
+3. **数据一致性**：作者信息集中在 `src/config/site.ts` 中管理，修改一处即可全站生效，避免在多个组件中硬编码
 4. **Server Component**：AuthorCard 组件不需要客户端交互，可以保持为 Server Component（不添加 `"use client"` 指令），这样可以在服务端渲染，减少客户端 JS 体积
 5. **多作者支持**：当前设计以单作者为主，但预留了通过 prop 传入作者信息的扩展接口，未来可以从文章 frontmatter 的 `author` 字段读取不同作者

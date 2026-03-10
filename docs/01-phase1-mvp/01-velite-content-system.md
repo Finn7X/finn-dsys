@@ -385,7 +385,7 @@ title: "Finn Days Blog"
 description: "A personal blog built with Next.js, Tailwind CSS, and Velite. Features dark mode, MDX content, and responsive design."
 date: "2025-02-01"
 github: "https://github.com/username/finn-days"
-demo: "https://finn.days.dev"
+demo: "https://finndays.com"
 cover: "/images/projects/finn-days.png"
 tags: ["Next.js", "TypeScript", "Tailwind CSS", "MDX"]
 featured: true

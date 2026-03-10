@@ -56,7 +56,7 @@ Docker Compose 用于编排 Finn Days 博客的完整服务栈，包括博客应
 
 | 服务 | 镜像 | 端口 | 说明 |
 |------|------|------|------|
-| **blog** | `ghcr.io/finn7x/finn-dsys:latest` 或本地构建 | 8200:8200 | Next.js 博客应用 |
+| **blog** | `ghcr.io/finn7x/finn-days:latest` 或本地构建 | 8200:8200 | Next.js 博客应用 |
 | **umami** | `ghcr.io/umami-software/umami:postgresql-latest` | 3001:3000 | Umami 分析服务 |
 | **db** | `postgres:16-alpine` | 无（仅内部访问） | PostgreSQL 数据库 |
 
@@ -92,7 +92,7 @@ services:
   # ============================================================
   blog:
     # 方式一：从容器仓库拉取预构建镜像（CI/CD 部署使用）
-    image: ghcr.io/finn7x/finn-dsys:latest
+    image: ghcr.io/finn7x/finn-days:latest
     # 方式二：本地构建（开发/测试使用）
     # build:
     #   context: .
@@ -218,7 +218,7 @@ networks:
 
 | 配置项 | 值 | 说明 |
 |--------|-----|------|
-| `image` | `ghcr.io/finn7x/finn-dsys:latest` | 预构建镜像（CI/CD 推送） |
+| `image` | `ghcr.io/finn7x/finn-days:latest` | 预构建镜像（CI/CD 推送） |
 | `container_name` | `finn-days-blog` | 容器名称，便于管理 |
 | `restart` | `unless-stopped` | 除非手动停止，否则自动重启 |
 | `ports` | `8200:8200` | 宿主机端口映射 |
@@ -239,7 +239,7 @@ blog:
       - NEXT_PUBLIC_UMAMI_URL=${NEXT_PUBLIC_UMAMI_URL}
       - NEXT_PUBLIC_UMAMI_ID=${NEXT_PUBLIC_UMAMI_ID}
   # 注释掉 image 行
-  # image: ghcr.io/finn7x/finn-dsys:latest
+  # image: ghcr.io/finn7x/finn-days:latest
 ```
 
 #### umami 服务
@@ -277,7 +277,7 @@ blog:
 BLOG_PORT=8200
 
 # Umami 分析集成
-NEXT_PUBLIC_UMAMI_URL=https://analytics.finn-days.com
+NEXT_PUBLIC_UMAMI_URL=https://analytics.finndays.com
 NEXT_PUBLIC_UMAMI_ID=your-website-id-here
 
 # ---------- Umami 服务 ----------
@@ -562,10 +562,10 @@ services:
 # 博客
 server {
     listen 443 ssl http2;
-    server_name finn-days.com;
+    server_name finndays.com;
 
-    ssl_certificate /etc/letsencrypt/live/finn-days.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/finn-days.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/finndays.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/finndays.com/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:8200;
@@ -586,10 +586,10 @@ server {
 # Umami 分析
 server {
     listen 443 ssl http2;
-    server_name analytics.finn-days.com;
+    server_name analytics.finndays.com;
 
-    ssl_certificate /etc/letsencrypt/live/analytics.finn-days.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/analytics.finn-days.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/analytics.finndays.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/analytics.finndays.com/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:3001;
@@ -603,7 +603,7 @@ server {
 # HTTP 重定向到 HTTPS
 server {
     listen 80;
-    server_name finn-days.com analytics.finn-days.com;
+    server_name finndays.com analytics.finndays.com;
     return 301 https://$server_name$request_uri;
 }
 ```
@@ -611,11 +611,11 @@ server {
 **Caddy 配置（更简单，自动 HTTPS）：**
 
 ```
-finn-days.com {
+finndays.com {
     reverse_proxy localhost:8200
 }
 
-analytics.finn-days.com {
+analytics.finndays.com {
     reverse_proxy localhost:3001
 }
 ```
@@ -651,7 +651,7 @@ CI/CD 流水线（参见 `04-cicd-pipeline.md`）在构建完成后，通过 SSH
 
 ```bash
 # 1. 拉取最新镜像
-docker pull ghcr.io/finn7x/finn-dsys:latest
+docker pull ghcr.io/finn7x/finn-days:latest
 
 # 2. 重启博客服务
 docker compose -f /opt/finn-days/docker-compose.yml up -d blog --force-recreate
@@ -749,7 +749,7 @@ docker compose up -d blog --force-recreate
 
 | 镜像 | 标签 | 体积（约） |
 |------|------|----------|
-| `ghcr.io/finn7x/finn-dsys` | latest | ~100-200MB |
+| `ghcr.io/finn7x/finn-days` | latest | ~100-200MB |
 | `ghcr.io/umami-software/umami` | postgresql-latest | ~200MB |
 | `postgres` | 16-alpine | ~80MB |
 

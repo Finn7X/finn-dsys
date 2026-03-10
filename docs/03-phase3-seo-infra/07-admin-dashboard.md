@@ -1,6 +1,6 @@
 # 后台管理系统设计方案
 
-> Finn Days 博客 - Phase 3: SEO 与基础设施
+> Finn Days 博客 - Phase 4: 进阶功能
 > 文档版本：v1.0
 > 最后更新：2026-03-10
 
@@ -291,7 +291,7 @@ ADMIN_GITHUB_ID=Finn7X
 # GitHub API 访问令牌（用于内容管理）
 GITHUB_TOKEN=ghp_xxxxxxxxxxxx
 GITHUB_REPO_OWNER=Finn7X
-GITHUB_REPO_NAME=finn-dsys
+GITHUB_REPO_NAME=finn-days
 ```
 
 ### 4.5 Auth.js 配置
@@ -1414,13 +1414,13 @@ export default function AdminPostsPage() {
                     <h3 className="truncate text-sm font-medium">
                       {post.title}
                     </h3>
-                    {post.published ? (
-                      <Badge variant="secondary" className="shrink-0">
-                        已发布
-                      </Badge>
-                    ) : (
+                    {post.draft ? (
                       <Badge variant="outline" className="shrink-0">
                         草稿
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="shrink-0">
+                        已发布
                       </Badge>
                     )}
                   </div>
@@ -1831,7 +1831,7 @@ const DEFAULT_FRONTMATTER = `---
 title: ""
 description: ""
 date: "${new Date().toISOString().split("T")[0]}"
-published: false
+draft: true
 tags: []
 ---
 
@@ -2270,7 +2270,7 @@ src/app/
 | 场景 | 触发条件 | 推荐方案 |
 |------|---------|---------|
 | 评论管理后台 | 需要在后台管理 Giscus 评论 | 通过 GitHub API 读取 Discussions |
-| 文章草稿系统 | 需要保存未完成的草稿状态 | Velite frontmatter `published: false` |
+| 文章草稿系统 | 需要保存未完成的草稿状态 | Velite frontmatter `draft: true` |
 | 多用户协作 | 需要多个管理员 | 引入 PostgreSQL（复用 Umami 的数据库） |
 | Newsletter 订阅者管理 | 需要本地管理订阅列表 | 引入 PostgreSQL 或 SQLite |
 | 浏览量缓存 | 减少 Umami API 调用频率 | Redis / 内存缓存 / Next.js `revalidate` |
@@ -2595,8 +2595,8 @@ curl http://localhost:3001/api/websites/{id}/stats?startAt=...&endAt=... \
 2. 点击 "New OAuth App"
 3. 填写信息：
    - Application name: `Finn Days Admin`
-   - Homepage URL: `https://finn-days.com`
-   - Authorization callback URL: `https://finn-days.com/api/auth/callback/github`
+   - Homepage URL: `https://finndays.com`
+   - Authorization callback URL: `https://finndays.com/api/auth/callback/github`
    - （本地开发：`http://localhost:3000/api/auth/callback/github`）
 4. 创建后获取 Client ID 和 Client Secret
 5. 填入 `.env.local` 的 `AUTH_GITHUB_ID` 和 `AUTH_GITHUB_SECRET`
@@ -2627,7 +2627,7 @@ ADMIN_GITHUB_ID=Finn7X               # 允许登录的 GitHub 用户名
 # ── GitHub API ───────────────────────────
 GITHUB_TOKEN=                         # GitHub Fine-grained PAT
 GITHUB_REPO_OWNER=Finn7X             # 仓库所有者
-GITHUB_REPO_NAME=finn-dsys           # 仓库名称
+GITHUB_REPO_NAME=finn-days           # 仓库名称
 GITHUB_BRANCH=main                   # 目标分支
 
 # ── Umami API（服务端） ──────────────────
@@ -2636,7 +2636,7 @@ UMAMI_USERNAME=admin                 # Umami 登录用户名
 UMAMI_PASSWORD=                      # Umami 登录密码
 
 # ── Umami 前端（已有） ──────────────────
-NEXT_PUBLIC_UMAMI_URL=https://analytics.finn-days.com
+NEXT_PUBLIC_UMAMI_URL=https://analytics.finndays.com
 NEXT_PUBLIC_UMAMI_ID=                # Umami Website ID
 ```
 

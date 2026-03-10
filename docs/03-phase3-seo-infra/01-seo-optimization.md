@@ -62,8 +62,8 @@ Root Layout (metadata)
 ```typescript
 import type { Metadata } from "next";
 
-// 站点常量（建议统一放在 src/lib/constants.ts）
-const SITE_URL = "https://finn-days.com";
+// 站点常量（建议统一放在 src/config/site.ts）
+const SITE_URL = "https://finndays.com";
 const SITE_NAME = "Finn Days";
 const SITE_DESCRIPTION =
   "Exploring technology, sharing knowledge, and documenting my journey in web development";
@@ -149,8 +149,8 @@ export const metadata: Metadata = {
 
   // 图标配置
   icons: {
-    icon: "/favicon/favicon.svg",
-    apple: "/favicon/apple-touch-icon.png",
+    icon: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
   },
 
   // 替代链接
@@ -168,12 +168,12 @@ export const metadata: Metadata = {
 
 建议将站点常量统一管理，便于在 Metadata、SEO 组件、页脚等处复用。
 
-**文件：`src/lib/constants.ts`**
+**文件：`src/config/site.ts`**
 
 ```typescript
 export const siteConfig = {
   name: "Finn Days",
-  url: "https://finn-days.com",
+  url: "https://finndays.com",
   description:
     "Exploring technology, sharing knowledge, and documenting my journey in web development",
   author: {
@@ -184,7 +184,7 @@ export const siteConfig = {
     github: "https://github.com/Finn7X",
   },
   links: {
-    github: "https://github.com/Finn7X/finn-dsys",
+    github: "https://github.com/Finn7X/finn-days",
   },
   locale: "zh_CN",
   language: "zh-CN",
@@ -225,7 +225,7 @@ export default function BlogPage() {
 ```typescript
 import type { Metadata } from "next";
 import { posts } from "#site/content"; // Velite 生成的内容
-import { siteConfig } from "@/lib/constants";
+import { siteConfig } from "@/config/site";
 import { notFound } from "next/navigation";
 
 interface PostPageProps {
@@ -418,7 +418,7 @@ twitter: {
 **文件：`src/components/common/seo.tsx`**
 
 ```typescript
-import { siteConfig } from "@/lib/constants";
+import { siteConfig } from "@/config/site";
 
 // ============================================================
 // WebSite Schema — 用于根布局
@@ -521,7 +521,7 @@ export function BlogPostingJsonLd({
       url: siteConfig.url,
       logo: {
         "@type": "ImageObject",
-        url: `${siteConfig.url}/favicon/favicon.svg`,
+        url: `${siteConfig.url}/favicon.svg`,
       },
     },
     mainEntityOfPage: {
@@ -635,7 +635,7 @@ Sitemap 告知搜索引擎网站上有哪些页面可供抓取。
 ```typescript
 import type { MetadataRoute } from "next";
 import { posts } from "#site/content";
-import { siteConfig } from "@/lib/constants";
+import { siteConfig } from "@/config/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = siteConfig.url;
@@ -703,13 +703,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://finn-days.com</loc>
+    <loc>https://finndays.com</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://finn-days.com/blog/getting-started-with-nextjs</loc>
+    <loc>https://finndays.com/blog/getting-started-with-nextjs</loc>
     <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -724,7 +724,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 ```typescript
 import type { MetadataRoute } from "next";
-import { siteConfig } from "@/lib/constants";
+import { siteConfig } from "@/config/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -749,8 +749,8 @@ Allow: /
 Disallow: /api/
 Disallow: /_next/
 
-Sitemap: https://finn-days.com/sitemap.xml
-Host: https://finn-days.com
+Sitemap: https://finndays.com/sitemap.xml
+Host: https://finndays.com
 ```
 
 ### 3.11 Canonical URL
@@ -766,7 +766,7 @@ alternates: {
 }
 ```
 
-由于 `metadataBase` 已在根布局设置为 `https://finn-days.com`，相对路径会自动补全为完整 URL。
+由于 `metadataBase` 已在根布局设置为 `https://finndays.com`，相对路径会自动补全为完整 URL。
 
 ---
 
@@ -781,7 +781,7 @@ alternates: {
 | `src/app/blog/[slug]/page.tsx` | 文章详情页动态 Metadata + JSON-LD |
 | `src/app/tags/[tag]/page.tsx` | 标签页动态 Metadata |
 | `src/components/common/seo.tsx` | JSON-LD 结构化数据组件集 |
-| `src/lib/constants.ts` | 站点常量配置 |
+| `src/config/site.ts` | 站点常量配置 |
 
 ---
 

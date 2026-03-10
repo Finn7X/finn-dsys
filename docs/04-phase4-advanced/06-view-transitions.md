@@ -175,8 +175,9 @@ export function PostCard({ post }: { post: Post }) {
 ```tsx
 // 详情页中的文章标题
 // src/app/blog/[slug]/page.tsx
-export default function BlogPost({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug);
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
 
   return (
     <article>
@@ -472,7 +473,7 @@ if (supportsViewTransitions()) {
 ```tsx
 // src/components/blog/post-card.tsx
 import Link from "next/link";
-import type { Post } from "contentlayer/generated";
+import type { Post } from "#site/content"; // Velite 生成的类型
 
 export function PostCard({ post }: { post: Post }) {
   return (
@@ -513,8 +514,9 @@ export function PostCard({ post }: { post: Post }) {
 
 ```tsx
 // src/app/blog/[slug]/page.tsx
-export default function BlogPost({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug);
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-8">

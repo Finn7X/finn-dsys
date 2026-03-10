@@ -78,8 +78,9 @@ export const mdxComponents = {
 import { mdxComponents } from "@/components/mdx";
 import { MDXContent } from "@/components/mdx-content";
 
-export default function BlogPost({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug);
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
 
   return (
     <article className="prose prose-neutral dark:prose-invert max-w-none">

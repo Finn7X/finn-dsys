@@ -56,7 +56,7 @@ const posts = {
       date: s.isodate(),
       description: s.string().optional(),
       tags: s.array(s.string()).optional(),
-      published: s.boolean().default(true),
+      draft: s.boolean().default(false),
       // 系列文章字段
       series: s
         .object({
@@ -78,7 +78,7 @@ const posts = {
 创建查询函数，根据系列名称获取该系列下的所有文章：
 
 ```typescript
-// src/lib/posts.ts（添加以下函数）
+// src/lib/content.ts（添加以下函数）
 
 interface SeriesPost {
   title: string;
@@ -105,10 +105,10 @@ export function getSeriesInfo(
   currentSlug: string
 ): SeriesInfo | null {
   // 从 Velite 生成的数据中筛选同系列文章
-  const seriesPosts = allPosts
+  const seriesPosts = posts
     .filter(
       (post) =>
-        post.series?.title === seriesTitle && post.published !== false
+        post.series?.title === seriesTitle && !post.draft
     )
     .sort((a, b) => (a.series?.order ?? 0) - (b.series?.order ?? 0))
     .map((post) => ({
@@ -142,7 +142,7 @@ export function getSeriesInfo(
 export function getAllSeries(): { title: string; postCount: number }[] {
   const seriesMap = new Map<string, number>();
 
-  allPosts.forEach((post) => {
+  posts.forEach((post) => {
     if (post.series?.title) {
       seriesMap.set(
         post.series.title,
@@ -335,18 +335,19 @@ export function SeriesNav({
 ```typescript
 // src/app/blog/[slug]/page.tsx（相关部分）
 import { SeriesNav } from "@/components/blog/series-nav";
-import { getPostBySlug, getSeriesInfo } from "@/lib/posts";
+import { getPostBySlug, getSeriesInfo } from "@/lib/content";
 
-export default function BlogPostPage({
+export default async function BlogPostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const post = getPostBySlug(params.slug);
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
 
   // 获取系列信息（如果文章属于某个系列）
   const seriesInfo = post.series
-    ? getSeriesInfo(post.series.title, params.slug)
+    ? getSeriesInfo(post.series.title, slug)
     : null;
 
   return (
@@ -480,7 +481,7 @@ tags:
 | 文件路径 | 说明 | 操作 |
 |---------|------|------|
 | `velite.config.ts` | Velite schema 添加 series 字段 | 修改 |
-| `src/lib/posts.ts` | 添加 `getSeriesInfo`、`getAllSeries` 函数 | 修改 |
+| `src/lib/content.ts` | 添加 `getSeriesInfo`、`getAllSeries` 函数 | 修改 |
 | `src/components/blog/series-nav.tsx` | 系列文章导航组件 | 新建 |
 | `src/app/blog/[slug]/page.tsx` | 文章详情页 | 修改（集成 SeriesNav） |
 | `content/blog/*.mdx` | 系列文章 frontmatter 添加 series 字段 | 修改 |

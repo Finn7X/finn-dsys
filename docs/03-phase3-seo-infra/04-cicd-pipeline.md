@@ -292,15 +292,15 @@ echo "YOUR_TOKEN" | docker login ghcr.io -u YOUR_USERNAME --password-stdin
 
 | 标签格式 | 示例 | 用途 |
 |---------|------|------|
-| `latest` | `ghcr.io/finn7x/finn-dsys:latest` | 始终指向最新构建 |
-| `sha-<short>` | `ghcr.io/finn7x/finn-dsys:sha-a1b2c3d` | 精确到 commit |
-| `YYYYMMDD-HHmmss` | `ghcr.io/finn7x/finn-dsys:20260309-143022` | 按时间回溯 |
+| `latest` | `ghcr.io/finn7x/finn-days:latest` | 始终指向最新构建 |
+| `sha-<short>` | `ghcr.io/finn7x/finn-days:sha-a1b2c3d` | 精确到 commit |
+| `YYYYMMDD-HHmmss` | `ghcr.io/finn7x/finn-days:20260309-143022` | 按时间回溯 |
 
 **回滚操作：** 如果最新部署有问题，可以使用 SHA 标签快速回滚：
 
 ```bash
 # 回滚到指定版本
-docker pull ghcr.io/finn7x/finn-dsys:sha-a1b2c3d
+docker pull ghcr.io/finn7x/finn-days:sha-a1b2c3d
 docker compose up -d blog --force-recreate
 ```
 
@@ -311,7 +311,7 @@ docker compose up -d blog --force-recreate
 ```yaml
 services:
   blog:
-    image: ghcr.io/finn7x/finn-dsys:latest
+    image: ghcr.io/finn7x/finn-days:latest
     container_name: finn-days-blog
     restart: unless-stopped
     ports:
@@ -440,7 +440,7 @@ services:
       - finn-days-network
 
   blog:
-    image: ghcr.io/finn7x/finn-dsys:latest
+    image: ghcr.io/finn7x/finn-days:latest
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     # ... 其他配置
@@ -589,7 +589,7 @@ curl -sf http://localhost:8200  # 健康检查
 
 ```bash
 # 测试回滚到指定版本
-docker pull ghcr.io/finn7x/finn-dsys:sha-a1b2c3d
+docker pull ghcr.io/finn7x/finn-days:sha-a1b2c3d
 docker compose up -d blog --force-recreate
 curl -sf http://localhost:8200  # 验证回滚后服务正常
 ```

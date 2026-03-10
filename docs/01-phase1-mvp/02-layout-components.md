@@ -89,7 +89,7 @@ src/
 export const siteConfig = {
   name: "Finn Days",
   description: "Exploring technology, sharing knowledge, and documenting my journey in web development",
-  url: "https://finn.days.dev",  // 站点 URL
+  url: "https://finndays.com",  // 站点 URL
   author: {
     name: "Finn",
     email: "finn@example.com",

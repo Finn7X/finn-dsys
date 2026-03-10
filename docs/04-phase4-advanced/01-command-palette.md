@@ -307,6 +307,7 @@ export function CommandPalette({ posts = [] }: CommandPaletteProps) {
 ```tsx
 // src/app/layout.tsx
 import { CommandPalette } from "@/components/search/command-palette";
+import { posts as allPosts } from "#site/content";
 
 export default function RootLayout({
   children,

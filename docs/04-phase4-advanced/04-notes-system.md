@@ -134,7 +134,7 @@ form:has(:invalid) button[type="submit"] {
 
 ```tsx
 // src/app/notes/page.tsx
-import { allNotes } from "contentlayer/generated"; // 或 Velite 的导出方式
+import { notes } from "#site/content"; // Velite 生成的类型安全数据
 import { NoteCard } from "@/components/notes/note-card";
 import { groupNotesByDate } from "@/lib/notes";
 
@@ -145,7 +145,7 @@ export const metadata = {
 
 export default function NotesPage() {
   // 按日期倒序排列
-  const sortedNotes = allNotes.sort(
+  const sortedNotes = notes.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -193,7 +193,7 @@ export default function NotesPage() {
 
 ```tsx
 // src/lib/notes.ts
-import type { Note } from "contentlayer/generated";
+import type { Note } from "#site/content";
 
 export function groupNotesByDate(
   notes: Note[]
@@ -236,7 +236,7 @@ function formatDateLabel(date: Date): string {
 ```tsx
 // src/components/notes/note-card.tsx
 import { cn } from "@/lib/utils";
-import type { Note } from "contentlayer/generated";
+import type { Note } from "#site/content";
 import { MDXContent } from "@/components/mdx-content";
 
 interface NoteCardProps {
@@ -338,10 +338,10 @@ export function NoteCard({ note, className }: NoteCardProps) {
 
 ```tsx
 // src/app/page.tsx 中的最新笔记板块
-import { allNotes } from "contentlayer/generated";
+import { notes } from "#site/content";
 
 function LatestNotes() {
-  const latestNotes = allNotes
+  const latestNotes = notes
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3);
 
@@ -387,18 +387,18 @@ function LatestNotes() {
 
 ```tsx
 // src/app/feed.xml/route.ts
-import { allPosts, allNotes } from "contentlayer/generated";
+import { posts, notes } from "#site/content";
 
 export async function GET() {
   const items = [
-    ...allPosts.map((post) => ({
+    ...posts.map((post) => ({
       title: post.title,
       link: `/blog/${post.slug}`,
       date: post.date,
       description: post.description,
       type: "post" as const,
     })),
-    ...allNotes.map((note) => ({
+    ...notes.map((note) => ({
       title: note.title,
       link: `/notes#${note.slug}`,
       date: note.date,
@@ -411,15 +411,15 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Finn Days</title>
-    <link>https://finn-days.com</link>
+    <link>https://finndays.com</link>
     <description>博客与笔记</description>
-    <atom:link href="https://finn-days.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://finndays.com/feed.xml" rel="self" type="application/rss+xml"/>
     ${items
       .map(
         (item) => `
     <item>
       <title>${escapeXml(item.title)}</title>
-      <link>https://finn-days.com${item.link}</link>
+      <link>https://finndays.com${item.link}</link>
       <pubDate>${new Date(item.date).toUTCString()}</pubDate>
       <category>${item.type === "post" ? "博客" : "笔记"}</category>
       <description>${escapeXml(item.description)}</description>
