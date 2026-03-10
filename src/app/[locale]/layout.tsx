@@ -16,6 +16,16 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     icons: { icon: "/favicon/favicon.svg" },
     metadataBase: new URL(siteConfig.url),
+    alternates: {
+        types: {
+            "application/rss+xml": [
+                { url: "/feed.xml", title: `${siteConfig.name} RSS Feed` },
+            ],
+            "application/atom+xml": [
+                { url: "/atom.xml", title: `${siteConfig.name} Atom Feed` },
+            ],
+        },
+    },
 }
 
 export default async function LocaleLayout({
