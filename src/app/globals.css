@@ -97,3 +97,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* rehype-pretty-code dual theme switching */
+[data-rehype-pretty-code-figure] code[data-theme="dark"] {
+  display: none;
+}
+
+.dark [data-rehype-pretty-code-figure] code[data-theme="light"] {
+  display: none;
+}
+
+.dark [data-rehype-pretty-code-figure] code[data-theme="dark"] {
+  display: block;
+}
