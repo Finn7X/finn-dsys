@@ -5,132 +5,84 @@
 <h1 align="center">Finn Days</h1>
 
 <p align="center">
-  A modern, bilingual tech blog for the global developer community.<br/>
-  面向全球开发者的现代化双语技术博客。
+  Write. Think. Ship. — in two languages.<br/>
+  书写、思考、交付 —— 用两种语言。
 </p>
 
 <p align="center">
-  <a href="https://finndays.com">finndays.com</a>
+  <a href="https://finn7x.com">finn7x.com</a>
 </p>
 
 ---
 
-## About
+## English
 
-**Finn Days** is a personal tech blog built with cutting-edge web technologies, natively supporting **Chinese** and **English**. It focuses on delivering high-quality technical content with an elegant reading experience — interactive code demos, zero distractions, and privacy-first.
+**Finn Days** is where I document my journey as a developer — the things I build, the problems I solve, and the ideas that keep me up at night. Every article is written natively in both Chinese and English, not translated, but thought through in both languages.
 
-## Tech Stack
+### Why this exists
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | [Next.js 16](https://nextjs.org) (App Router, React 19) |
-| Language | TypeScript |
-| Styling | [Tailwind CSS 4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) |
-| Content | [Velite](https://velite.js.org) (MDX) |
-| i18n | [next-intl](https://next-intl-docs.vercel.app) |
-| Theme | [next-themes](https://github.com/pacocoursey/next-themes) (Dark / Light) |
-| Deployment | Docker (node:22-alpine) |
-| Analytics | [Umami](https://umami.is) (self-hosted, privacy-friendly) |
+I believe the best technical writing comes from real practice, not abstractions. This blog is my commitment to writing honestly about what I learn — whether it's a deep dive into React Server Components, a deployment war story, or a three-line CSS trick that took me two hours to figure out.
 
-## Features
+### What makes it different
 
-- **Bilingual** — Native Chinese / English support with `[locale]` routing
-- **MDX Blog** — Write in MDX with syntax highlighting, TOC, and custom components
-- **Dark Mode** — Seamless theme switching with system preference detection
-- **RSS Feed** — RSS 2.0 & Atom feed generation
-- **SEO Optimized** — Meta tags, Open Graph, JSON-LD, Sitemap
-- **Privacy First** — Self-hosted analytics, no third-party trackers
-- **Containerized** — Docker-based deployment with CI/CD via GitHub Actions
+- **Bilingual by design** — Not a translation layer. Both languages are first-class citizens.
+- **Reading experience first** — Clean typography, dark mode, zero distractions. The content is the interface.
+- **Interactive where it matters** — Live code playgrounds, series navigation, command palette. Tools that serve the reader, not the author's ego.
+- **Privacy respected** — Self-hosted analytics. No ads. No tracking. Your attention is not for sale.
 
-## Roadmap
+### Where it's going
 
-Development follows a phased approach:
+This project is built in phases — from a solid content foundation to interactive experiences that push what a personal blog can be:
 
-```
-Phase 1 — MVP + i18n               Phase 2 — UX Enhancement
-━━━━━━━━━━━━━━━━━━━━━━             ━━━━━━━━━━━━━━━━━━━━━━━
- Velite content system               Giscus comments
- [locale] routing (next-intl)        Full-text search (Pagefind)
- Blog list & detail pages            Reading progress bar
- Tag system                          Social sharing
- Theme switching                     Author card
- About / Projects pages              Newsletter subscription
- RSS / Atom feed                     Series navigation
+1. **Foundation** — Bilingual content system, clean layouts, RSS, dark mode
+2. **Engagement** — Comments, full-text search, social sharing, series navigation
+3. **Infrastructure** — SEO, CI/CD, performance optimization, containerized deployment
+4. **Craft** — Command palette, custom MDX components, code playgrounds, view transitions
 
-Phase 3 — SEO & Infrastructure     Phase 4 — Advanced
-━━━━━━━━━━━━━━━━━━━━━━━━━━         ━━━━━━━━━━━━━━━━━━━
- SEO optimization                    Command palette (⌘K)
- Dynamic OG image generation         Custom MDX components
- Umami analytics                     Code playground (Sandpack)
- CI/CD pipeline                      Short notes (TIL)
- Performance tuning                  View Transitions
- Docker Compose orchestration        Admin dashboard
-```
+> Architecture docs and implementation details live in [`docs/`](./docs/).
 
-> Detailed documentation for each phase is available in the [`docs/`](./docs/) directory.
-
-## Getting Started
+### Quick start
 
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server (port 8200)
-npm start
+npm install && npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the site in development mode.
+---
 
-## Project Structure
+## 中文
 
+**Finn Days** 是我作为开发者的记录空间 —— 记录我构建的东西、解决的问题、以及那些让我深夜还在思考的想法。每篇文章都以中文和英文原生写作，不是翻译，而是用两种语言思考。
+
+### 为什么做这个
+
+我相信最好的技术写作源于真实的实践，而非抽象的理论。这个博客是我对自己的承诺：诚实地写下我学到的一切 —— 无论是对 React Server Components 的深入探索、一次部署踩坑记录、还是一个花了两小时才搞定的三行 CSS 技巧。
+
+### 有什么不同
+
+- **原生双语** —— 不是翻译层，两种语言都是一等公民。
+- **阅读体验优先** —— 干净的排版、暗色模式、零干扰。内容本身就是界面。
+- **恰到好处的交互** —— 实时代码演练场、系列文章导航、命令面板。服务读者的工具，而非作者的炫技。
+- **尊重隐私** —— 自托管分析、无广告、无追踪。你的注意力不是商品。
+
+### 未来规划
+
+项目分阶段推进 —— 从扎实的内容基础，到突破个人博客边界的交互体验：
+
+1. **基础** —— 双语内容系统、布局组件、RSS、暗色模式
+2. **互动** —— 评论、全文搜索、社交分享、系列文章导航
+3. **基建** —— SEO、CI/CD、性能优化、容器化部署
+4. **匠心** —— 命令面板、自定义 MDX 组件、代码演练场、页面过渡动画
+
+> 架构文档和实现细节在 [`docs/`](./docs/) 目录中。
+
+### 快速开始
+
+```bash
+npm install && npm run dev
 ```
-finn-days/
-├── src/
-│   ├── app/              # Next.js App Router pages
-│   │   └── [locale]/     # i18n routing
-│   ├── components/       # React components
-│   │   ├── ui/           # shadcn/ui primitives
-│   │   ├── blog/         # Blog-specific components
-│   │   └── layout/       # Navbar, Footer, etc.
-│   ├── config/           # Site configuration
-│   │   └── site.ts       # Centralized site config
-│   ├── lib/              # Utilities & content queries
-│   │   ├── content.ts    # Single content query entry
-│   │   └── utils.ts      # Shared utilities
-│   └── i18n/             # Internationalization setup
-├── content/              # MDX blog posts & notes
-│   ├── blog/
-│   └── notes/
-├── messages/             # i18n translation files
-│   ├── zh.json
-│   └── en.json
-├── public/               # Static assets
-├── docs/                 # Project documentation
-└── Dockerfile            # Multi-stage Docker build
-```
-
-## Documentation
-
-The [`docs/`](./docs/) directory contains comprehensive project documentation:
-
-- [Architecture Overview](./docs/00-architecture/overview.md) — System design, tech decisions, data flow
-- [Phase 1: MVP](./docs/01-phase1-mvp/) — Content system, layouts, blog pages, i18n
-- [Phase 2: UX](./docs/02-phase2-enhancement/) — Comments, search, sharing, series navigation
-- [Phase 3: SEO & Infra](./docs/03-phase3-seo-infra/) — SEO, analytics, CI/CD, Docker
-- [Phase 4: Advanced](./docs/04-phase4-advanced/) — Command palette, MDX components, notes
-
-## License
-
-MIT
 
 ---
 
 <p align="center">
-  Built with ❤️ by <a href="https://github.com/Finn7X">Finn7X</a>
+  <a href="https://github.com/Finn7X">Finn7X</a>
 </p>

@@ -24,7 +24,7 @@ export const siteConfig = {
   title: "Finn Days",
   description:
     "Exploring technology, sharing knowledge, and documenting my journey in web development",
-  url: "https://finndays.com",
+  url: "https://finn7x.com",
   author: {
     name: "Finn",
     bio: "全栈开发者，热爱开源技术和知识分享。专注于 React、Next.js 和现代 Web 开发。",

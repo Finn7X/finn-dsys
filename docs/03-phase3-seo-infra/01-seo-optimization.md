@@ -63,7 +63,7 @@ Root Layout (metadata)
 import type { Metadata } from "next";
 
 // 站点常量（建议统一放在 src/config/site.ts）
-const SITE_URL = "https://finndays.com";
+const SITE_URL = "https://finn7x.com";
 const SITE_NAME = "Finn Days";
 const SITE_DESCRIPTION =
   "Exploring technology, sharing knowledge, and documenting my journey in web development";
@@ -173,7 +173,7 @@ export const metadata: Metadata = {
 ```typescript
 export const siteConfig = {
   name: "Finn Days",
-  url: "https://finndays.com",
+  url: "https://finn7x.com",
   description:
     "Exploring technology, sharing knowledge, and documenting my journey in web development",
   author: {
@@ -703,13 +703,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://finndays.com</loc>
+    <loc>https://finn7x.com</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://finndays.com/blog/getting-started-with-nextjs</loc>
+    <loc>https://finn7x.com/blog/getting-started-with-nextjs</loc>
     <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -749,8 +749,8 @@ Allow: /
 Disallow: /api/
 Disallow: /_next/
 
-Sitemap: https://finndays.com/sitemap.xml
-Host: https://finndays.com
+Sitemap: https://finn7x.com/sitemap.xml
+Host: https://finn7x.com
 ```
 
 ### 3.11 Canonical URL
@@ -766,7 +766,7 @@ alternates: {
 }
 ```
 
-由于 `metadataBase` 已在根布局设置为 `https://finndays.com`，相对路径会自动补全为完整 URL。
+由于 `metadataBase` 已在根布局设置为 `https://finn7x.com`，相对路径会自动补全为完整 URL。
 
 ---
 

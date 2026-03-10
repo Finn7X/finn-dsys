@@ -2595,8 +2595,8 @@ curl http://localhost:3001/api/websites/{id}/stats?startAt=...&endAt=... \
 2. 点击 "New OAuth App"
 3. 填写信息：
    - Application name: `Finn Days Admin`
-   - Homepage URL: `https://finndays.com`
-   - Authorization callback URL: `https://finndays.com/api/auth/callback/github`
+   - Homepage URL: `https://finn7x.com`
+   - Authorization callback URL: `https://finn7x.com/api/auth/callback/github`
    - （本地开发：`http://localhost:3000/api/auth/callback/github`）
 4. 创建后获取 Client ID 和 Client Secret
 5. 填入 `.env.local` 的 `AUTH_GITHUB_ID` 和 `AUTH_GITHUB_SECRET`
@@ -2636,7 +2636,7 @@ UMAMI_USERNAME=admin                 # Umami 登录用户名
 UMAMI_PASSWORD=                      # Umami 登录密码
 
 # ── Umami 前端（已有） ──────────────────
-NEXT_PUBLIC_UMAMI_URL=https://analytics.finndays.com
+NEXT_PUBLIC_UMAMI_URL=https://analytics.finn7x.com
 NEXT_PUBLIC_UMAMI_ID=                # Umami Website ID
 ```
 

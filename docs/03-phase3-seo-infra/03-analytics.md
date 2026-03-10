@@ -138,7 +138,7 @@ UMAMI_DB_PASSWORD=your_strong_password_here
 UMAMI_APP_SECRET=your_random_secret_key_here
 
 # 博客端 Umami 集成
-NEXT_PUBLIC_UMAMI_URL=https://analytics.finndays.com
+NEXT_PUBLIC_UMAMI_URL=https://analytics.finn7x.com
 NEXT_PUBLIC_UMAMI_ID=your-website-id-here
 ```
 
@@ -177,7 +177,7 @@ docker compose up -d umami db
 2. 点击 "Add website"
 3. 填写信息：
    - Name: `Finn Days`
-   - Domain: `finndays.com`
+   - Domain: `finn7x.com`
 4. 保存后获取 `Website ID`（格式类似 `a1b2c3d4-e5f6-7890-abcd-ef1234567890`）
 5. 将此 ID 填入 `.env` 文件的 `NEXT_PUBLIC_UMAMI_ID`
 
@@ -242,7 +242,7 @@ export function UmamiAnalytics() {
       // 可选：自动追踪所有事件
       // data-auto-track="true"
       // 可选：追踪域名列表（逗号分隔）
-      // data-domains="finndays.com"
+      // data-domains="finn7x.com"
     />
   );
 }
@@ -291,7 +291,7 @@ NEXT_PUBLIC_UMAMI_URL=http://localhost:3001
 NEXT_PUBLIC_UMAMI_ID=local-test-id
 
 # .env.production（生产环境）
-NEXT_PUBLIC_UMAMI_URL=https://analytics.finndays.com
+NEXT_PUBLIC_UMAMI_URL=https://analytics.finn7x.com
 NEXT_PUBLIC_UMAMI_ID=production-website-id
 ```
 
@@ -552,10 +552,10 @@ GET /api/websites/{websiteId}/events
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name analytics.finndays.com;
+    server_name analytics.finn7x.com;
 
-    ssl_certificate /etc/letsencrypt/live/analytics.finndays.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/analytics.finndays.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/analytics.finn7x.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/analytics.finn7x.com/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:3001;
@@ -570,7 +570,7 @@ server {
 **Caddy 反向代理示例（更简单）：**
 
 ```
-analytics.finndays.com {
+analytics.finn7x.com {
     reverse_proxy localhost:3001
 }
 ```

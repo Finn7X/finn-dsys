@@ -910,8 +910,8 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 │  ┌──────────────────────────────────────────┐                            │
 │  │  Reverse Proxy (Nginx / Caddy)          │                            │
 │  │                                          │                            │
-│  │  blog.finndays.com  ──>  localhost:8200  │                            │
-│  │  umami.finndays.com ──>  localhost:3001  │                            │
+│  │  blog.finn7x.com  ──>  localhost:8200  │                            │
+│  │  umami.finn7x.com ──>  localhost:3001  │                            │
 │  │                                          │                            │
 │  │  + SSL/TLS (Let's Encrypt)              │                            │
 │  └──────────────────────────────────────────┘                            │

@@ -310,7 +310,7 @@ import Script from "next/script";
 
 // Umami 分析：空闲时加载
 <Script
-  src="https://analytics.finndays.com/script.js"
+  src="https://analytics.finn7x.com/script.js"
   data-website-id="xxx"
   strategy="lazyOnload"
 />
@@ -379,7 +379,7 @@ Next.js App Router 默认会将关键 CSS 内联到 HTML 中：
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name finndays.com;
+    server_name finn7x.com;
 
     location / {
         proxy_pass http://127.0.0.1:8200;

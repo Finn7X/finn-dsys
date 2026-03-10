@@ -277,7 +277,7 @@ blog:
 BLOG_PORT=8200
 
 # Umami 分析集成
-NEXT_PUBLIC_UMAMI_URL=https://analytics.finndays.com
+NEXT_PUBLIC_UMAMI_URL=https://analytics.finn7x.com
 NEXT_PUBLIC_UMAMI_ID=your-website-id-here
 
 # ---------- Umami 服务 ----------
@@ -562,10 +562,10 @@ services:
 # 博客
 server {
     listen 443 ssl http2;
-    server_name finndays.com;
+    server_name finn7x.com;
 
-    ssl_certificate /etc/letsencrypt/live/finndays.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/finndays.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/finn7x.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/finn7x.com/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:8200;
@@ -586,10 +586,10 @@ server {
 # Umami 分析
 server {
     listen 443 ssl http2;
-    server_name analytics.finndays.com;
+    server_name analytics.finn7x.com;
 
-    ssl_certificate /etc/letsencrypt/live/analytics.finndays.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/analytics.finndays.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/analytics.finn7x.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/analytics.finn7x.com/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:3001;
@@ -603,7 +603,7 @@ server {
 # HTTP 重定向到 HTTPS
 server {
     listen 80;
-    server_name finndays.com analytics.finndays.com;
+    server_name finn7x.com analytics.finn7x.com;
     return 301 https://$server_name$request_uri;
 }
 ```
@@ -611,11 +611,11 @@ server {
 **Caddy 配置（更简单，自动 HTTPS）：**
 
 ```
-finndays.com {
+finn7x.com {
     reverse_proxy localhost:8200
 }
 
-analytics.finndays.com {
+analytics.finn7x.com {
     reverse_proxy localhost:3001
 }
 ```

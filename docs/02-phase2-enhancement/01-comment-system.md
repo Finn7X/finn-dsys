@@ -103,7 +103,7 @@ npm install @giscus/react
 export const siteConfig = {
   title: "Finn Days",
   description: "Exploring technology, sharing knowledge, and documenting my journey in web development",
-  url: "https://finndays.com",
+  url: "https://finn7x.com",
   author: {
     name: "Finn",
     github: "https://github.com/your-username",

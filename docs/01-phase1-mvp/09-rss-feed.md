@@ -294,16 +294,16 @@ generateFeed() → 读取文章数据 → 生成 Feed
   xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Finn Days</title>
-    <link>https://finndays.com</link>
+    <link>https://finn7x.com</link>
     <description>Exploring technology, sharing knowledge...</description>
     <language>zh-CN</language>
     <lastBuildDate>Sat, 01 Mar 2025 00:00:00 GMT</lastBuildDate>
-    <atom:link href="https://finndays.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://finn7x.com/feed.xml" rel="self" type="application/rss+xml"/>
 
     <item>
       <title>Getting Started with Next.js</title>
-      <link>https://finndays.com/blog/getting-started-with-nextjs</link>
-      <guid>https://finndays.com/blog/getting-started-with-nextjs</guid>
+      <link>https://finn7x.com/blog/getting-started-with-nextjs</link>
+      <guid>https://finn7x.com/blog/getting-started-with-nextjs</guid>
       <pubDate>Sat, 01 Mar 2025 00:00:00 GMT</pubDate>
       <description>A comprehensive guide to building modern web applications...</description>
       <category>Next.js</category>
@@ -322,20 +322,20 @@ generateFeed() → 读取文章数据 → 生成 Feed
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Finn Days</title>
   <subtitle>Exploring technology, sharing knowledge...</subtitle>
-  <link href="https://finndays.com"/>
-  <link href="https://finndays.com/atom.xml" rel="self"/>
-  <id>https://finndays.com</id>
+  <link href="https://finn7x.com"/>
+  <link href="https://finn7x.com/atom.xml" rel="self"/>
+  <id>https://finn7x.com</id>
   <updated>2025-03-01T00:00:00.000Z</updated>
   <author>
     <name>Finn</name>
     <email>finn@example.com</email>
-    <uri>https://finndays.com</uri>
+    <uri>https://finn7x.com</uri>
   </author>
 
   <entry>
     <title>Getting Started with Next.js</title>
-    <link href="https://finndays.com/blog/getting-started-with-nextjs"/>
-    <id>https://finndays.com/blog/getting-started-with-nextjs</id>
+    <link href="https://finn7x.com/blog/getting-started-with-nextjs"/>
+    <id>https://finn7x.com/blog/getting-started-with-nextjs</id>
     <published>2025-03-01T00:00:00.000Z</published>
     <updated>2025-03-01T00:00:00.000Z</updated>
     <summary>A comprehensive guide to building modern web applications...</summary>
@@ -462,7 +462,7 @@ cat .next/server/app/atom.xml.body
 
 ## 注意事项
 
-1. **站点 URL 配置**：`siteConfig.url` 必须是完整的 URL（如 `https://finndays.com`），Feed 中所有链接都需要绝对 URL
+1. **站点 URL 配置**：`siteConfig.url` 必须是完整的 URL（如 `https://finn7x.com`），Feed 中所有链接都需要绝对 URL
 2. **构建时生成**：Feed 只在 `npm run build` 时生成，开发模式下每次请求实时生成（性能影响可忽略）
 3. **内容更新**：新增或修改文章后需要重新构建才能更新 Feed
 4. **Feed 大小**：如果文章数量很多（> 100 篇），可以考虑只输出最近的 20-50 篇

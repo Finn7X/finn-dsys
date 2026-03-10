@@ -411,15 +411,15 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Finn Days</title>
-    <link>https://finndays.com</link>
+    <link>https://finn7x.com</link>
     <description>博客与笔记</description>
-    <atom:link href="https://finndays.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://finn7x.com/feed.xml" rel="self" type="application/rss+xml"/>
     ${items
       .map(
         (item) => `
     <item>
       <title>${escapeXml(item.title)}</title>
-      <link>https://finndays.com${item.link}</link>
+      <link>https://finn7x.com${item.link}</link>
       <pubDate>${new Date(item.date).toUTCString()}</pubDate>
       <category>${item.type === "post" ? "博客" : "笔记"}</category>
       <description>${escapeXml(item.description)}</description>

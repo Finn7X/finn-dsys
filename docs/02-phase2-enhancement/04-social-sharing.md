@@ -61,14 +61,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: post.title,
       description: post.description,
-      url: `https://finndays.com/blog/${params.slug}`,
+      url: `https://finn7x.com/blog/${params.slug}`,
       siteName: "Finn Days",
       type: "article",
       publishedTime: post.date,
       authors: ["Finn"],
       images: [
         {
-          url: post.image || "https://finndays.com/og-default.png",
+          url: post.image || "https://finn7x.com/og-default.png",
           width: 1200,
           height: 630,
           alt: post.title,
@@ -79,7 +79,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
-      images: [post.image || "https://finndays.com/og-default.png"],
+      images: [post.image || "https://finn7x.com/og-default.png"],
       creator: "@your_twitter_handle",
     },
   };
