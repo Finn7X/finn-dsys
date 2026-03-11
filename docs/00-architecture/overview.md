@@ -1216,7 +1216,7 @@ export function PostCard({
 | # | 任务 | 预计工作量 | 前置依赖 | 产出 |
 |---|------|-----------|---------|------|
 | 2.1 | Giscus 评论系统 | 小 | Phase 1 | `components/blog/comments.tsx` |
-| 2.2 | Pagefind 搜索 | 中 | Phase 1 | `components/search/search-dialog.tsx` |
+| 2.2 | 客户端搜索 | 中 | Phase 1 | `components/search/search-dialog.tsx`, `lib/pagefind.ts` |
 | 2.3 | 阅读进度条 | 小 | Phase 1 | `components/blog/reading-progress.tsx` |
 | 2.4 | 社交分享按钮 | 小 | Phase 1 | `components/blog/share-buttons.tsx` |
 | 2.5 | 作者卡片 | 小 | Phase 1 | `components/blog/author-card.tsx` |
@@ -1328,13 +1328,13 @@ npm install -D @tailwindcss/typography
 
 ```bash
 npm install @giscus/react
-npm install -D pagefind
 ```
 
 | 包 | 估计体积 | 类型 |
 |----|---------|------|
 | @giscus/react | ~5KB | prod |
-| pagefind | ~2MB (CLI 工具) | dev |
+
+> **注意**：搜索功能采用了客户端数组过滤方案（利用 Velite 已有数据），而非最初规划的 Pagefind，因此无需安装 `pagefind` 依赖。如果未来文章数量增长到数百篇，可再考虑迁移到 Pagefind。
 
 #### Phase 3 新增
 
@@ -1398,7 +1398,7 @@ npm install cmdk @codesandbox/sandpack-react next-auth@beta recharts @monaco-edi
 | **CSS 最小化** | Tailwind CSS 自动 purge 未用类 | 已实现 |
 | **缓存策略** | 静态资源 immutable 缓存，页面 ISR | Phase 3 |
 | **预加载** | `<Link prefetch>` 预加载可见链接 | Phase 1 |
-| **搜索懒加载** | Pagefind 索引按需加载 | Phase 2 |
+| **搜索轻量化** | 客户端内存过滤，无额外索引加载 | Phase 2 |
 | **评论懒加载** | Giscus iframe 延迟加载 (IntersectionObserver) | Phase 2 |
 
 ### 14.4 性能预算
@@ -1425,4 +1425,4 @@ npm install cmdk @codesandbox/sandpack-react next-auth@beta recharts @monaco-edi
 
 *本文档是 Finn Days 项目的架构基线，所有后续开发应遵循本文档的设计决策。如需修改架构决策，应先更新本文档并记录变更原因。*
 
-*最后更新: 2026-03-09*
+*最后更新: 2026-03-12*

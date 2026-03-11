@@ -345,3 +345,29 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 3. **数据一致性**：作者信息集中在 `src/config/site.ts` 中管理，修改一处即可全站生效，避免在多个组件中硬编码
 4. **Server Component**：AuthorCard 组件不需要客户端交互，可以保持为 Server Component（不添加 `"use client"` 指令），这样可以在服务端渲染，减少客户端 JS 体积
 5. **多作者支持**：当前设计以单作者为主，但预留了通过 prop 传入作者信息的扩展接口，未来可以从文章 frontmatter 的 `author` 字段读取不同作者
+
+---
+
+## 实现状态
+
+> 本节记录实际实现与上述设计的差异，于 Phase 2 验收通过 (2026-03-12) 后补充。
+
+### 已完成
+
+- 作者卡片已上线，显示在文章底部（分享按钮下方）
+- 头像、姓名、简介、社交链接均正常
+
+### 与设计的差异
+
+| 项目 | 设计文档 | 实际实现 |
+|------|---------|---------|
+| 组件类型 | 普通组件 / Client Component | **async Server Component**，使用 `getTranslations("author")` |
+| 简介来源 | `siteConfig.author.bio`（硬编码中文） | `t("bio")` 从翻译文件获取，支持中英文 |
+| 页面路径 | `src/app/blog/[slug]/page.tsx` | `src/app/[locale]/blog/[slug]/page.tsx` |
+
+### 设计变更说明
+
+AuthorCard 改为 Server Component 的原因：
+- 组件本身无客户端交互（无 state、无 event handler）
+- 作为 Server Component 可以使用 `getTranslations()` (async API) 获取翻译
+- 减少客户端 JS 体积

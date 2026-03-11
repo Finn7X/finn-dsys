@@ -600,3 +600,44 @@ npx shadcn@latest add dialog input
 4. **搜索结果 URL**：Pagefind 返回的 URL 可能包含 `.html` 后缀或路径差异，需要在封装层中做路径映射处理
 5. **CSP 策略**：如果启用了 Content Security Policy，需要允许加载 `/_pagefind/` 目录下的 WASM 文件
 6. **多语言**：如果未来有英文文章，可以按语言分别建立索引，Pagefind 支持多语言索引
+
+---
+
+## 实现状态
+
+> 本节记录实际实现与上述设计的差异，于 Phase 2 验收通过 (2026-03-12) 后补充。
+
+### 已完成
+
+- 搜索功能已上线，支持 `Cmd/Ctrl + K` 快捷键唤起
+- 键盘导航、结果高亮、点击跳转均正常
+- 搜索 UI 已完成中英文国际化
+
+### 实际采用方案：客户端数组过滤
+
+实际实现采用了本文档中"渐进式方案：客户端数组过滤"而非 Pagefind。原因：
+
+- 当前文章数量较少（< 20 篇），客户端过滤性能足够
+- 无需构建时生成索引，简化了构建流程
+- Velite 已提供所有文章的结构化数据，可直接使用
+
+搜索逻辑实现在 `src/lib/pagefind.ts`（文件名保留但内容是客户端过滤），支持标题/描述/标签的加权匹配和关键词高亮。
+
+### 与设计的差异
+
+| 项目 | 设计文档 | 实际实现 |
+|------|---------|---------|
+| 搜索引擎 | Pagefind (WASM + 构建时索引) | 客户端数组过滤 (Velite 数据 + 内存匹配) |
+| 依赖 | `pagefind` (devDependency) | 无额外依赖 |
+| 构建脚本 | `next build && pagefind ...` | 标准 `next build` |
+| `SearchDialog` 签名 | 无参数 | 接收 `posts: SearchableItem[]` prop |
+| i18n | 无（硬编码中文） | 使用 `useTranslations("search")` 本地化所有 UI 文案 |
+| 页面路径 | `src/app/blog/[slug]/page.tsx` | `src/app/[locale]/blog/[slug]/page.tsx` |
+
+### 后续迁移路径
+
+如果文章数量增长到 100+ 篇或需要全文内容搜索，可按原设计迁移到 Pagefind：
+1. `npm install -D pagefind`
+2. 修改 `package.json` build 脚本
+3. 替换 `src/lib/pagefind.ts` 为 Pagefind 封装层
+4. `SearchDialog` 的 UI 和交互代码无需改动

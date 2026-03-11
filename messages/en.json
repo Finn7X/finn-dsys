@@ -89,6 +89,52 @@
         "notFoundDescription": "The page you are looking for does not exist",
         "switchLang": "中文"
     },
+    "search": {
+        "title": "Search Articles",
+        "description": "Enter keywords to search blog posts",
+        "placeholder": "Search articles...",
+        "button": "Search...",
+        "noResults": "No articles found",
+        "startSearching": "Enter keywords to start searching",
+        "navigate": "Navigate",
+        "open": "Open",
+        "close": "Close"
+    },
+    "share": {
+        "label": "Share:",
+        "twitter": "Share on Twitter",
+        "linkedin": "Share on LinkedIn",
+        "copyLink": "Copy link",
+        "linkCopied": "Link copied",
+        "moreOptions": "More share options"
+    },
+    "comments": {
+        "title": "Comments",
+        "comingSoon": "Comments feature coming soon, stay tuned."
+    },
+    "newsletter": {
+        "title": "Subscribe to Newsletter",
+        "heroDescription": "Get the latest articles delivered to your inbox. Never miss an update.",
+        "inlineDescription": "Weekly curated tech articles, delivered to your inbox. No spam, unsubscribe anytime.",
+        "emailLabel": "Email address",
+        "subscribe": "Subscribe",
+        "privacy": "We respect your privacy. Your email is only used to send the newsletter and will never be shared with third parties."
+    },
+    "series": {
+        "label": "Series",
+        "current": "Current",
+        "prev": "Previous",
+        "next": "Next"
+    },
+    "author": {
+        "bio": "Full-stack developer, passionate about open source and knowledge sharing. Focused on React, Next.js, and modern web development."
+    },
+    "reading": {
+        "progress": "Reading progress"
+    },
+    "fallback": {
+        "notice": "This article is not available in {targetLang}, showing {sourceLang} version."
+    },
     "footer": {
         "builtWith": "Built with {nextjs} and {tailwind}",
         "copyright": "© {year} Finn Days. All rights reserved.",

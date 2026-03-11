@@ -340,3 +340,21 @@ transition-[width] duration-150 ease-out
 3. **内存泄漏**：组件卸载时必须清除 scroll 和 resize 事件监听器以及 `requestAnimationFrame` 回调
 4. **SSR 兼容**：组件使用 `"use client"` 指令，所有 `window` 和 `document` 访问都在 `useEffect` 中，不会导致服务端渲染错误
 5. **打印优化**：可以在打印样式中隐藏进度条 `@media print { .reading-progress { display: none; } }`
+
+---
+
+## 实现状态
+
+> 本节记录实际实现与上述设计的差异，于 Phase 2 验收通过 (2026-03-12) 后补充。
+
+### 已完成
+
+- 阅读进度条已上线，使用 `requestAnimationFrame` 方案（推荐方案）
+- 仅在文章详情页显示
+
+### 与设计的差异
+
+| 项目 | 设计文档 | 实际实现 |
+|------|---------|---------|
+| `aria-label` | 硬编码 `"阅读进度"` | 使用 `useTranslations("reading")` 的 `t("progress")` 实现国际化 |
+| 页面路径 | `src/app/blog/[slug]/page.tsx` | `src/app/[locale]/blog/[slug]/page.tsx` |

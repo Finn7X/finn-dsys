@@ -545,3 +545,25 @@ tags:
 4. **向后兼容**：`series` 字段是可选的（`.optional()`），已有的不属于任何系列的文章无需修改 frontmatter
 5. **展开默认状态**：默认展开文章列表，让读者一眼看到系列全貌。如果系列文章数量超过一定数量（如 8 篇），可以考虑默认收起以减少视觉占用
 6. **SEO 增强**：可以考虑为系列添加 JSON-LD 结构化数据（`ItemList`），帮助搜索引擎理解文章之间的关联关系
+
+---
+
+## 实现状态
+
+> 本节记录实际实现与上述设计的差异，于 Phase 2 验收通过 (2026-03-12) 后补充。
+
+### 已完成
+
+- 系列导航已上线，文章详情页正文上方显示
+- 展开/收起、上一篇/下一篇、当前高亮均按设计实现
+- 测试数据：`nextjs-guide-part1` 和 `nextjs-guide-part2` 两篇系列文章
+
+### 与设计的差异
+
+| 项目 | 设计文档 | 实际实现 |
+|------|---------|---------|
+| 链接组件 | `import Link from "next/link"` | `import { Link } from "@/i18n/routing"` (locale-aware) |
+| UI 文案 | 硬编码中文（`系列文章`、`当前`、`上一篇`、`下一篇`） | 使用 `useTranslations("series")` 国际化 |
+| `getSeriesInfo` | `getSeriesInfo(title, slug)` 两个参数 | `getSeriesInfo(title, slug, locale?)` 三个参数，支持按 locale 过滤 |
+| 页面路径 | `src/app/blog/[slug]/page.tsx` | `src/app/[locale]/blog/[slug]/page.tsx` |
+| locale fallback | 无 | 文章详情页在 fallback 模式下使用 `contentLocale` 确保系列导航正确查询 |

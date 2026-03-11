@@ -10,7 +10,7 @@ export function generateFeed() {
         description: siteConfig.description,
         id: siteConfig.url,
         link: siteConfig.url,
-        language: "zh-CN",
+        language: "zh",
         image: `${siteConfig.url}/favicon.svg`,
         favicon: `${siteConfig.url}/favicon.svg`,
         copyright: `© ${new Date().getFullYear()} ${siteConfig.author.name}`,

@@ -1,0 +1,53 @@
+---
+title: "Next.js 入门指南（一）：项目搭建与基础概念"
+description: "从零开始创建 Next.js 项目，了解 App Router 的核心概念和文件系统路由"
+date: 2026-02-01
+tags:
+  - Next.js
+  - React
+  - 教程
+series:
+  title: "Next.js 入门指南"
+  order: 1
+locale: zh
+---
+
+# 项目搭建与基础概念
+
+Next.js 是一个基于 React 的全栈 Web 框架，它提供了服务端渲染、静态生成、API 路由等开箱即用的功能。
+
+## 创建项目
+
+使用 `create-next-app` 快速初始化项目：
+
+```bash
+npx create-next-app@latest my-app --typescript --tailwind --app
+```
+
+## App Router 核心概念
+
+App Router 是 Next.js 13+ 引入的新路由系统，基于文件系统约定：
+
+- `page.tsx` - 路由页面
+- `layout.tsx` - 共享布局
+- `loading.tsx` - 加载状态
+- `error.tsx` - 错误边界
+
+## 文件系统路由
+
+```
+app/
+├── page.tsx          → /
+├── about/
+│   └── page.tsx      → /about
+└── blog/
+    ├── page.tsx      → /blog
+    └── [slug]/
+        └── page.tsx  → /blog/:slug
+```
+
+每个目录中的 `page.tsx` 文件都会自动成为一个可访问的路由。
+
+## 小结
+
+本文介绍了 Next.js 项目的基本搭建流程和 App Router 的核心概念。在下一篇中，我们将深入了解路由系统和数据获取策略。

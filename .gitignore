@@ -13,6 +13,9 @@
 # velite
 .velite
 
+# Pagefind index (generated at build time)
+public/_pagefind/
+
 # production
 /build
 

@@ -5,8 +5,12 @@ import { DesktopNav } from "./desktop-nav"
 import { MobileNav } from "./mobile-nav"
 import { ThemeToggle } from "./theme-toggle"
 import { LanguageSwitcher } from "./language-switcher"
+import { SearchDialog } from "@/components/search/search-dialog"
+import { getSearchableContent } from "@/lib/search"
 
 export function Navbar() {
+    const searchPosts = getSearchableContent()
+
     return (
         <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
             <div className="container mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
@@ -29,6 +33,7 @@ export function Navbar() {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-1">
+                    <SearchDialog posts={searchPosts} />
                     <LanguageSwitcher />
                     <ThemeToggle />
                     <MobileNav />

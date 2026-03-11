@@ -454,3 +454,22 @@ npx shadcn@latest add toast
 3. **URL 编码**：使用 `URLSearchParams` 自动处理 URL 编码，避免手动拼接导致的编码问题
 4. **社交平台变更**：Twitter/X 和 LinkedIn 的分享 URL 格式偶尔会变更，需要定期检查是否仍然有效
 5. **分享统计**：如需统计分享次数，可以在分享事件中添加 Analytics 事件追踪（如 Google Analytics 的 event tracking）
+
+---
+
+## 实现状态
+
+> 本节记录实际实现与上述设计的差异，于 Phase 2 验收通过 (2026-03-12) 后补充。
+
+### 已完成
+
+- 分享按钮已上线：Twitter/X、LinkedIn、复制链接、原生分享（移动端）
+- 放置在文章底部（方案 A）
+
+### 与设计的差异
+
+| 项目 | 设计文档 | 实际实现 |
+|------|---------|---------|
+| UI 文案 | 硬编码中文（`分享：`、`分享到 Twitter` 等） | 使用 `useTranslations("share")` 国际化所有 label 和 aria-label |
+| `canNativeShare()` 调用 | 直接在 JSX 中调用 | 封装为 `useSyncExternalStore` hook (`useNativeShareSupport`)，避免 SSR 水合不匹配 |
+| 页面路径 | `src/app/blog/[slug]/page.tsx` | `src/app/[locale]/blog/[slug]/page.tsx` |

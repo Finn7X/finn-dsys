@@ -562,3 +562,22 @@ npx shadcn@latest add input
 4. **静态导出**：如果使用 `output: "export"` 静态导出模式，Server Action 不可用，需要改用方案 A（直接表单 action）或部署一个独立的 API 端点
 5. **环境变量验证**：在开发环境中如未配置 `BUTTONDOWN_API_KEY`，表单提交应返回友好提示而非崩溃
 6. **邮件内容**：可以在 Buttondown 后台配置欢迎邮件模板，新订阅者确认后自动收到欢迎邮件
+
+---
+
+## 实现状态
+
+> 本节记录实际实现与上述设计的差异，于 Phase 2 验收通过 (2026-03-12) 后补充。
+
+### 已完成
+
+- Newsletter 组件已上线，支持 `inline` 和 `hero` 两种 variant
+- Server Action 后端逻辑已就绪
+- 放置在文章底部（作者卡片下方、评论区上方）
+
+### 与设计的差异
+
+| 项目 | 设计文档 | 实际实现 |
+|------|---------|---------|
+| UI 文案 | 硬编码中文 | 使用 `useTranslations("newsletter")` 国际化所有文案 |
+| 页面路径 | `src/app/blog/[slug]/page.tsx` | `src/app/[locale]/blog/[slug]/page.tsx` |

@@ -1,0 +1,67 @@
+---
+title: "Next.js 入门指南（二）：路由与数据获取"
+description: "深入理解 App Router 的路由系统、动态路由和服务端数据获取策略"
+date: 2026-02-08
+tags:
+  - Next.js
+  - React
+  - 教程
+series:
+  title: "Next.js 入门指南"
+  order: 2
+locale: zh
+---
+
+# 路由与数据获取
+
+在上一篇中我们了解了 Next.js 的基础概念，本文将深入路由系统和数据获取。
+
+## 动态路由
+
+使用方括号语法定义动态路由参数：
+
+```typescript
+// app/blog/[slug]/page.tsx
+export default async function BlogPost({
+    params,
+}: {
+    params: Promise<{ slug: string }>
+}) {
+    const { slug } = await params
+    // 根据 slug 获取文章数据
+    return <article>...</article>
+}
+```
+
+## 数据获取
+
+App Router 中的组件默认是 Server Components，可以直接使用 async/await 获取数据：
+
+```typescript
+async function getData() {
+    const res = await fetch("https://api.example.com/data")
+    return res.json()
+}
+
+export default async function Page() {
+    const data = await getData()
+    return <div>{data.title}</div>
+}
+```
+
+## 静态参数生成
+
+使用 `generateStaticParams` 在构建时预生成页面：
+
+```typescript
+export async function generateStaticParams() {
+    const posts = await getAllPosts()
+    return posts.map((post) => ({
+        slug: post.slug,
+    }))
+}
+```
+
+## 小结
+
+本文介绍了 Next.js 的动态路由和数据获取模式。掌握这些核心概念后，你就可以构建功能丰富的全栈应用了。

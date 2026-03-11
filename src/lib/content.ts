@@ -109,6 +109,73 @@ export function getTranslation(
     )
 }
 
+// --- Series ---
+
+interface SeriesPostInfo {
+    title: string
+    slug: string
+    date: string
+    order: number
+}
+
+interface SeriesInfo {
+    title: string
+    posts: SeriesPostInfo[]
+    currentIndex: number
+    prevPost: SeriesPostInfo | null
+    nextPost: SeriesPostInfo | null
+}
+
+export function getSeriesInfo(
+    seriesTitle: string,
+    currentSlug: string,
+    locale?: string,
+): SeriesInfo | null {
+    const seriesPosts = getAllPosts(locale)
+        .filter((post) => post.series?.title === seriesTitle)
+        .sort((a, b) => (a.series?.order ?? 0) - (b.series?.order ?? 0))
+        .map((post) => ({
+            title: post.title,
+            slug: post.slugAsParams,
+            date: post.date,
+            order: post.series!.order,
+        }))
+
+    if (seriesPosts.length === 0) return null
+
+    const currentIndex = seriesPosts.findIndex(
+        (post) => post.slug === currentSlug,
+    )
+
+    return {
+        title: seriesTitle,
+        posts: seriesPosts,
+        currentIndex,
+        prevPost: currentIndex > 0 ? seriesPosts[currentIndex - 1] : null,
+        nextPost:
+            currentIndex < seriesPosts.length - 1
+                ? seriesPosts[currentIndex + 1]
+                : null,
+    }
+}
+
+export function getAllSeries(locale?: string): { title: string; postCount: number }[] {
+    const seriesMap = new Map<string, number>()
+
+    getAllPosts(locale).forEach((post) => {
+        if (post.series?.title) {
+            seriesMap.set(
+                post.series.title,
+                (seriesMap.get(post.series.title) || 0) + 1,
+            )
+        }
+    })
+
+    return Array.from(seriesMap.entries())
+        .map(([title, postCount]) => ({ title, postCount }))
+        .sort((a, b) => a.title.localeCompare(b.title))
+}
+
 // --- Projects ---
 
 export function getAllProjects() {

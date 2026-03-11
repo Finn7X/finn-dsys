@@ -89,6 +89,52 @@
         "notFoundDescription": "你访问的页面不存在",
         "switchLang": "English"
     },
+    "search": {
+        "title": "搜索文章",
+        "description": "输入关键词搜索博客文章",
+        "placeholder": "搜索文章...",
+        "button": "搜索...",
+        "noResults": "未找到相关文章",
+        "startSearching": "输入关键词开始搜索",
+        "navigate": "导航",
+        "open": "打开",
+        "close": "关闭"
+    },
+    "share": {
+        "label": "分享：",
+        "twitter": "分享到 Twitter",
+        "linkedin": "分享到 LinkedIn",
+        "copyLink": "复制链接",
+        "linkCopied": "已复制",
+        "moreOptions": "更多分享选项"
+    },
+    "comments": {
+        "title": "评论",
+        "comingSoon": "评论功能即将上线，敬请期待。"
+    },
+    "newsletter": {
+        "title": "订阅 Newsletter",
+        "heroDescription": "获取最新文章推送，不错过任何更新。",
+        "inlineDescription": "每周精选技术文章，直达你的收件箱。不发垃圾邮件，随时退订。",
+        "emailLabel": "邮箱地址",
+        "subscribe": "订阅",
+        "privacy": "我们尊重你的隐私，邮箱信息仅用于发送 Newsletter，不会分享给第三方。"
+    },
+    "series": {
+        "label": "系列文章",
+        "current": "当前",
+        "prev": "上一篇",
+        "next": "下一篇"
+    },
+    "author": {
+        "bio": "全栈开发者，热爱开源技术和知识分享。专注于 React、Next.js 和现代 Web 开发。"
+    },
+    "reading": {
+        "progress": "阅读进度"
+    },
+    "fallback": {
+        "notice": "本文暂无 {targetLang} 版本，当前显示 {sourceLang} 版本。"
+    },
     "footer": {
         "builtWith": "使用 {nextjs} 和 {tailwind} 构建",
         "copyright": "© {year} Finn Days. All rights reserved.",

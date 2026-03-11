@@ -372,3 +372,27 @@ export function Comments() {
 3. **评论迁移**：如果未来需要更换评论系统，可以导出 GitHub Discussions 数据进行迁移
 4. **rate limiting**：GitHub API 有请求频率限制，高流量时可能影响评论加载，但对于个人博客场景通常不会触达限制
 5. **自定义主题**：如需深度自定义评论区样式，可以创建自定义 CSS 文件并托管在博客域名下，通过 `theme` 参数传入 CSS URL
+
+---
+
+## 实现状态
+
+> 本节记录实际实现与上述设计的差异，于 Phase 2 验收通过 (2026-03-12) 后补充。
+
+### 已完成
+
+- Giscus 已接入并上线，评论组件渲染真实 `giscus-widget`
+- 暗色模式同步、IntersectionObserver 懒加载均按设计实现
+- GitHub App 已安装到仓库 `Finn7X/finn-dsys`，Discussions 已启用
+
+### 与设计的差异
+
+| 项目 | 设计文档 | 实际实现 |
+|------|---------|---------|
+| 仓库 | `your-username/finn-days` (占位) | `Finn7X/finn-dsys` |
+| Discussion 分类 | `Blog Comments` (Announcements) | `General` (使用仓库默认分类) |
+| `lang` 字段 | 写死 `"zh-CN"` | 移除硬编码，改为根据 `useLocale()` 动态设置 (`zh-CN` / `en`) |
+| 挂载检测 | `useState` + `useEffect` | `useSyncExternalStore` (更符合 React 18+ 并发模式) |
+| i18n | 无（硬编码中文） | 使用 `useTranslations("comments")` 本地化标题和降级文案 |
+| 配置降级 | 无 | 新增 `isGiscusConfigured` 检查，配置为占位值时显示友好提示 |
+| 页面路径 | `src/app/blog/[slug]/page.tsx` | `src/app/[locale]/blog/[slug]/page.tsx` (locale 路由) |
