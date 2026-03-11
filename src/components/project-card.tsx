@@ -1,4 +1,5 @@
 import Image from "next/image"
+import { useLocale, useTranslations } from "next-intl"
 import { Github, ExternalLink, Star } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -25,6 +26,10 @@ export function ProjectCard({
     tags,
     featured,
 }: ProjectCardProps) {
+    const locale = useLocale()
+    const t = useTranslations("projects")
+    const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
+
     return (
         <Card
             className={cn(
@@ -45,7 +50,7 @@ export function ProjectCard({
                     {featured && (
                         <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
                             <Star className="h-3 w-3" />
-                            Featured
+                            {t("featuredBadge")}
                         </div>
                     )}
                 </div>
@@ -54,7 +59,7 @@ export function ProjectCard({
             <CardContent className="pt-6">
                 {/* Date */}
                 <p className="mb-2 text-sm text-muted-foreground">
-                    {new Date(date).toLocaleDateString("zh-CN", {
+                    {new Date(date).toLocaleDateString(dateLocale, {
                         year: "numeric",
                         month: "long",
                     })}
@@ -92,7 +97,7 @@ export function ProjectCard({
                                 rel="noopener noreferrer"
                             >
                                 <Github className="mr-1.5 h-3.5 w-3.5" />
-                                Source
+                                {t("viewSource")}
                             </a>
                         </Button>
                     )}
@@ -104,7 +109,7 @@ export function ProjectCard({
                                 rel="noopener noreferrer"
                             >
                                 <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                                Demo
+                                {t("viewDemo")}
                             </a>
                         </Button>
                     )}

@@ -3,14 +3,15 @@ import { notFound } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { getPostsByTag, getTagSlugs } from "@/lib/content"
+import { tagToSlug, slugToTag } from "@/lib/tag-utils"
 import { PostCard } from "@/components/post-card"
 import { ChevronRight } from "lucide-react"
 
 export function generateStaticParams() {
     const tags = getTagSlugs()
     return tags.flatMap((tag) => [
-        { locale: "zh", tag: encodeURIComponent(tag) },
-        { locale: "en", tag: encodeURIComponent(tag) },
+        { locale: "zh", tag: tagToSlug(tag) },
+        { locale: "en", tag: tagToSlug(tag) },
     ])
 }
 
@@ -20,9 +21,10 @@ export async function generateMetadata({
     params: Promise<{ tag: string }>
 }): Promise<Metadata> {
     const { tag } = await params
-    const decodedTag = decodeURIComponent(tag)
+    const allTagNames = getTagSlugs()
+    const originalTag = slugToTag(tag, allTagNames)
     return {
-        title: `${decodedTag} - Tags`,
+        title: `${originalTag ?? tag} - Tags`,
     }
 }
 
@@ -32,16 +34,20 @@ export default async function TagPage({
     params: Promise<{ locale: string; tag: string }>
 }) {
     const { locale, tag } = await params
-    const decodedTag = decodeURIComponent(tag)
-    const posts = getPostsByTag(decodedTag, locale)
+    const allTagNames = getTagSlugs()
+    const originalTag = slugToTag(tag, allTagNames)
+
+    if (!originalTag) notFound()
+
+    const posts = getPostsByTag(originalTag, locale)
 
     if (posts.length === 0) {
         // Check if the tag exists at all (in any locale)
-        const allLocalePosts = getPostsByTag(decodedTag)
+        const allLocalePosts = getPostsByTag(originalTag)
         if (allLocalePosts.length === 0) notFound()
     }
 
-    return <TagContent tag={decodedTag} posts={posts} />
+    return <TagContent tag={originalTag} posts={posts} />
 }
 
 function TagContent({

@@ -1,4 +1,5 @@
 import Image from "next/image"
+import { useLocale } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock } from "lucide-react"
@@ -25,6 +26,9 @@ export function PostCard({
     cover,
     className,
 }: PostCardProps) {
+    const locale = useLocale()
+    const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
+
     return (
         <Link href={`/blog/${slug}`}>
             <Card
@@ -51,7 +55,7 @@ export function PostCard({
                     <div className="mb-2 flex items-center gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5" />
-                            {new Date(date).toLocaleDateString("zh-CN")}
+                            {new Date(date).toLocaleDateString(dateLocale)}
                         </span>
                         <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5" />

@@ -1,5 +1,5 @@
 import Image from "next/image"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { siteConfig } from "@/config/site"
 import { DesktopNav } from "./desktop-nav"
 import { MobileNav } from "./mobile-nav"
@@ -13,7 +13,7 @@ export function Navbar() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
                     <Image
-                        src="/favicon/favicon.svg"
+                        src="/favicon.svg"
                         alt="Logo"
                         width={28}
                         height={28}

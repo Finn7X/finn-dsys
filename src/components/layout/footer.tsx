@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { Github, Twitter, Mail, Rss } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { siteConfig, navLinks } from "@/config/site"

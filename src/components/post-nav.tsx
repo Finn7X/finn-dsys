@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -7,6 +8,8 @@ interface PostNavProps {
 }
 
 export function PostNav({ prev, next }: PostNavProps) {
+    const t = useTranslations("blog")
+
     if (!prev && !next) return null
 
     return (
@@ -18,7 +21,7 @@ export function PostNav({ prev, next }: PostNavProps) {
                 >
                     <ChevronLeft className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <div>
-                        <p className="text-xs text-muted-foreground">上一篇</p>
+                        <p className="text-xs text-muted-foreground">{t("prev")}</p>
                         <p className="line-clamp-2 text-sm font-medium group-hover:text-primary">
                             {prev.title}
                         </p>
@@ -33,7 +36,7 @@ export function PostNav({ prev, next }: PostNavProps) {
                     className="group flex items-start justify-end gap-2 rounded-lg border p-4 text-right transition-colors hover:bg-accent"
                 >
                     <div>
-                        <p className="text-xs text-muted-foreground">下一篇</p>
+                        <p className="text-xs text-muted-foreground">{t("next")}</p>
                         <p className="line-clamp-2 text-sm font-medium group-hover:text-primary">
                             {next.title}
                         </p>

@@ -8,8 +8,8 @@
 
 ## 技术方案
 
-- **标签索引页路由**：`/tags` -> `src/app/tags/page.tsx`
-- **标签筛选页路由**：`/tags/[tag]` -> `src/app/tags/[tag]/page.tsx`
+- **标签索引页路由**：`/[locale]/tags` -> `src/app/[locale]/tags/page.tsx`
+- **标签筛选页路由**：`/[locale]/tags/[tag]` -> `src/app/[locale]/tags/[tag]/page.tsx`
 - **数据来源**：从 Velite 编译后的文章数据中提取 `tags` 字段，聚合统计
 - **静态生成**：使用 `generateStaticParams` 预渲染所有标签页
 - **渲染方式**：Server Components
@@ -124,12 +124,12 @@ export function getPostsByTag(tag: string) {
 └─────────────────────────────────────────┘
 ```
 
-### `src/app/tags/page.tsx`
+### `src/app/[locale]/tags/page.tsx`
 
 ```typescript
-// src/app/tags/page.tsx
+// src/app/[locale]/tags/page.tsx
 import type { Metadata } from "next"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { Tag } from "lucide-react"
 import { getAllTags } from "@/lib/content"
 import { tagToSlug } from "@/lib/tag-utils"
@@ -253,12 +253,12 @@ export default function TagsPage() {
 └─────────────────────────────────────────┘
 ```
 
-### `src/app/tags/[tag]/page.tsx`
+### `src/app/[locale]/tags/[tag]/page.tsx`
 
 ```typescript
-// src/app/tags/[tag]/page.tsx
+// src/app/[locale]/tags/[tag]/page.tsx
 import type { Metadata } from "next"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { notFound } from "next/navigation"
 import { ChevronRight } from "lucide-react"
 import { getAllTags, getPostsByTag, getTagSlugs } from "@/lib/content"
@@ -271,12 +271,13 @@ interface TagPageProps {
   }>
 }
 
-// 静态生成所有标签页
-export async function generateStaticParams() {
+// 静态生成所有标签页（含 locale 变体）
+export function generateStaticParams() {
   const tags = getTagSlugs()
-  return tags.map((tag) => ({
-    tag: tagToSlug(tag),
-  }))
+  return tags.flatMap((tag) => [
+    { locale: "zh", tag: tagToSlug(tag) },
+    { locale: "en", tag: tagToSlug(tag) },
+  ])
 }
 
 // 动态 SEO metadata
@@ -389,7 +390,7 @@ export default async function TagPage({ params }: TagPageProps) {
 
 ```typescript
 // src/components/tag-badge.tsx
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { tagToSlug } from "@/lib/tag-utils"
 import { cn } from "@/lib/utils"
 
@@ -468,20 +469,21 @@ export function TagBadge({
 ## generateStaticParams（预渲染所有标签页）
 
 ```typescript
-// src/app/tags/[tag]/page.tsx
-export async function generateStaticParams() {
+// src/app/[locale]/tags/[tag]/page.tsx
+export function generateStaticParams() {
   const tags = getTagSlugs()
-  return tags.map((tag) => ({
-    tag: tagToSlug(tag),
-  }))
+  return tags.flatMap((tag) => [
+    { locale: "zh", tag: tagToSlug(tag) },
+    { locale: "en", tag: tagToSlug(tag) },
+  ])
 }
 ```
 
 **工作流程**：
 
 1. 构建时调用 `getTagSlugs()` 获取所有唯一标签名
-2. 将每个标签名转为 URL slug
-3. Next.js 为每个 slug 生成静态 HTML 页面
+2. 将每个标签名转为 URL slug，并为每个 locale（zh/en）生成变体
+3. Next.js 为每个 locale + slug 组合生成静态 HTML 页面
 4. 访问时直接返回预渲染的 HTML，无需服务端计算
 
 ## 标签命名规范
@@ -525,8 +527,8 @@ export function getPostsByTag(tag: string) {
 
 | 文件路径 | 说明 |
 |----------|------|
-| `src/app/tags/page.tsx` | 标签索引页 |
-| `src/app/tags/[tag]/page.tsx` | 标签筛选页 |
+| `src/app/[locale]/tags/page.tsx` | 标签索引页 |
+| `src/app/[locale]/tags/[tag]/page.tsx` | 标签筛选页 |
 | `src/components/tag-badge.tsx` | 标签 Badge 组件 |
 | `src/components/post-card.tsx` | 文章卡片组件（复用，已在博客列表页定义） |
 | `src/lib/tag-utils.ts` | 标签工具函数（slug 转换） |
@@ -536,7 +538,7 @@ export function getPostsByTag(tag: string) {
 
 无需新增依赖。使用的组件和工具均已在项目中：
 
-- `next/link` — 路由链接
+- `@/i18n/routing` — i18n 路由链接（`Link` 组件，自动保留 locale 前缀）
 - `lucide-react` — 图标（Tag, ChevronRight）
 - `@/components/ui/button` — 按钮组件（可选）
 - `@/lib/utils` — cn 工具函数

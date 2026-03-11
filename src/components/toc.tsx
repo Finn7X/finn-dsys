@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 
 interface TocItem {
@@ -14,6 +15,7 @@ interface TocProps {
 }
 
 export function Toc({ items }: TocProps) {
+    const t = useTranslations("blog")
     const [activeId, setActiveId] = useState<string>("")
 
     useEffect(() => {
@@ -45,7 +47,7 @@ export function Toc({ items }: TocProps) {
     return (
         <nav className="hidden xl:block">
             <div className="sticky top-20">
-                <h4 className="mb-3 text-sm font-semibold">目录</h4>
+                <h4 className="mb-3 text-sm font-semibold">{t("toc")}</h4>
                 <TocList items={items} activeId={activeId} depth={0} />
             </div>
         </nav>

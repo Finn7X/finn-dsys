@@ -50,35 +50,40 @@ export function ThemeProvider({
 
 `next-themes` 的 `ThemeProvider` 使用了 React Context（`createContext`），必须在 Client Component 中使用。通过创建一个独立的 `'use client'` 包装组件，避免在 `layout.tsx`（Server Component）中直接标记 `'use client'`。
 
-### 步骤 3：在 layout.tsx 中集成
+### 步骤 3：在 locale layout 中集成
+
+由于项目使用 `next-intl` 国际化，`<html>` 和 `<body>` 位于 `src/app/[locale]/layout.tsx`（Root Layout 为纯 passthrough）：
 
 ```typescript
-// src/app/layout.tsx
+// src/app/[locale]/layout.tsx
 import { ThemeProvider } from "@/components/layout/theme-provider"
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
-}: Readonly<{
+  params,
+}: {
   children: React.ReactNode
-}>) {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  // ...
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative flex min-h-screen flex-col">
-            {/* Navbar, main, Footer */}
-          </div>
-        </ThemeProvider>
+    <html lang={locale} suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <div className="relative flex min-h-screen flex-col">
+              {/* Navbar, main, Footer */}
+            </div>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )
 }
 ```
+
+> **注意**：`lang` 属性使用动态的 `{locale}` 而非硬编码 `"zh-CN"`，确保不同语言页面的 HTML lang 属性正确。
 
 ### ThemeProvider 配置参数详解
 
@@ -102,7 +107,7 @@ export default function RootLayout({
 #### 1. `suppressHydrationWarning`
 
 ```html
-<html lang="zh-CN" suppressHydrationWarning>
+<html lang={locale} suppressHydrationWarning>
 ```
 
 **必须添加在 `<html>` 标签上**。`next-themes` 会在服务端和客户端渲染不同的 `class` 属性值，`suppressHydrationWarning` 告诉 React 忽略这个不匹配。
@@ -139,77 +144,51 @@ export default function RootLayout({
 // src/components/layout/theme-toggle.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { useTheme } from 'next-themes'
 import { Sun, Moon, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+
+const emptySubscribe = () => () => {}
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  // 只在客户端渲染后显示，避免水化不匹配
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // 三态循环：light → dark → system
-  const cycleTheme = () => {
-    if (theme === 'light') {
-      setTheme('dark')
-    } else if (theme === 'dark') {
-      setTheme('system')
-    } else {
-      setTheme('light')
-    }
-  }
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
+  const { theme, setTheme } = useTheme()
 
   // 未挂载时显示占位按钮（避免布局跳动）
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" className="h-9 w-9" disabled>
+      <Button variant="ghost" size="icon" aria-label="Toggle theme">
         <Sun className="h-4 w-4" />
-        <span className="sr-only">切换主题</span>
       </Button>
     )
   }
 
-  // 获取当前图标
-  const getIcon = () => {
-    if (theme === 'system') {
-      return <Monitor className="h-4 w-4" />
-    }
-    if (resolvedTheme === 'dark') {
-      return <Moon className="h-4 w-4" />
-    }
-    return <Sun className="h-4 w-4" />
-  }
-
-  // 获取当前标签
-  const getLabel = () => {
-    switch (theme) {
-      case 'light': return '亮色模式'
-      case 'dark': return '暗色模式'
-      default: return '跟随系统'
-    }
+  // 三态循环：light → dark → system
+  const cycleTheme = () => {
+    if (theme === 'light') setTheme('dark')
+    else if (theme === 'dark') setTheme('system')
+    else setTheme('light')
   }
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="h-9 w-9"
       onClick={cycleTheme}
-      aria-label={getLabel()}
-      title={getLabel()}
+      aria-label="Toggle theme"
     >
-      {getIcon()}
-      <span className="sr-only">{getLabel()}</span>
+      {theme === 'light' && <Sun className="h-4 w-4" />}
+      {theme === 'dark' && <Moon className="h-4 w-4" />}
+      {theme === 'system' && <Monitor className="h-4 w-4" />}
     </Button>
   )
 }
 ```
+
+> **为什么使用 `useSyncExternalStore` 而非 `useState` + `useEffect`？**
+>
+> ESLint 的 `react-hooks/set-state-in-effect` 规则不允许在 `useEffect` 中调用 `setState`（如 `useEffect(() => setMounted(true), [])`）。`useSyncExternalStore` 的第三个参数（`getServerSnapshot`）返回 `false`，客户端返回 `true`，优雅地实现了 mounted 检测。
 
 ### 动画过渡效果（可选增强）
 
@@ -296,11 +275,12 @@ export function ThemeToggle() {
 ### 为什么需要 mounted 检查？
 
 ```typescript
-const [mounted, setMounted] = useState(false)
-useEffect(() => { setMounted(true) }, [])
+const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
 ```
 
-因为 `useTheme()` 返回的 `theme` 值在服务端和客户端可能不同（服务端不知道用户选了什么主题），直接渲染会导致水化不匹配。通过 `mounted` 状态确保只在客户端渲染后才显示真实的主题图标。
+因为 `useTheme()` 返回的 `theme` 值在服务端和客户端可能不同（服务端不知道用户选了什么主题），直接渲染会导致水化不匹配。通过 `useSyncExternalStore` 的 `getServerSnapshot`（返回 `false`）和 `getSnapshot`（返回 `true`）确保只在客户端渲染后才显示真实的主题图标。
+
+> **注意**：不使用 `useState` + `useEffect` 模式（如 `useEffect(() => setMounted(true), [])`），因为 ESLint 的 `react-hooks/set-state-in-effect` 规则会报错。
 
 ## CSS 变量映射
 
@@ -505,15 +485,18 @@ npm install next-themes
 
 创建 `src/components/layout/theme-toggle.tsx`（见上方代码）
 
-### 步骤 4：修改 layout.tsx
+### 步骤 4：修改 locale layout
 
 ```typescript
+// src/app/[locale]/layout.tsx
 // 添加 suppressHydrationWarning 和 ThemeProvider
-<html lang="zh-CN" suppressHydrationWarning>
+<html lang={locale} suppressHydrationWarning>
   <body>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      {/* ... */}
-    </ThemeProvider>
+    <NextIntlClientProvider messages={messages}>
+      <ThemeProvider>
+        {/* ... */}
+      </ThemeProvider>
+    </NextIntlClientProvider>
   </body>
 </html>
 ```
@@ -549,7 +532,7 @@ import { ThemeToggle } from "./theme-toggle"
 |----------|------|
 | `src/components/layout/theme-provider.tsx` | 新建：ThemeProvider 包装组件 |
 | `src/components/layout/theme-toggle.tsx` | 新建：主题切换按钮组件 |
-| `src/app/layout.tsx` | 修改：集成 ThemeProvider，添加 suppressHydrationWarning |
+| `src/app/[locale]/layout.tsx` | 修改：集成 ThemeProvider，添加 suppressHydrationWarning，动态 lang={locale} |
 | `src/components/layout/navbar.tsx` | 修改：集成 ThemeToggle |
 | `src/app/globals.css` | 修改：添加代码高亮暗色模式 CSS |
 
@@ -598,7 +581,7 @@ import { ThemeToggle } from "./theme-toggle"
 
 1. **`suppressHydrationWarning` 的位置**：必须放在 `<html>` 标签上，不是 `<body>`
 2. **不要在 Server Component 中使用 `useTheme`**：`useTheme` 是 Client Component 专属的 hook
-3. **mounted 检查**：ThemeToggle 必须在客户端挂载后才渲染真实图标
+3. **mounted 检查**：ThemeToggle 使用 `useSyncExternalStore` 检测挂载状态，避免 ESLint `react-hooks/set-state-in-effect` 报错
 4. **`disableTransitionOnChange`**：建议启用，否则切换主题时所有有 `transition` 的元素会闪烁
 5. **CSS 变量 vs dark: 变体**：优先使用 CSS 变量类（`bg-background`），只在需要自定义暗色效果时使用 `dark:` 变体
 6. **Tailwind CSS 4 的 dark 变体配置**：已在 `globals.css` 中通过 `@custom-variant dark (&:is(.dark *))` 配置，确保 `.dark` 类在 `<html>` 上时所有子元素都能响应 `dark:` 变体

@@ -6,7 +6,7 @@
     "dev": "velite --watch & next dev --turbopack",
     "build": "velite && next build",
     "start": "next start -p 8200",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",

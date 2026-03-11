@@ -1,4 +1,6 @@
+import { useLocale } from "next-intl"
 import { Link } from "@/i18n/routing"
+import { tagToSlug } from "@/lib/tag-utils"
 import { Calendar, Clock, RotateCw } from "lucide-react"
 
 interface PostHeaderProps {
@@ -16,6 +18,9 @@ export function PostHeader({
     readingTime,
     tags,
 }: PostHeaderProps) {
+    const locale = useLocale()
+    const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
+
     return (
         <header className="mb-8">
             <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -26,7 +31,7 @@ export function PostHeader({
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    {new Date(date).toLocaleDateString("zh-CN", {
+                    {new Date(date).toLocaleDateString(dateLocale, {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -35,7 +40,7 @@ export function PostHeader({
                 {updated && (
                     <span className="flex items-center gap-1">
                         <RotateCw className="h-3.5 w-3.5" />
-                        {new Date(updated).toLocaleDateString("zh-CN", {
+                        {new Date(updated).toLocaleDateString(dateLocale, {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
@@ -54,7 +59,7 @@ export function PostHeader({
                     {tags.map((tag) => (
                         <Link
                             key={tag}
-                            href={`/tags/${encodeURIComponent(tag)}`}
+                            href={`/tags/${tagToSlug(tag)}`}
                             className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
                         >
                             {tag}

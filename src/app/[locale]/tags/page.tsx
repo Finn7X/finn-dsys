@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { getAllTags, getAllPosts } from "@/lib/content"
+import { tagToSlug } from "@/lib/tag-utils"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
@@ -56,7 +57,7 @@ function TagsContent({
                         return (
                             <Link
                                 key={tag}
-                                href={`/tags/${encodeURIComponent(tag)}`}
+                                href={`/tags/${tagToSlug(tag)}`}
                                 className={cn(
                                     "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition-all hover:-translate-y-0.5 hover:shadow-md",
                                     "bg-secondary text-secondary-foreground hover:bg-secondary/80",

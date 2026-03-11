@@ -11,8 +11,8 @@ export function generateFeed() {
         id: siteConfig.url,
         link: siteConfig.url,
         language: "zh-CN",
-        image: `${siteConfig.url}/favicon/favicon.svg`,
-        favicon: `${siteConfig.url}/favicon/favicon.svg`,
+        image: `${siteConfig.url}/favicon.svg`,
+        favicon: `${siteConfig.url}/favicon.svg`,
         copyright: `© ${new Date().getFullYear()} ${siteConfig.author.name}`,
         updated: posts.length > 0 ? new Date(posts[0].date) : new Date(),
         feedLinks: {

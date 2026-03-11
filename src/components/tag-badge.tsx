@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/routing"
+import { tagToSlug } from "@/lib/tag-utils"
 import { cn } from "@/lib/utils"
 
 interface TagBadgeProps {
@@ -26,7 +27,7 @@ export function TagBadge({
     if (linked) {
         return (
             <Link
-                href={`/tags/${encodeURIComponent(tag)}`}
+                href={`/tags/${tagToSlug(tag)}`}
                 className={className}
             >
                 {tag}

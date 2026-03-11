@@ -144,43 +144,40 @@ export const socialLinks = [
 
 ```typescript
 // src/components/layout/navbar.tsx
-import Link from "next/link"
 import Image from "next/image"
-import { siteConfig, navLinks } from "@/config/site"
+import { Link } from "@/i18n/routing"
+import { siteConfig } from "@/config/site"
+import { DesktopNav } from "./desktop-nav"
 import { MobileNav } from "./mobile-nav"
 import { ThemeToggle } from "./theme-toggle"
-import { DesktopNav } from "./desktop-nav"
+import { LanguageSwitcher } from "./language-switcher"
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
         {/* Logo + 站点名称 */}
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/favicon.svg"
-            alt={`${siteConfig.name} Logo`}
+            alt="Logo"
             width={28}
             height={28}
-            className="h-7 w-7"
+            className="rounded-sm"
           />
-          <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-lg font-bold text-transparent">
             {siteConfig.name}
           </span>
         </Link>
 
         {/* 桌面端导航 */}
-        <div className="hidden md:flex items-center gap-1">
-          <DesktopNav items={navLinks} />
-          <div className="ml-2 border-l pl-2">
-            <ThemeToggle />
-          </div>
-        </div>
+        <DesktopNav />
 
-        {/* 移动端导航 */}
-        <div className="flex items-center gap-2 md:hidden">
+        {/* 右侧操作区：语言切换 + 主题切换 + 移动端菜单 */}
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher />
           <ThemeToggle />
-          <MobileNav items={navLinks} />
+          <MobileNav />
         </div>
       </div>
     </header>
@@ -188,13 +185,15 @@ export function Navbar() {
 }
 ```
 
+> **注意**：导航链接使用 `@/i18n/routing` 的 `Link` 组件而非 `next/link`，确保链接自动携带当前 locale 前缀（如 `/zh/tags`、`/en/blog`）。
+
 ### 桌面端导航 `src/components/layout/desktop-nav.tsx`
 
 ```typescript
 // src/components/layout/desktop-nav.tsx
 'use client'
 
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
@@ -290,7 +289,7 @@ export function useScroll(threshold = 10) {
 'use client'
 
 import { useState } from "react"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { usePathname } from "next/navigation"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -388,7 +387,7 @@ export function MobileNav({ items }: MobileNavProps) {
 
 ```typescript
 // src/components/layout/footer.tsx
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { Github, Twitter, Mail, Rss } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { siteConfig, navLinks } from "@/config/site"
@@ -492,17 +491,41 @@ export function Footer() {
 
 ## layout.tsx 修改方案
 
-### 修改后的 `src/app/layout.tsx`
+### 布局架构：Root Layout + Locale Layout
+
+项目使用 `next-intl` 实现国际化，布局分为两层：
+
+#### `src/app/layout.tsx`（Root Layout — 纯 passthrough）
 
 ```typescript
 // src/app/layout.tsx
+import "./globals.css"
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return children
+}
+```
+
+Root Layout 只负责引入全局样式，不包含 `<html>` 或 `<body>` 标签。
+
+#### `src/app/[locale]/layout.tsx`（Locale Layout — 实际布局）
+
+```typescript
+// src/app/[locale]/layout.tsx
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { NextIntlClientProvider } from "next-intl"
+import { getMessages } from "next-intl/server"
+import { notFound } from "next/navigation"
+import { routing } from "@/i18n/routing"
+import { siteConfig } from "@/config/site"
 import { ThemeProvider } from "@/components/layout/theme-provider"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
-import { siteConfig } from "@/config/site"
-import "./globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -517,67 +540,78 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`,  // 子页面标题格式
+    template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  icons: {
-    icon: "/favicon.svg",
-  },
+  icons: { icon: "/favicon.svg" },
   metadataBase: new URL(siteConfig.url),
   alternates: {
     types: {
-      'application/rss+xml': '/feed.xml',
-      'application/atom+xml': '/atom.xml',
+      "application/rss+xml": [
+        { url: "/feed.xml", title: `${siteConfig.name} RSS Feed` },
+      ],
+      "application/atom+xml": [
+        { url: "/atom.xml", title: `${siteConfig.name} Atom Feed` },
+      ],
     },
   },
 }
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
-}: Readonly<{
+  params,
+}: {
   children: React.ReactNode
-}>) {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+
+  if (!routing.locales.includes(locale as "zh" | "en")) {
+    notFound()
+  }
+
+  const messages = await getMessages()
+
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )
 }
 ```
 
-### 关键修改说明
+### 关键设计说明
 
-1. **`suppressHydrationWarning`**：在 `<html>` 标签上添加，防止 next-themes 导致的水化警告
-2. **`lang="zh-CN"`**：设置为中文
-3. **`ThemeProvider` 包裹**：启用暗色模式支持（详见主题切换文档）
-4. **`flex min-h-screen flex-col`**：确保 Footer 始终在底部（即使内容不足一屏）
-5. **`main.flex-1`**：主内容区域占据剩余空间
-6. **`metadata.title.template`**：子页面标题自动拼接站点名称
-7. **RSS alternates**：在 HTML head 中声明 RSS 链接
+1. **`lang={locale}` 动态设置**：`<html>` 的 `lang` 属性根据当前路由的 locale 参数动态设置（`zh` 或 `en`），而非硬编码 `"zh-CN"`
+2. **`suppressHydrationWarning`**：在 `<html>` 标签上添加，防止 next-themes 导致的水化警告
+3. **`NextIntlClientProvider`**：包裹整个页面，为所有子组件提供国际化翻译上下文
+4. **`ThemeProvider` 包裹**：启用暗色模式支持（详见主题切换文档）
+5. **`flex min-h-screen flex-col`**：确保 Footer 始终在底部（即使内容不足一屏）
+6. **`main.flex-1`**：主内容区域占据剩余空间
+7. **`metadata.title.template`**：子页面标题自动拼接站点名称
+8. **RSS alternates**：在 HTML head 中声明 RSS 链接
+9. **locale 校验**：不合法的 locale 参数会触发 `notFound()`
 
 ## 重构后的 page.tsx
 
 移除布局代码后，`page.tsx` 只需保留页面内容：
 
 ```typescript
-// src/app/page.tsx
+// src/app/[locale]/page.tsx
 // 注意：移除 'use client'，变为 Server Component
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Mail, Github } from "lucide-react"
@@ -658,22 +692,26 @@ export default function HomePage() {
 src/
 ├── app/
 │   ├── globals.css
-│   ├── layout.tsx              # ← 修改：集成 Navbar + Footer + ThemeProvider
-│   ├── page.tsx                # ← 修改：移除布局代码，改为 Server Component
-│   ├── blog/
-│   │   ├── page.tsx            # 博客列表页
-│   │   └── [slug]/
-│   │       └── page.tsx        # 文章详情页
-│   ├── projects/
-│   │   └── page.tsx            # 项目展示页
-│   ├── about/
-│   │   └── page.tsx            # 关于页面
-│   ├── tags/
-│   │   ├── page.tsx            # 标签索引页
-│   │   └── [tag]/
-│   │       └── page.tsx        # 标签筛选页
-│   └── feed.xml/
-│       └── route.ts            # RSS feed
+│   ├── layout.tsx              # ← Root Layout（passthrough，仅引入 globals.css）
+│   ├── [locale]/
+│   │   ├── layout.tsx          # ← Locale Layout（html/body/providers/Navbar/Footer）
+│   │   ├── page.tsx            # 首页（Server Component）
+│   │   ├── blog/
+│   │   │   ├── page.tsx        # 博客列表页
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx    # 文章详情页
+│   │   ├── projects/
+│   │   │   └── page.tsx        # 项目展示页
+│   │   ├── about/
+│   │   │   └── page.tsx        # 关于页面
+│   │   └── tags/
+│   │       ├── page.tsx        # 标签索引页
+│   │       └── [tag]/
+│   │           └── page.tsx    # 标签筛选页
+│   ├── feed.xml/
+│   │   └── route.ts            # RSS feed
+│   └── atom.xml/
+│       └── route.ts            # Atom feed
 ├── components/
 │   ├── layout/
 │   │   ├── navbar.tsx          # 导航栏（Server Component）
@@ -710,17 +748,13 @@ src/
 
 当前已有的依赖足以实现基础布局组件，无需新增依赖：
 
-- `next/link` — 路由链接
+- `@/i18n/routing` — i18n 路由链接（`Link` 组件，自动保留 locale 前缀）
 - `next/image` — 图片优化
+- `next-intl` — 国际化（`NextIntlClientProvider`、`useTranslations`、`useLocale`）
 - `lucide-react` — 图标
 - `@/components/ui/button` — 按钮组件
 - `tailwind-merge` + `clsx` — 样式合并
-
-需要新增的依赖（用于主题切换，详见主题文档）：
-
-```bash
-npm install next-themes
-```
+- `next-themes` — 主题切换（详见主题文档）
 
 ## 测试要点
 
@@ -767,3 +801,5 @@ npm install next-themes
 6. **样式一致性**：使用 shadcn/ui 的 CSS 变量（`text-muted-foreground` 等），确保暗色模式自动适配
 7. **导航栏高度**：固定 `h-14`（56px），页面内容区域需要留出对应的顶部间距
 8. **动画依赖**：`animate-in slide-in-from-top-2` 需要 `tw-animate-css`（已安装）
+9. **使用 i18n Link**：所有内部导航链接必须使用 `@/i18n/routing` 的 `Link` 组件，而非 `next/link`，否则会丢失 locale 前缀
+10. **HTML lang 动态设置**：`<html lang={locale}>` 根据路由参数动态设置，不硬编码

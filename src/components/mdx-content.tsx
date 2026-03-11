@@ -1,8 +1,19 @@
 "use client"
 
 import * as runtime from "react/jsx-runtime"
-import { useMemo } from "react"
+import { Children, isValidElement, useMemo } from "react"
 import { CopyButton } from "./copy-button"
+
+function extractText(node: React.ReactNode): string {
+    if (typeof node === "string") return node
+    if (typeof node === "number") return String(node)
+    if (!node) return ""
+    if (isValidElement(node)) {
+        return extractText((node.props as { children?: React.ReactNode }).children)
+    }
+    if (Array.isArray(node)) return node.map(extractText).join("")
+    return Children.toArray(node).map(extractText).join("")
+}
 
 function useMDXComponent(code: string) {
     return useMemo(() => {
@@ -59,15 +70,13 @@ const components = {
         ...props
     }: React.HTMLAttributes<HTMLPreElement> & {
         "data-language"?: string
-        raw?: string
     }) => {
-        const raw =
-            (props as Record<string, unknown>).raw as string | undefined
+        const codeText = extractText(children)
         return (
             <div className="group relative my-4">
-                {raw && (
+                {codeText && (
                     <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
-                        <CopyButton text={raw} />
+                        <CopyButton text={codeText} />
                     </div>
                 )}
                 <pre
@@ -110,10 +119,10 @@ interface MdxContentProps {
 }
 
 export function MdxContent({ code }: MdxContentProps) {
-    const Component = useMDXComponent(code)
+    const render = useMDXComponent(code)
     return (
         <article className="prose-custom">
-            <Component components={components} />
+            {render({ components })}
         </article>
     )
 }

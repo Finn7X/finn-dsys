@@ -6,7 +6,7 @@
 
 ## 技术方案
 
-- **路由**：`/projects` -> `src/app/projects/page.tsx`
+- **路由**：`/[locale]/projects` -> `src/app/[locale]/projects/page.tsx`
 - **渲染方式**：Server Component + 静态生成
 - **数据来源**：`content/projects/*.mdx`，通过 Velite 编译
 - **组件**：ProjectCard 展示项目卡片
@@ -106,6 +106,7 @@ const projects = defineCollection({
 ```typescript
 // src/components/project-card.tsx
 import Image from "next/image"
+import { useLocale, useTranslations } from "next-intl"
 import { Github, ExternalLink, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -132,6 +133,10 @@ export function ProjectCard({
   tags,
   featured,
 }: ProjectCardProps) {
+  const locale = useLocale()
+  const t = useTranslations("projects")
+  const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
+
   return (
     <Card
       className={cn(
@@ -153,7 +158,7 @@ export function ProjectCard({
           {featured && (
             <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground shadow">
               <Star className="h-3 w-3 fill-current" />
-              Featured
+              {t("featuredBadge")}
             </div>
           )}
         </div>
@@ -164,7 +169,7 @@ export function ProjectCard({
         {!cover && featured && (
           <div className="mb-2 flex items-center gap-1 text-xs text-primary font-medium">
             <Star className="h-3.5 w-3.5 fill-current" />
-            Featured Project
+            {t("featuredBadge")}
           </div>
         )}
 
@@ -175,7 +180,7 @@ export function ProjectCard({
 
         {/* 日期 */}
         <p className="text-sm text-muted-foreground">
-          {new Date(date).toLocaleDateString("zh-CN", {
+          {new Date(date).toLocaleDateString(dateLocale, {
             year: "numeric",
             month: "long",
           })}
@@ -213,7 +218,7 @@ export function ProjectCard({
                 className="gap-1.5"
               >
                 <Github className="h-4 w-4" />
-                Source
+                {t("viewSource")}
               </a>
             </Button>
           )}
@@ -226,7 +231,7 @@ export function ProjectCard({
                 className="gap-1.5"
               >
                 <ExternalLink className="h-4 w-4" />
-                Demo
+                {t("viewDemo")}
               </a>
             </Button>
           )}
@@ -257,10 +262,10 @@ export function ProjectCard({
 桌面端 (1024px+):  3 列（可选，如果项目数量较多）
 ```
 
-### `src/app/projects/page.tsx`
+### `src/app/[locale]/projects/page.tsx`
 
 ```typescript
-// src/app/projects/page.tsx
+// src/app/[locale]/projects/page.tsx
 import type { Metadata } from "next"
 import { getAllProjects, getFeaturedProjects } from "@/lib/content"
 import { ProjectCard } from "@/components/project-card"
@@ -429,12 +434,12 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
 | 文件路径 | 说明 |
 |----------|------|
-| `src/app/projects/page.tsx` | 项目展示页主文件 |
+| `src/app/[locale]/projects/page.tsx` | 项目展示页主文件 |
 | `src/components/project-card.tsx` | 项目卡片组件 |
 | `content/projects/*.mdx` | 项目数据 MDX 文件 |
 | `src/lib/content.ts` | 内容查询函数（已有 getAllProjects, getFeaturedProjects） |
 | `public/images/projects/` | 项目封面图目录 |
-| `src/app/projects/[slug]/page.tsx` | 可选：项目详情页 |
+| `src/app/[locale]/projects/[slug]/page.tsx` | 可选：项目详情页 |
 
 ## 依赖说明
 

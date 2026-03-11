@@ -154,10 +154,10 @@ export function GET() {
 
 ### 步骤 5：在 HTML head 中声明 Feed
 
-在 `layout.tsx` 的 metadata 中添加 alternates：
+在 locale layout 的 metadata 中添加 alternates：
 
 ```typescript
-// src/app/layout.tsx
+// src/app/[locale]/layout.tsx
 export const metadata: Metadata = {
   // ... 其他配置
   alternates: {
@@ -412,7 +412,7 @@ cat .next/server/app/atom.xml.body
 2. 创建 `src/lib/feed.ts` — Feed 生成函数
 3. 创建 `src/app/feed.xml/route.ts` — RSS 2.0 路由
 4. 创建 `src/app/atom.xml/route.ts` — Atom 路由
-5. 修改 `src/app/layout.tsx` — 在 metadata 中声明 Feed 链接
+5. 修改 `src/app/[locale]/layout.tsx` — 在 metadata 中声明 Feed 链接
 6. 确认 Footer 中包含 RSS 图标链接
 7. 构建并验证 Feed 输出
 
@@ -423,7 +423,7 @@ cat .next/server/app/atom.xml.body
 | `src/lib/feed.ts` | Feed 生成核心函数 |
 | `src/app/feed.xml/route.ts` | RSS 2.0 Route Handler |
 | `src/app/atom.xml/route.ts` | Atom Route Handler |
-| `src/app/layout.tsx` | 修改：添加 Feed alternates 声明 |
+| `src/app/[locale]/layout.tsx` | 修改：添加 Feed alternates 声明 |
 | `src/components/layout/footer.tsx` | 已包含 RSS 图标链接 |
 
 ## 测试要点
