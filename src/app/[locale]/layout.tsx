@@ -101,7 +101,10 @@ export default async function LocaleLayout({
                         </div>
                     </ThemeProvider>
                 </NextIntlClientProvider>
-                <Analytics />
+                <Analytics
+                    umamiUrl={process.env.NEXT_PUBLIC_UMAMI_URL ?? process.env.UMAMI_URL}
+                    websiteId={process.env.NEXT_PUBLIC_UMAMI_ID ?? process.env.UMAMI_ID}
+                />
             </body>
         </html>
     )

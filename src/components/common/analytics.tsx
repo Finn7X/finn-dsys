@@ -2,17 +2,19 @@
 
 import Script from "next/script"
 
-export function Analytics() {
-  const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL
-  const websiteId = process.env.NEXT_PUBLIC_UMAMI_ID
+interface AnalyticsProps {
+    umamiUrl?: string
+    websiteId?: string
+}
 
-  if (!umamiUrl || !websiteId) return null
+export function Analytics({ umamiUrl, websiteId }: AnalyticsProps) {
+    if (!umamiUrl || !websiteId) return null
 
-  return (
-    <Script
-      src={`${umamiUrl}/script.js`}
-      data-website-id={websiteId}
-      strategy="lazyOnload"
-    />
-  )
+    return (
+        <Script
+            src={`${umamiUrl}/script.js`}
+            data-website-id={websiteId}
+            strategy="lazyOnload"
+        />
+    )
 }

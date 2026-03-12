@@ -10,10 +10,10 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=8200
-      - NEXT_PUBLIC_UMAMI_URL=${NEXT_PUBLIC_UMAMI_URL}
-      - NEXT_PUBLIC_UMAMI_ID=${NEXT_PUBLIC_UMAMI_ID}
+      - UMAMI_URL=${NEXT_PUBLIC_UMAMI_URL:-http://umami:3000}
+      - UMAMI_ID=${NEXT_PUBLIC_UMAMI_ID}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8200"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8200"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -45,7 +45,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/heartbeat"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/heartbeat"]
       interval: 30s
       timeout: 10s
       retries: 3
