@@ -8,6 +8,8 @@ import { siteConfig } from "@/config/site"
 import { ThemeProvider } from "@/components/layout/theme-provider"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
+import { WebSiteJsonLd } from "@/components/common/seo"
+import { Analytics } from "@/components/common/analytics"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -27,6 +29,34 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     icons: { icon: "/favicon.svg" },
     metadataBase: new URL(siteConfig.url),
+    authors: [{ name: siteConfig.author.name, url: siteConfig.author.github }],
+    creator: siteConfig.author.name,
+    openGraph: {
+        type: "website",
+        locale: "zh_CN",
+        alternateLocale: "en_US",
+        siteName: siteConfig.name,
+        title: siteConfig.name,
+        description: siteConfig.description,
+        url: siteConfig.url,
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: siteConfig.name,
+        description: siteConfig.description,
+        creator: "@Finn7X",
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+        },
+    },
     alternates: {
         types: {
             "application/rss+xml": [
@@ -59,6 +89,11 @@ export default async function LocaleLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
+                <WebSiteJsonLd
+                    url={siteConfig.url}
+                    name={siteConfig.name}
+                    description={siteConfig.description}
+                />
                 <NextIntlClientProvider messages={messages}>
                     <ThemeProvider>
                         <div className="relative flex min-h-screen flex-col">
@@ -68,6 +103,7 @@ export default async function LocaleLayout({
                         </div>
                     </ThemeProvider>
                 </NextIntlClientProvider>
+                <Analytics />
             </body>
         </html>
     )

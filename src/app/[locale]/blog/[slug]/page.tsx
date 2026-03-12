@@ -12,7 +12,9 @@ import { ShareButtons } from "@/components/blog/share-buttons"
 import { AuthorCard } from "@/components/blog/author-card"
 import { SeriesNav } from "@/components/blog/series-nav"
 import { Comments } from "@/components/blog/comments"
+import { ReadTracker } from "@/components/blog/read-tracker"
 import { Newsletter } from "@/components/common/newsletter"
+import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/common/seo"
 
 export async function generateStaticParams() {
     const posts = getAllPosts()
@@ -79,6 +81,25 @@ export default async function PostPage({
 
     return (
         <>
+            <BlogPostingJsonLd
+                title={post.title}
+                description={post.description}
+                url={postUrl}
+                datePublished={post.date}
+                dateModified={post.updated}
+                author={{
+                    name: siteConfig.author.name,
+                    url: siteConfig.author.github,
+                }}
+                tags={post.tags}
+            />
+            <BreadcrumbJsonLd
+                items={[
+                    { name: "Home", url: siteConfig.url },
+                    { name: "Blog", url: `${siteConfig.url}/blog` },
+                    { name: post.title, url: postUrl },
+                ]}
+            />
             <ReadingProgress />
 
             <div className="container mx-auto max-w-6xl px-4 py-12">
@@ -133,6 +154,9 @@ export default async function PostPage({
 
                         {/* Newsletter subscription */}
                         <Newsletter variant="inline" />
+
+                        {/* Read completion tracker */}
+                        <ReadTracker slug={slug} title={post.title} />
 
                         {/* Comments */}
                         <Comments />

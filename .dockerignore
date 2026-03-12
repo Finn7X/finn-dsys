@@ -2,7 +2,12 @@ node_modules
 .next
 .git
 .env
+.env.*
+!.env.example
 Dockerfile
 .dockerignore
+docker-compose.yml
+backup.sh
 README.md
 *.log
+.github
