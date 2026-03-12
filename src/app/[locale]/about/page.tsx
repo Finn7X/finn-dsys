@@ -1,14 +1,42 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { getTranslations } from "next-intl/server"
 import { Github, Twitter, Mail, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { aboutConfig, techStack, timeline } from "@/config/about"
 import { siteConfig } from "@/config/site"
+import { getBaseOpenGraph } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-    title: "About",
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+    const { locale } = await params
+    const t = await getTranslations({ locale, namespace: "about" })
+    const localePath = locale === "zh" ? "" : `/${locale}`
+    const pageUrl = `${siteConfig.url}${localePath}/about`
+    const title = t("title")
+    const description = t("description")
+    return {
+        title,
+        description,
+        openGraph: {
+            ...getBaseOpenGraph(locale),
+            title,
+            description,
+            url: pageUrl,
+        },
+        alternates: {
+            canonical: pageUrl,
+            languages: {
+                zh: `${siteConfig.url}/about`,
+                en: `${siteConfig.url}/en/about`,
+            },
+        },
+    }
 }
 
 export default function AboutPage() {

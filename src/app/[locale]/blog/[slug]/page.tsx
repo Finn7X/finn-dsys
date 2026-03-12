@@ -15,6 +15,7 @@ import { Comments } from "@/components/blog/comments"
 import { ReadTracker } from "@/components/blog/read-tracker"
 import { Newsletter } from "@/components/common/newsletter"
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/common/seo"
+import { getBaseOpenGraph } from "@/lib/metadata"
 
 export async function generateStaticParams() {
     const posts = getAllPosts()
@@ -37,6 +38,7 @@ export async function generateMetadata({
         title: post.title,
         description: post.description,
         openGraph: {
+            ...getBaseOpenGraph(locale, { includeImage: false }),
             title: post.title,
             description: post.description,
             type: "article",
@@ -44,6 +46,13 @@ export async function generateMetadata({
             modifiedTime: post.updated,
             url: `${siteConfig.url}${post.permalink}`,
             tags: post.tags,
+        },
+        alternates: {
+            canonical: `${siteConfig.url}${post.permalink}`,
+            languages: {
+                zh: `${siteConfig.url}/blog/${slug}`,
+                en: `${siteConfig.url}/en/blog/${slug}`,
+            },
         },
     }
 }

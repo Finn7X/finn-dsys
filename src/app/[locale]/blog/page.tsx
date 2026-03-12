@@ -1,16 +1,45 @@
 import type { Metadata } from "next"
 import { useTranslations } from "next-intl"
+import { getTranslations } from "next-intl/server"
 import { Link } from "@/i18n/routing"
 import { getAllPosts, getPostsByTag, getAllTags } from "@/lib/content"
 import { PostCard } from "@/components/post-card"
 import { Pagination } from "@/components/pagination"
 import { cn } from "@/lib/utils"
 import { FileText } from "lucide-react"
+import { siteConfig } from "@/config/site"
+import { getBaseOpenGraph } from "@/lib/metadata"
 
 const POSTS_PER_PAGE = 10
 
-export const metadata: Metadata = {
-    title: "Blog",
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+    const { locale } = await params
+    const t = await getTranslations({ locale, namespace: "blog" })
+    const localePath = locale === "zh" ? "" : `/${locale}`
+    const pageUrl = `${siteConfig.url}${localePath}/blog`
+    const title = t("title")
+    const description = t("description")
+    return {
+        title,
+        description,
+        openGraph: {
+            ...getBaseOpenGraph(locale),
+            title,
+            description,
+            url: pageUrl,
+        },
+        alternates: {
+            canonical: pageUrl,
+            languages: {
+                zh: `${siteConfig.url}/blog`,
+                en: `${siteConfig.url}/en/blog`,
+            },
+        },
+    }
 }
 
 export default async function BlogPage({

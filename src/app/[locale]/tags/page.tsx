@@ -1,12 +1,41 @@
 import type { Metadata } from "next"
 import { useTranslations } from "next-intl"
+import { getTranslations } from "next-intl/server"
 import { Link } from "@/i18n/routing"
 import { getAllTags, getAllPosts } from "@/lib/content"
 import { tagToSlug } from "@/lib/tag-utils"
 import { cn } from "@/lib/utils"
+import { siteConfig } from "@/config/site"
+import { getBaseOpenGraph } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-    title: "Tags",
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+    const { locale } = await params
+    const t = await getTranslations({ locale, namespace: "tags" })
+    const localePath = locale === "zh" ? "" : `/${locale}`
+    const pageUrl = `${siteConfig.url}${localePath}/tags`
+    const title = t("title")
+    const description = t("description")
+    return {
+        title,
+        description,
+        openGraph: {
+            ...getBaseOpenGraph(locale),
+            title,
+            description,
+            url: pageUrl,
+        },
+        alternates: {
+            canonical: pageUrl,
+            languages: {
+                zh: `${siteConfig.url}/tags`,
+                en: `${siteConfig.url}/en/tags`,
+            },
+        },
+    }
 }
 
 export default async function TagsPage({

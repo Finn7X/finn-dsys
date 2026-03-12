@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
 import { subscribeToNewsletter } from "@/app/actions/newsletter"
+import { trackNewsletterSubscribe } from "@/lib/analytics"
 
 interface NewsletterProps {
     variant?: "inline" | "hero"
@@ -14,7 +15,11 @@ interface NewsletterProps {
 export function Newsletter({ variant = "inline" }: NewsletterProps) {
     const [state, formAction, isPending] = useActionState(
         async (_prevState: { success: boolean; message: string } | null, formData: FormData) => {
-            return await subscribeToNewsletter(formData)
+            const result = await subscribeToNewsletter(formData)
+            if (result.success) {
+                trackNewsletterSubscribe(variant)
+            }
+            return result
         },
         null
     )

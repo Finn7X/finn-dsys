@@ -1,11 +1,40 @@
 import type { Metadata } from "next"
 import { useTranslations } from "next-intl"
+import { getTranslations } from "next-intl/server"
 import { getAllProjects, getFeaturedProjects } from "@/lib/content"
 import { ProjectCard } from "@/components/project-card"
 import { Rocket } from "lucide-react"
+import { siteConfig } from "@/config/site"
+import { getBaseOpenGraph } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-    title: "Projects",
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+    const { locale } = await params
+    const t = await getTranslations({ locale, namespace: "projects" })
+    const localePath = locale === "zh" ? "" : `/${locale}`
+    const pageUrl = `${siteConfig.url}${localePath}/projects`
+    const title = t("title")
+    const description = t("description")
+    return {
+        title,
+        description,
+        openGraph: {
+            ...getBaseOpenGraph(locale),
+            title,
+            description,
+            url: pageUrl,
+        },
+        alternates: {
+            canonical: pageUrl,
+            languages: {
+                zh: `${siteConfig.url}/projects`,
+                en: `${siteConfig.url}/en/projects`,
+            },
+        },
+    }
 }
 
 export default function ProjectsPage() {

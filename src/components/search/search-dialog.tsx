@@ -17,6 +17,7 @@ import {
     type SearchableItem,
     type SearchResult,
 } from "@/lib/pagefind"
+import { trackSearch } from "@/lib/analytics"
 
 interface SearchDialogProps {
     posts: SearchableItem[]
@@ -45,11 +46,15 @@ export function SearchDialog({ posts }: SearchDialogProps) {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            const searchResults = query.trim()
+            const trimmed = query.trim()
+            const searchResults = trimmed
                 ? searchContent(query, posts)
                 : []
             setResults(searchResults)
             setActiveIndex(0)
+            if (trimmed) {
+                trackSearch(trimmed, searchResults.length)
+            }
         }, 200)
 
         return () => clearTimeout(timer)

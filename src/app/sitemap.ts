@@ -6,7 +6,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = siteConfig.url
     const locales = ["zh", "en"] as const
 
-    // Static pages with both locale variants
+    function localeUrl(locale: string, path: string) {
+        const prefix = locale === "zh" ? "" : `/${locale}`
+        return `${baseUrl}${prefix}${path}`
+    }
+
+    function langAlternates(path: string) {
+        return {
+            languages: Object.fromEntries(
+                locales.map((l) => [l, localeUrl(l, path)]),
+            ),
+        }
+    }
+
+    // Static pages with both locale variants and hreflang alternates
     const staticPages = ["/", "/blog", "/projects", "/about", "/tags"]
     const staticPriorities: Record<string, number> = {
         "/": 1.0,
@@ -18,33 +31,46 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     const staticEntries: MetadataRoute.Sitemap = staticPages.flatMap((page) =>
         locales.map((locale) => ({
-            url: `${baseUrl}${locale === "zh" ? "" : `/${locale}`}${page === "/" ? "" : page}`,
+            url: localeUrl(locale, page === "/" ? "" : page),
             lastModified: new Date(),
             changeFrequency: page === "/" ? ("daily" as const) : ("weekly" as const),
             priority: staticPriorities[page] ?? 0.5,
+            alternates: langAlternates(page === "/" ? "" : page),
         })),
     )
 
-    // Blog post entries
+    // Blog post entries - both locales for every post (en falls back if no translation)
     const allPosts = getAllPosts()
-    const postEntries: MetadataRoute.Sitemap = allPosts.map((post) => {
-        const localePrefix = post.locale === "zh" ? "" : `/${post.locale}`
-        return {
-            url: `${baseUrl}${localePrefix}${post.permalink}`,
-            lastModified: new Date(post.updated ?? post.date),
+    const slugs = [...new Set(allPosts.map((p) => p.slugAsParams))]
+    const postEntries: MetadataRoute.Sitemap = slugs.flatMap((slug) => {
+        const post = allPosts.find((p) => p.slugAsParams === slug)!
+        const lastMod = new Date(post.updated ?? post.date)
+        return locales.map((locale) => ({
+            url: localeUrl(locale, `/blog/${slug}`),
+            lastModified: lastMod,
             changeFrequency: "monthly" as const,
             priority: 0.7,
-        }
+            alternates: langAlternates(`/blog/${slug}`),
+        }))
     })
 
     // Tag page entries for both locales
-    const tagEntries: MetadataRoute.Sitemap = locales.flatMap((locale) => {
-        const tags = getAllTags(locale)
-        return tags.map(({ tag }) => ({
-            url: `${baseUrl}${locale === "zh" ? "" : `/${locale}`}/tags/${encodeURIComponent(tag)}`,
+    const allTagNames = new Set<string>()
+    for (const locale of locales) {
+        for (const { tag } of getAllTags(locale)) {
+            allTagNames.add(tag)
+        }
+    }
+
+    const tagEntries: MetadataRoute.Sitemap = [...allTagNames].flatMap((tag) => {
+        const encodedTag = encodeURIComponent(tag)
+        const path = `/tags/${encodedTag}`
+        return locales.map((locale) => ({
+            url: localeUrl(locale, path),
             lastModified: new Date(),
             changeFrequency: "weekly" as const,
             priority: 0.5,
+            alternates: langAlternates(path),
         }))
     })
 

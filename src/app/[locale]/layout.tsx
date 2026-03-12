@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { NextIntlClientProvider } from "next-intl"
-import { getMessages } from "next-intl/server"
+import { getMessages, getTranslations } from "next-intl/server"
 import { notFound } from "next/navigation"
 import { routing } from "@/i18n/routing"
 import { siteConfig } from "@/config/site"
@@ -21,52 +21,50 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 })
 
-export const metadata: Metadata = {
-    title: {
-        default: siteConfig.name,
-        template: `%s | ${siteConfig.name}`,
-    },
-    description: siteConfig.description,
-    icons: { icon: "/favicon.svg" },
-    metadataBase: new URL(siteConfig.url),
-    authors: [{ name: siteConfig.author.name, url: siteConfig.author.github }],
-    creator: siteConfig.author.name,
-    openGraph: {
-        type: "website",
-        locale: "zh_CN",
-        alternateLocale: "en_US",
-        siteName: siteConfig.name,
-        title: siteConfig.name,
-        description: siteConfig.description,
-        url: siteConfig.url,
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: siteConfig.name,
-        description: siteConfig.description,
-        creator: "@Finn7X",
-    },
-    robots: {
-        index: true,
-        follow: true,
-        googleBot: {
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+    const { locale } = await params
+    const t = await getTranslations({ locale, namespace: "metadata" })
+
+    return {
+        title: {
+            default: siteConfig.name,
+            template: `%s | ${siteConfig.name}`,
+        },
+        description: t("description"),
+        icons: { icon: "/favicon.svg" },
+        metadataBase: new URL(siteConfig.url),
+        authors: [{ name: siteConfig.author.name, url: siteConfig.author.github }],
+        creator: siteConfig.author.name,
+        twitter: {
+            card: "summary_large_image",
+            creator: "@Finn7X",
+        },
+        robots: {
             index: true,
             follow: true,
-            "max-video-preview": -1,
-            "max-image-preview": "large",
-            "max-snippet": -1,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-video-preview": -1,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+            },
         },
-    },
-    alternates: {
-        types: {
-            "application/rss+xml": [
-                { url: "/feed.xml", title: `${siteConfig.name} RSS Feed` },
-            ],
-            "application/atom+xml": [
-                { url: "/atom.xml", title: `${siteConfig.name} Atom Feed` },
-            ],
+        alternates: {
+            types: {
+                "application/rss+xml": [
+                    { url: "/feed.xml", title: `${siteConfig.name} RSS Feed` },
+                ],
+                "application/atom+xml": [
+                    { url: "/atom.xml", title: `${siteConfig.name} Atom Feed` },
+                ],
+            },
         },
-    },
+    }
 }
 
 export default async function LocaleLayout({
