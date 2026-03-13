@@ -1,12 +1,12 @@
 services:
   blog:
-    image: ghcr.io/finn7x/finn-days:latest
+    image: ghcr.io/finn7x/finn-dsys:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: finn-days-blog
+    container_name: finn-blog
     ports:
-      - "${BLOG_PORT:-8200}:8200"
+      - "127.0.0.1:${BLOG_PORT:-7900}:8200"
     environment:
       - NODE_ENV=production
       - PORT=8200
