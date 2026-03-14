@@ -5,18 +5,18 @@ import { useRouter } from "@/i18n/routing"
 import { useTheme } from "next-themes"
 import { useTranslations, useLocale } from "next-intl"
 import {
-    FileText,
-    Home,
     Moon,
     Sun,
     Monitor,
     Github,
     Twitter,
     Search,
-    Hash,
-    BookOpen,
     ExternalLink,
+    Home,
+    BookOpen,
     StickyNote,
+    Hash,
+    FileText,
 } from "lucide-react"
 import {
     CommandDialog,
@@ -65,7 +65,7 @@ export function CommandPalette({ posts = [] }: CommandPaletteProps) {
         <>
             <button
                 onClick={() => setOpen(true)}
-                className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                 aria-label={t("title")}
             >
                 <Search className="h-4 w-4" />
@@ -87,7 +87,6 @@ export function CommandPalette({ posts = [] }: CommandPaletteProps) {
                                 runCommand(() => router.push("/"))
                             }
                         >
-                            <Home className="mr-2 h-4 w-4" />
                             <span>{t("home")}</span>
                         </CommandItem>
                         <CommandItem
@@ -95,7 +94,6 @@ export function CommandPalette({ posts = [] }: CommandPaletteProps) {
                                 runCommand(() => router.push("/blog"))
                             }
                         >
-                            <BookOpen className="mr-2 h-4 w-4" />
                             <span>{t("blog")}</span>
                         </CommandItem>
                         <CommandItem
@@ -103,7 +101,6 @@ export function CommandPalette({ posts = [] }: CommandPaletteProps) {
                                 runCommand(() => router.push("/notes"))
                             }
                         >
-                            <StickyNote className="mr-2 h-4 w-4" />
                             <span>{t("notes")}</span>
                         </CommandItem>
                         <CommandItem
@@ -111,7 +108,6 @@ export function CommandPalette({ posts = [] }: CommandPaletteProps) {
                                 runCommand(() => router.push("/tags"))
                             }
                         >
-                            <Hash className="mr-2 h-4 w-4" />
                             <span>{t("tags")}</span>
                         </CommandItem>
                         <CommandItem
@@ -119,7 +115,6 @@ export function CommandPalette({ posts = [] }: CommandPaletteProps) {
                                 runCommand(() => router.push("/about"))
                             }
                         >
-                            <FileText className="mr-2 h-4 w-4" />
                             <span>{t("about")}</span>
                         </CommandItem>
                     </CommandGroup>
