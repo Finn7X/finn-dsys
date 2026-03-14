@@ -3,9 +3,7 @@ import { useTranslations } from "next-intl"
 import { getTranslations } from "next-intl/server"
 import { Link } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Github, ArrowRight, Calendar, Clock } from "lucide-react"
-import { Newsletter } from "@/components/common/newsletter"
+import { Github } from "lucide-react"
 import { getAllPosts } from "@/lib/content"
 import { siteConfig } from "@/config/site"
 import { getBaseOpenGraph } from "@/lib/metadata"
@@ -46,12 +44,11 @@ export default async function HomePage({
     const { locale } = await params
     const recentPosts = getAllPosts(locale).slice(0, 3)
 
-    return <HomeContent recentPosts={recentPosts} locale={locale} />
+    return <HomeContent recentPosts={recentPosts} />
 }
 
 function HomeContent({
     recentPosts,
-    locale,
 }: {
     recentPosts: {
         title: string
@@ -61,7 +58,6 @@ function HomeContent({
         slugAsParams: string
         permalink: string
     }[]
-    locale: string
 }) {
     const t = useTranslations("home")
 
@@ -73,11 +69,11 @@ function HomeContent({
                     <h1 className="font-heading mb-4 text-5xl font-medium text-foreground">
                         {t("hero.title")}
                     </h1>
-                    <p className="mb-8 text-lg text-muted-foreground">
+                    <p className="mb-8 text-lg text-secondary-foreground">
                         {t("hero.description")}
                     </p>
-                    <div className="flex gap-4 mb-6">
-                        <Button variant="outline" className="gap-2" asChild>
+                    <div className="flex gap-4">
+                        <Button variant="default" className="gap-2" asChild>
                             <a
                                 href="https://github.com/Finn7X"
                                 target="_blank"
@@ -88,58 +84,46 @@ function HomeContent({
                             </a>
                         </Button>
                     </div>
-                    <Newsletter variant="hero" />
                 </div>
             </section>
 
             {/* Recent Posts */}
             {recentPosts.length > 0 && (
-                <section className="px-4 pt-16 pb-16">
-                    <div className="mx-auto max-w-[var(--content-width)]">
-                        <div className="mb-8 flex items-center justify-between">
-                            <h2 className="font-heading text-2xl">
-                                {t("recentPosts")}
-                            </h2>
-                            <Button variant="ghost" className="gap-1" asChild>
-                                <Link href="/blog">
-                                    {t("viewAll")}
-                                    <ArrowRight className="h-4 w-4" />
-                                </Link>
-                            </Button>
-                        </div>
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {recentPosts.map((post) => (
+                <section className="mx-auto max-w-[var(--content-width)] px-4 pt-12 pb-16">
+                    <div className="flex items-baseline justify-between mb-8">
+                        <h2 className="font-heading text-2xl font-medium">
+                            {t("recentPosts")}
+                        </h2>
+                        <Link
+                            href="/blog"
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            {t("viewAll")} →
+                        </Link>
+                    </div>
+                    <div className="space-y-1">
+                        {recentPosts.map((post) => {
+                            const date = new Date(post.date)
+                            const month = String(date.getMonth() + 1).padStart(
+                                2,
+                                "0",
+                            )
+                            const day = String(date.getDate()).padStart(2, "0")
+                            return (
                                 <Link
                                     key={post.slugAsParams}
                                     href={`/blog/${post.slugAsParams}`}
+                                    className="group flex items-baseline gap-4 py-2 transition-colors duration-200"
                                 >
-                                    <Card className="h-full transition-colors duration-200 hover:border-primary/30">
-                                        <CardContent className="pt-6">
-                                            <div className="mb-2 flex items-center gap-3 text-sm text-muted-foreground">
-                                                <span className="flex items-center gap-1">
-                                                    <Calendar className="h-3.5 w-3.5" />
-                                                    {new Date(
-                                                        post.date,
-                                                    ).toLocaleDateString(
-                                                        locale === "en" ? "en-US" : "zh-CN",
-                                                    )}
-                                                </span>
-                                                <span className="flex items-center gap-1">
-                                                    <Clock className="h-3.5 w-3.5" />
-                                                    {post.readingTime}
-                                                </span>
-                                            </div>
-                                            <h3 className="mb-2 line-clamp-2 text-xl font-semibold">
-                                                {post.title}
-                                            </h3>
-                                            <p className="line-clamp-2 text-muted-foreground">
-                                                {post.description}
-                                            </p>
-                                        </CardContent>
-                                    </Card>
+                                    <time className="shrink-0 text-sm tabular-nums text-muted-foreground">
+                                        {month}.{day}
+                                    </time>
+                                    <span className="text-base font-medium group-hover:text-accent transition-colors duration-200">
+                                        {post.title}
+                                    </span>
                                 </Link>
-                            ))}
-                        </div>
+                            )
+                        })}
                     </div>
                 </section>
             )}
