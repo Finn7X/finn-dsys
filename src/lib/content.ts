@@ -92,6 +92,12 @@ export function getAdjacentPosts(slug: string, locale?: string) {
     }
 }
 
+export function getPostLocales(slugAsParams: string): string[] {
+    return posts
+        .filter((p) => p.slugAsParams === slugAsParams && !p.draft)
+        .map((p) => p.locale)
+}
+
 export function getPostsByLocale(locale: string) {
     return getAllPosts(locale)
 }

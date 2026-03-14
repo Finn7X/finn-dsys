@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { siteConfig } from "@/config/site"
-import { getAllPosts, getAllTags } from "@/lib/content"
+import { getAllPosts, getAllTags, getPostLocales } from "@/lib/content"
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = siteConfig.url
@@ -39,18 +39,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
         })),
     )
 
-    // Blog post entries - both locales for every post (en falls back if no translation)
+    // Blog post entries - only create URLs for locales where content actually exists
     const allPosts = getAllPosts()
     const slugs = [...new Set(allPosts.map((p) => p.slugAsParams))]
     const postEntries: MetadataRoute.Sitemap = slugs.flatMap((slug) => {
         const post = allPosts.find((p) => p.slugAsParams === slug)!
         const lastMod = new Date(post.updated ?? post.date)
-        return locales.map((locale) => ({
+        const availableLocales = getPostLocales(slug)
+
+        return availableLocales.map((locale) => ({
             url: localeUrl(locale, `/blog/${slug}`),
             lastModified: lastMod,
             changeFrequency: "monthly" as const,
             priority: 0.7,
-            alternates: langAlternates(`/blog/${slug}`),
+            ...(availableLocales.length > 1
+                ? {
+                      alternates: {
+                          languages: Object.fromEntries(
+                              availableLocales.map((l) => [
+                                  l,
+                                  localeUrl(l, `/blog/${slug}`),
+                              ]),
+                          ),
+                      },
+                  }
+                : {}),
         }))
     })
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getTranslations } from "next-intl/server"
-import { getAllPosts, getPostBySlug, getAdjacentPosts, getSeriesInfo } from "@/lib/content"
+import { getAllPosts, getPostBySlug, getAdjacentPosts, getSeriesInfo, getPostLocales } from "@/lib/content"
 import { siteConfig } from "@/config/site"
 import { MdxContent } from "@/components/mdx-content"
 import { PostHeader } from "@/components/post-header"
@@ -34,6 +34,17 @@ export async function generateMetadata({
     const post = getPostBySlug(slug, locale) ?? getPostBySlug(slug)
     if (!post) return { title: "Not Found" }
 
+    const availableLocales = getPostLocales(slug)
+    const languages =
+        availableLocales.length > 1
+            ? Object.fromEntries(
+                  availableLocales.map((l) => [
+                      l,
+                      `${siteConfig.url}${l === "zh" ? "" : `/${l}`}/blog/${slug}`,
+                  ]),
+              )
+            : undefined
+
     return {
         title: post.title,
         description: post.description,
@@ -49,10 +60,7 @@ export async function generateMetadata({
         },
         alternates: {
             canonical: `${siteConfig.url}${post.permalink}`,
-            languages: {
-                zh: `${siteConfig.url}/blog/${slug}`,
-                en: `${siteConfig.url}/en/blog/${slug}`,
-            },
+            ...(languages ? { languages } : {}),
         },
     }
 }
