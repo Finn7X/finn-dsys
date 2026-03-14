@@ -29,9 +29,9 @@ export function CodeBlock({
     }
 
     return (
-        <div className="group relative my-8 overflow-hidden rounded-lg border border-[hsl(var(--code-border))] bg-[hsl(var(--code-bg))]">
+        <div className="group relative my-8 overflow-hidden rounded-lg border border-code-border bg-code-bg">
             {/* Top bar: filename + language label + copy button */}
-            <div className="flex items-center justify-between border-b border-[hsl(var(--code-border))] bg-[hsl(var(--code-bg))] px-4 py-2">
+            <div className="flex items-center justify-between border-b border-code-border bg-code-bg px-4 py-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {filename && (
                         <>
@@ -64,7 +64,7 @@ export function CodeBlock({
             <pre
                 className={cn(
                     "overflow-x-auto p-4 text-sm leading-relaxed font-mono",
-                    "[&_[data-highlighted-line]]:bg-accent/10 [&_[data-highlighted-line]]:border-l-2 [&_[data-highlighted-line]]:border-accent [&_[data-highlighted-line]]:pl-[calc(1rem-2px)]",
+                    "[&_[data-highlighted-line]]:bg-accent/15 [&_[data-highlighted-line]]:border-l-2 [&_[data-highlighted-line]]:border-accent [&_[data-highlighted-line]]:pl-[calc(1rem-2px)]",
                     className,
                 )}
                 {...props}

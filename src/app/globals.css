@@ -29,6 +29,8 @@
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
+  --color-code-bg: hsl(var(--code-bg));
+  --color-code-border: hsl(var(--code-border));
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -64,6 +66,10 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
   --radius: 0.5rem;
+
+  /* Code block tokens */
+  --code-bg: 40 10% 96%;
+  --code-border: 30 8% 90%;
 
   /* Spacing scale */
   --space-1: 0.25rem;
@@ -113,6 +119,10 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+
+  /* Code block tokens */
+  --code-bg: 220 12% 10%;
+  --code-border: 220 8% 16%;
 }
 
 @layer base {
