@@ -37,7 +37,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-mono, var(--font-geist-mono)), 'JetBrains Mono', monospace;
-  --font-heading: var(--font-heading, 'Newsreader'), var(--font-heading-cjk, 'Noto Serif SC'), Georgia, serif;
+  --font-heading: var(--font-heading, 'Newsreader'), 'Source Han Serif SC', 'Noto Serif CJK SC', 'SimSun', Georgia, serif;
 }
 
 :root {
