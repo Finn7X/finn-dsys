@@ -1,7 +1,7 @@
 "use client"
 
 import * as runtime from "react/jsx-runtime"
-import { Children, isValidElement, useMemo } from "react"
+import { Children, cloneElement, isValidElement, useMemo } from "react"
 import { CodeBlock } from "./mdx/code-block"
 import { mdxComponents } from "./mdx"
 
@@ -54,6 +54,43 @@ const components = {
     blockquote: (props: React.HTMLAttributes<HTMLQuoteElement>) => (
         <blockquote className="mt-4 border-l-4 border-primary/30 pl-4 italic text-muted-foreground" {...props} />
     ),
+    figure: ({
+        children,
+        ...props
+    }: React.HTMLAttributes<HTMLElement>) => {
+        // Handle rehype-pretty-code figures: extract title from figcaption, pass to CodeBlock
+        if (
+            "data-rehype-pretty-code-figure" in
+            (props as Record<string, unknown>)
+        ) {
+            let title: string | undefined
+            const processedChildren = Children.toArray(children)
+                .filter((child) => {
+                    if (isValidElement(child)) {
+                        const cp = child.props as Record<string, unknown>
+                        if ("data-rehype-pretty-code-title" in cp) {
+                            title = extractText(
+                                cp.children as React.ReactNode,
+                            )
+                            return false
+                        }
+                    }
+                    return true
+                })
+                .map((child) =>
+                    title && isValidElement(child)
+                        ? cloneElement(
+                              child as React.ReactElement<
+                                  Record<string, unknown>
+                              >,
+                              { "data-filename": title },
+                          )
+                        : child,
+                )
+            return <figure {...props}>{processedChildren}</figure>
+        }
+        return <figure {...props}>{children}</figure>
+    },
     hr: () => <hr className="my-6 border-border" />,
     table: (props: React.HTMLAttributes<HTMLTableElement>) => (
         <div className="my-6 w-full overflow-auto">

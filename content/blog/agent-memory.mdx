@@ -1,0 +1,542 @@
+---
+title: "构建 AI Agent 记忆系统：从短期到长期记忆"
+description: "深入探讨 AI Agent 记忆系统的设计与实现，涵盖工作记忆、情景记忆、语义记忆与向量检索等核心概念。"
+date: "2026-03-14"
+tags: ["AI", "Agent", "LLM", "Architecture"]
+category: "AI"
+draft: false
+locale: zh
+translationSlug: agent-memory
+---
+
+## 为什么 Agent 需要记忆？
+
+大语言模型（LLM）本身是无状态的 — 每次对话都从零开始。要构建真正有用的 AI Agent，我们需要赋予它**记忆能力**。
+
+<Callout type="info" title="记忆 vs 上下文窗口">
+LLM 的上下文窗口（Context Window）不等同于记忆。上下文窗口是模型单次推理能看到的全部文本，而记忆是跨会话持久化的知识管理系统。即使拥有百万 token 的上下文窗口，Agent 仍然需要记忆来管理跨会话的知识。
+</Callout>
+
+一个完整的 Agent 记忆系统通常包含三个层次：
+
+| 记忆类型 | 持久性 | 类比 | 用途 |
+|---------|-------|------|------|
+| 工作记忆 | 当前会话 | 人类的短期记忆 | 维护对话上下文 |
+| 情景记忆 | 跨会话 | 人类的经历回忆 | 记住过去的交互 |
+| 语义记忆 | 永久 | 人类的知识体系 | 存储事实和知识 |
+
+## 系统架构
+
+<FileTree>
+  <Folder name="agent-memory" defaultOpen>
+    <Folder name="src" defaultOpen>
+      <Folder name="memory" defaultOpen>
+        <File name="types.ts" />
+        <File name="working.ts" active />
+        <File name="episodic.ts" />
+        <File name="semantic.ts" />
+        <File name="vector-store.ts" />
+      </Folder>
+      <Folder name="agent">
+        <File name="core.ts" />
+        <File name="planner.ts" />
+        <File name="executor.ts" />
+      </Folder>
+      <Folder name="embeddings">
+        <File name="openai.ts" />
+        <File name="local.ts" />
+      </Folder>
+      <File name="index.ts" />
+    </Folder>
+    <File name="package.json" />
+    <File name="tsconfig.json" />
+  </Folder>
+</FileTree>
+
+## 实现详解
+
+<Steps>
+  <Step title="定义记忆接口">
+
+首先，我们需要定义统一的记忆接口，让不同类型的记忆存储可以互换使用：
+
+```ts title="src/memory/types.ts" {4-9}
+export interface MemoryEntry {
+  id: string
+  content: string
+  embedding?: number[]
+  metadata: {
+    timestamp: number
+    importance: number
+    accessCount: number
+    source: 'user' | 'agent' | 'system'
+  }
+}
+
+export interface MemoryStore {
+  add(entry: MemoryEntry): Promise<void>
+  query(text: string, topK?: number): Promise<MemoryEntry[]>
+  update(id: string, entry: Partial<MemoryEntry>): Promise<void>
+  forget(id: string): Promise<void>
+}
+```
+
+  </Step>
+
+  <Step title="实现工作记忆">
+
+工作记忆管理当前会话的上下文，使用滑动窗口策略自动压缩历史消息：
+
+```ts title="src/memory/working.ts" {10-16}
+interface Message {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  tokens: number
+}
+
+export class WorkingMemory {
+  private buffer: Message[] = []
+  private maxTokens: number
+
+  constructor(maxTokens = 4096) {
+    this.maxTokens = maxTokens
+  }
+
+  add(message: Message) {
+    this.buffer.push(message)
+    while (this.estimateTokens() > this.maxTokens) {
+      const removed = this.buffer.shift()
+      if (removed) this.compress(removed)
+    }
+  }
+
+  private estimateTokens(): number {
+    return this.buffer.reduce((sum, m) => sum + m.tokens, 0)
+  }
+
+  private compress(message: Message) {
+    // 将被移除的消息压缩为摘要，存入情景记忆
+    console.log(`Compressing: ${message.content.slice(0, 50)}...`)
+  }
+
+  getContext(): Message[] {
+    return [...this.buffer]
+  }
+}
+```
+
+<Callout type="warning" title="Token 估算">
+实际项目中应使用 `tiktoken` 等库精确计算 token 数，而不是简单估算。不同模型的 tokenizer 差异可能导致上下文截断不准确。
+</Callout>
+
+  </Step>
+
+  <Step title="实现语义记忆与向量检索">
+
+语义记忆是 Agent 的长期知识库，使用向量数据库实现高效的相似性检索：
+
+```ts title="src/memory/semantic.ts"
+import { embed } from '../embeddings/openai'
+import { VectorStore } from './vector-store'
+
+export class SemanticMemory implements MemoryStore {
+  private store: VectorStore
+
+  constructor(store: VectorStore) {
+    this.store = store
+  }
+
+  async add(entry: MemoryEntry) {
+    entry.embedding = await embed(entry.content)
+    await this.store.upsert(entry)
+  }
+
+  async query(text: string, topK = 5) {
+    const queryEmbedding = await embed(text)
+    return this.store.search(queryEmbedding, topK)
+  }
+
+  async update(id: string, patch: Partial<MemoryEntry>) {
+    if (patch.content) {
+      patch.embedding = await embed(patch.content)
+    }
+    await this.store.update(id, patch)
+  }
+
+  async forget(id: string) {
+    await this.store.delete(id)
+  }
+}
+```
+
+  </Step>
+
+  <Step title="组装完整的记忆系统">
+
+将三层记忆整合到 Agent 核心中：
+
+```ts title="src/agent/core.ts" {6-10}
+import { WorkingMemory } from '../memory/working'
+import { EpisodicMemory } from '../memory/episodic'
+import { SemanticMemory } from '../memory/semantic'
+
+export class Agent {
+  private working: WorkingMemory
+  private episodic: EpisodicMemory
+  private semantic: SemanticMemory
+
+  async think(input: string): Promise<string> {
+    // 1. 从语义记忆中检索相关知识
+    const knowledge = await this.semantic.query(input, 3)
+
+    // 2. 从情景记忆中检索相似经历
+    const episodes = await this.episodic.query(input, 2)
+
+    // 3. 组合为完整的上下文
+    const context = [
+      ...this.working.getContext(),
+      ...knowledge.map(k => ({
+        role: 'system' as const,
+        content: `[知识] ${k.content}`,
+        tokens: k.content.length,
+      })),
+      ...episodes.map(e => ({
+        role: 'system' as const,
+        content: `[经历] ${e.content}`,
+        tokens: e.content.length,
+      })),
+    ]
+
+    // 4. 调用 LLM 生成回复
+    const response = await this.llm.complete(context)
+
+    // 5. 更新工作记忆
+    this.working.add({
+      role: 'assistant',
+      content: response,
+      tokens: response.length,
+    })
+
+    return response
+  }
+}
+```
+
+  </Step>
+</Steps>
+
+## 不同方案对比
+
+<Tabs defaultValue="rag">
+  <TabsList>
+    <TabsTrigger value="rag">RAG 检索增强</TabsTrigger>
+    <TabsTrigger value="finetune">微调方案</TabsTrigger>
+    <TabsTrigger value="hybrid">混合方案</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="rag">
+
+**RAG（Retrieval-Augmented Generation）** 是最常用的 Agent 记忆实现方式：
+
+1. 将历史交互和知识编码为向量
+2. 查询时通过相似性检索找到相关记忆
+3. 将检索结果注入 prompt 作为上下文
+
+```ts title="rag-memory.ts"
+async function recallWithRAG(query: string) {
+  // 编码查询向量
+  const queryVec = await embed(query)
+
+  // 检索 top-K 相似记忆
+  const memories = await vectorStore.search(queryVec, {
+    topK: 5,
+    threshold: 0.7,
+  })
+
+  // 组装上下文
+  return memories
+    .map(m => m.content)
+    .join('\n---\n')
+}
+```
+
+<Callout type="success" title="RAG 的优势">
+实时更新、无需重新训练、成本低、可解释性强。适合大多数 Agent 记忆场景。
+</Callout>
+
+  </TabsContent>
+
+  <TabsContent value="finetune">
+
+**微调方案** 将记忆直接编码到模型权重中：
+
+- 核心知识通过 fine-tuning 固化
+- 响应速度快，不需要额外的检索步骤
+- 适合相对稳定、不经常更新的知识
+
+```ts title="finetune-approach.ts"
+// 准备微调数据
+const trainingData = memories.map(m => ({
+  messages: [
+    { role: 'user', content: m.query },
+    { role: 'assistant', content: m.response },
+  ]
+}))
+
+// 提交微调任务
+await client.fineTuning.jobs.create({
+  model: 'gpt-4o-mini-2024-07-18',
+  training_file: uploadedFile.id,
+})
+```
+
+<Callout type="warning" title="注意">
+微调方案的更新成本高，需要重新训练模型。不适合频繁更新的动态记忆场景。
+</Callout>
+
+  </TabsContent>
+
+  <TabsContent value="hybrid">
+
+**混合方案** 结合了 RAG 和微调的优势，是生产级 Agent 的推荐选择：
+
+- **核心知识** → 微调固化到模型权重中
+- **动态内容** → RAG 实时检索
+- **工作记忆** → 上下文窗口管理
+- **行为模式** → 通过 few-shot examples 注入
+
+```ts title="hybrid-memory.ts"
+class HybridMemory {
+  async recall(query: string, context: Context) {
+    // 静态知识已在模型权重中（微调）
+    // 动态知识通过 RAG 检索
+    const dynamic = await this.rag.search(query)
+
+    // 行为模式通过 few-shot 注入
+    const examples = await this.getExamples(context.task)
+
+    return { dynamic, examples }
+  }
+}
+```
+
+<Callout type="info">
+这是目前生产级 Agent 系统最推荐的方案。Anthropic 的 Claude、OpenAI 的 GPT 等都在内部采用类似的混合架构。
+</Callout>
+
+  </TabsContent>
+</Tabs>
+
+## 动手试一试
+
+下面是一个简化的记忆系统交互演示 — 你可以直接编辑代码并运行：
+
+<CodePlayground
+  template="react"
+  title="Agent Memory 交互演示"
+  files={{
+    "/App.js": `import { useState } from 'react'
+
+function MemoryDemo() {
+  const [memories, setMemories] = useState([])
+  const [input, setInput] = useState('')
+  const [search, setSearch] = useState('')
+
+  const addMemory = () => {
+    if (!input.trim()) return
+    setMemories(prev => [...prev, {
+      id: Date.now(),
+      content: input,
+      time: new Date().toLocaleTimeString(),
+      importance: (Math.random() * 0.5 + 0.5).toFixed(2)
+    }])
+    setInput('')
+  }
+
+  const filtered = search
+    ? memories.filter(m =>
+        m.content.toLowerCase().includes(search.toLowerCase())
+      )
+    : memories
+
+  return (
+    <div style={{ fontFamily: 'system-ui', padding: 20, maxWidth: 480 }}>
+      <h2 style={{ marginTop: 0 }}>Agent Memory Demo</h2>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && addMemory()}
+          placeholder="Add a memory..."
+          style={{
+            flex: 1, padding: '8px 12px',
+            borderRadius: 6, border: '1px solid #ddd',
+            fontSize: 14
+          }}
+        />
+        <button
+          onClick={addMemory}
+          style={{
+            padding: '8px 16px', background: '#0070f3',
+            color: '#fff', border: 'none', borderRadius: 6,
+            cursor: 'pointer', fontSize: 14, fontWeight: 500
+          }}
+        >
+          Store
+        </button>
+      </div>
+
+      <input
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search memories..."
+        style={{
+          width: '100%', padding: '8px 12px',
+          borderRadius: 6, border: '1px solid #ddd',
+          marginBottom: 16, fontSize: 14, boxSizing: 'border-box'
+        }}
+      />
+
+      {filtered.length === 0 ? (
+        <p style={{ color: '#999', textAlign: 'center', padding: 24 }}>
+          {search ? 'No matching memories' : 'No memories yet'}
+        </p>
+      ) : (
+        filtered.map(m => (
+          <div key={m.id} style={{
+            padding: 12, marginBottom: 8,
+            background: '#f8f9fa', borderRadius: 8,
+            border: '1px solid #eee'
+          }}>
+            <div style={{ fontSize: 14 }}>{m.content}</div>
+            <div style={{
+              marginTop: 6, fontSize: 12, color: '#888',
+              display: 'flex', gap: 12
+            }}>
+              <span>Time: {m.time}</span>
+              <span>Importance: {m.importance}</span>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
+export default function App() {
+  return <MemoryDemo />
+}`
+  }}
+  editorHeight={400}
+/>
+
+## 记忆管理策略
+
+除了存储和检索，记忆管理同样重要。以下是几种关键策略：
+
+<Callout type="error" title="常见陷阱">
+不做记忆管理的 Agent 会随着运行时间推移变得越来越慢，甚至因为检索到大量不相关的旧记忆而产生"幻觉"。
+</Callout>
+
+### 时间衰减
+
+记忆的重要性随时间指数衰减，模拟人类遗忘曲线：
+
+```ts title="src/memory/decay.ts" {3-6}
+export function calculateDecay(
+  entry: MemoryEntry,
+  now: number = Date.now()
+): number {
+  const ageHours = (now - entry.metadata.timestamp) / 3600000
+  const timeFactor = Math.exp(-0.1 * ageHours)
+  const accessBoost = Math.log2(entry.metadata.accessCount + 1)
+  return entry.metadata.importance * timeFactor * (1 + accessBoost * 0.2)
+}
+```
+
+### 记忆整合
+
+定期将碎片化的记忆合并为更高层次的摘要：
+
+```ts title="src/memory/consolidation.ts"
+export async function consolidate(
+  memories: MemoryEntry[],
+  llm: LLMClient
+): Promise<MemoryEntry> {
+  const combined = memories.map(m => m.content).join('\n')
+
+  const summary = await llm.complete([
+    {
+      role: 'system',
+      content: 'Summarize these related memories into one concise entry.',
+    },
+    { role: 'user', content: combined },
+  ])
+
+  return {
+    id: crypto.randomUUID(),
+    content: summary,
+    metadata: {
+      timestamp: Date.now(),
+      importance: Math.max(...memories.map(m => m.metadata.importance)),
+      accessCount: 0,
+      source: 'system',
+    },
+  }
+}
+```
+
+## 常见问题
+
+<Accordion type="multiple">
+  <AccordionItem value="q1">
+    <AccordionTrigger>记忆系统会不会消耗太多 token？</AccordionTrigger>
+    <AccordionContent>
+      合理的记忆管理反而能**减少** token 消耗。通过向量检索只注入最相关的记忆片段（通常 3-5 条），而不是把所有历史都塞进上下文。结合摘要压缩技术，可以用几百个 token 传递数千条交互的关键信息。
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="q2">
+    <AccordionTrigger>如何处理记忆冲突？</AccordionTrigger>
+    <AccordionContent>
+      当新信息与旧记忆冲突时，可以采用**时间衰减 + 重要性加权**策略：新记忆有更高权重，被频繁访问的记忆增加重要性分数，定期执行"记忆整合"来合并或淘汰过时信息。也可以让 LLM 自行判断冲突并决定保留哪个版本。
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="q3">
+    <AccordionTrigger>推荐哪些向量数据库？</AccordionTrigger>
+    <AccordionContent>
+      根据场景选择：**本地/轻量级**推荐 ChromaDB 或 LanceDB；**云服务**推荐 Pinecone 或 Weaviate；**自托管**推荐 Qdrant 或 Milvus；**嵌入式**可以直接使用 `hnswlib-node`。对于原型阶段，简单的内存数组 + 余弦相似度也足够了。
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="q4">
+    <AccordionTrigger>Agent 记忆和 RAG 有什么区别？</AccordionTrigger>
+    <AccordionContent>
+      RAG 是 Agent 记忆的一种**实现手段**，而不是全部。Agent 记忆系统还包括工作记忆（上下文管理）、记忆写入（从交互中自动提取知识）、记忆管理（衰减、整合、遗忘）等 RAG 不涉及的部分。可以把 RAG 理解为记忆系统的"检索层"。
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## 延伸阅读
+
+<LinkCard
+  href="https://lilianweng.github.io/posts/2023-06-23-agent/"
+  title="LLM Powered Autonomous Agents"
+  description="Lilian Weng 关于 LLM Agent 的经典综述，涵盖记忆、规划、工具使用等核心模块的深度分析。"
+/>
+
+<LinkCard
+  href="https://www.anthropic.com/engineering/building-effective-agents"
+  title="Building Effective Agents - Anthropic"
+  description="Anthropic 官方的 Agent 构建指南，包含记忆管理、工具设计和错误处理的工程最佳实践。"
+/>
+
+## 总结
+
+<Callout type="success" title="核心要点">
+1. **分层设计** — 工作记忆、情景记忆、语义记忆各司其职，覆盖不同时间尺度
+2. **高效检索** — 使用向量数据库实现语义搜索，而非关键词匹配
+3. **智能淘汰** — 基于重要性和时间衰减管理记忆生命周期，避免无限膨胀
+4. **持续整合** — 定期压缩和合并碎片记忆，保持系统高效运转
+</Callout>
+
+> 记忆让 Agent 从"工具"进化为"助手" — 它不仅能回答问题，还能理解你、记住你、持续为你创造价值。
