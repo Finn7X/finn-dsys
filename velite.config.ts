@@ -63,6 +63,8 @@ const projects = defineCollection({
             tags: s.array(s.string()).default([]),
             featured: s.boolean().default(false),
             draft: s.boolean().default(false),
+            locale: s.enum(["zh", "en"]).default("zh"),
+            translationSlug: s.string().optional(),
             slug: s.path(),
             content: s.mdx(),
             metadata: s.metadata(),
