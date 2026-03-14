@@ -45,11 +45,12 @@ export default async function HomePage({
     const { locale } = await params
     const recentPosts = getAllPosts(locale).slice(0, 3)
 
-    return <HomeContent recentPosts={recentPosts} />
+    return <HomeContent recentPosts={recentPosts} locale={locale} />
 }
 
 function HomeContent({
     recentPosts,
+    locale,
 }: {
     recentPosts: {
         title: string
@@ -59,6 +60,7 @@ function HomeContent({
         slugAsParams: string
         permalink: string
     }[]
+    locale: string
 }) {
     const t = useTranslations("home")
 
@@ -123,7 +125,7 @@ function HomeContent({
                                                     {new Date(
                                                         post.date,
                                                     ).toLocaleDateString(
-                                                        "zh-CN",
+                                                        locale === "en" ? "en-US" : "zh-CN",
                                                     )}
                                                 </span>
                                                 <span className="flex items-center gap-1">
