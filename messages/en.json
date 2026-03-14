@@ -18,22 +18,7 @@
             "github": "GitHub"
         },
         "recentPosts": "Recent Posts",
-        "viewAll": "View All",
-        "skills": {
-            "title": "What I Do",
-            "webDev": {
-                "title": "Web Development",
-                "description": "Building modern web applications with React and Next.js"
-            },
-            "writing": {
-                "title": "Technical Writing",
-                "description": "Sharing knowledge through detailed tutorials and articles"
-            },
-            "openSource": {
-                "title": "Open Source",
-                "description": "Contributing to and creating open source projects"
-            }
-        }
+        "viewAll": "View All"
     },
     "blog": {
         "title": "Blog",

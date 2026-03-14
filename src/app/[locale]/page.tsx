@@ -68,15 +68,15 @@ function HomeContent({
     return (
         <>
             {/* Hero Section */}
-            <section className="px-4 pb-20 pt-16">
-                <div className="container mx-auto max-w-4xl text-center">
-                    <h1 className="mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-5xl font-bold text-transparent">
+            <section className="px-4 pb-16 pt-32">
+                <div className="mx-auto max-w-[var(--content-width)] text-left">
+                    <h1 className="font-heading mb-4 text-5xl font-medium text-foreground">
                         {t("hero.title")}
                     </h1>
-                    <p className="mb-8 text-xl text-muted-foreground">
+                    <p className="mb-8 text-lg text-muted-foreground">
                         {t("hero.description")}
                     </p>
-                    <div className="flex justify-center gap-4 mb-6">
+                    <div className="flex gap-4 mb-6">
                         <Button variant="outline" className="gap-2" asChild>
                             <a
                                 href="https://github.com/Finn7X"
@@ -94,10 +94,10 @@ function HomeContent({
 
             {/* Recent Posts */}
             {recentPosts.length > 0 && (
-                <section className="bg-muted/50 px-4 py-16">
-                    <div className="container mx-auto max-w-4xl">
+                <section className="px-4 pt-16 pb-16">
+                    <div className="mx-auto max-w-[var(--content-width)]">
                         <div className="mb-8 flex items-center justify-between">
-                            <h2 className="text-3xl font-bold">
+                            <h2 className="font-heading text-2xl">
                                 {t("recentPosts")}
                             </h2>
                             <Button variant="ghost" className="gap-1" asChild>
@@ -143,86 +143,6 @@ function HomeContent({
                     </div>
                 </section>
             )}
-
-            {/* Skills Section */}
-            <section className="px-4 py-16">
-                <div className="container mx-auto max-w-4xl text-center">
-                    <h2 className="mb-8 text-3xl font-bold">
-                        {t("skills.title")}
-                    </h2>
-                    <div className="grid gap-8 md:grid-cols-3">
-                        <div className="p-6">
-                            <div className="mb-4 text-purple-600">
-                                <svg
-                                    className="mx-auto h-12 w-12"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                                    />
-                                </svg>
-                            </div>
-                            <h3 className="mb-2 text-xl font-semibold">
-                                {t("skills.webDev.title")}
-                            </h3>
-                            <p className="text-muted-foreground">
-                                {t("skills.webDev.description")}
-                            </p>
-                        </div>
-                        <div className="p-6">
-                            <div className="mb-4 text-blue-600">
-                                <svg
-                                    className="mx-auto h-12 w-12"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
-                                </svg>
-                            </div>
-                            <h3 className="mb-2 text-xl font-semibold">
-                                {t("skills.writing.title")}
-                            </h3>
-                            <p className="text-muted-foreground">
-                                {t("skills.writing.description")}
-                            </p>
-                        </div>
-                        <div className="p-6">
-                            <div className="mb-4 text-green-600">
-                                <svg
-                                    className="mx-auto h-12 w-12"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z"
-                                    />
-                                </svg>
-                            </div>
-                            <h3 className="mb-2 text-xl font-semibold">
-                                {t("skills.openSource.title")}
-                            </h3>
-                            <p className="text-muted-foreground">
-                                {t("skills.openSource.description")}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </>
     )
 }

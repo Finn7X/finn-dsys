@@ -18,22 +18,7 @@
             "github": "GitHub"
         },
         "recentPosts": "最新文章",
-        "viewAll": "查看全部",
-        "skills": {
-            "title": "我在做什么",
-            "webDev": {
-                "title": "Web 开发",
-                "description": "使用 React 和 Next.js 构建现代 Web 应用"
-            },
-            "writing": {
-                "title": "技术写作",
-                "description": "通过详细的教程和文章分享知识"
-            },
-            "openSource": {
-                "title": "开源项目",
-                "description": "参与和创建开源项目"
-            }
-        }
+        "viewAll": "查看全部"
     },
     "blog": {
         "title": "博客",
