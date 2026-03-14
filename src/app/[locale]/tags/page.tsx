@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server"
 import { Link } from "@/i18n/routing"
 import { getAllTags, getAllPosts } from "@/lib/content"
 import { tagToSlug } from "@/lib/tag-utils"
-import { cn } from "@/lib/utils"
 import { siteConfig } from "@/config/site"
 import { getBaseOpenGraph } from "@/lib/metadata"
 
@@ -58,8 +57,6 @@ function TagsContent({
     totalPosts: number
 }) {
     const t = useTranslations("tags")
-    const maxCount = Math.max(...allTags.map((t) => t.count), 1)
-
     return (
         <div className="container mx-auto max-w-4xl px-4 py-12">
             <div className="mb-8">
@@ -70,36 +67,20 @@ function TagsContent({
                 </p>
             </div>
 
-            {/* Tag Cloud */}
             {allTags.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                    {allTags.map(({ tag, count }) => {
-                        const ratio = count / maxCount
-                        const sizeClass =
-                            ratio > 0.75
-                                ? "text-2xl"
-                                : ratio > 0.5
-                                  ? "text-xl"
-                                  : ratio > 0.25
-                                    ? "text-base"
-                                    : "text-sm"
-                        return (
-                            <Link
-                                key={tag}
-                                href={`/tags/${tagToSlug(tag)}`}
-                                className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition-colors duration-150",
-                                    "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-                                    sizeClass,
-                                )}
-                            >
-                                {tag}
-                                <span className="text-xs text-muted-foreground">
-                                    ({count})
-                                </span>
-                            </Link>
-                        )
-                    })}
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                    {allTags.map(({ tag, count }) => (
+                        <Link
+                            key={tag}
+                            href={`/tags/${tagToSlug(tag)}`}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            {tag}
+                            <span className="text-muted-foreground/60">
+                                {" "}({count})
+                            </span>
+                        </Link>
+                    ))}
                 </div>
             ) : (
                 <p className="py-20 text-center text-muted-foreground">
