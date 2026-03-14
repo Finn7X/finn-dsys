@@ -7,14 +7,6 @@
     max-width: var(--content-width);
 }
 
-/* Code blocks break out of content width on desktop */
-@media (min-width: 1024px) {
-    .prose-custom [data-rehype-pretty-code-figure] {
-        margin-left: -40px;
-        margin-right: -40px;
-    }
-}
-
 /* Code blocks - rehype-pretty-code integration */
 [data-rehype-pretty-code-figure] code {
     @apply grid;
