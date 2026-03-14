@@ -1,9 +1,12 @@
 import { Link } from "@/i18n/routing"
+import { getTranslations } from "next-intl/server"
 import { Github, Twitter, Mail, Rss } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { siteConfig, navLinks } from "@/config/site"
 
-export function Footer() {
+export async function Footer() {
+    const t = await getTranslations("nav")
+
     return (
         <footer className="border-t">
             <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -16,7 +19,7 @@ export function Footer() {
                                 href={item.href}
                                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                             >
-                                {item.title}
+                                {t(item.key)}
                             </Link>
                         ))}
                     </nav>

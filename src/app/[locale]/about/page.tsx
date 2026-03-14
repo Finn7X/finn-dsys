@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server"
 import { Github, Twitter, Mail, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { aboutConfig, techStack, timeline } from "@/config/about"
+import { aboutConfig, techStack, timelineYears } from "@/config/about"
 import { siteConfig } from "@/config/site"
 import { getBaseOpenGraph } from "@/lib/metadata"
 
@@ -46,6 +46,8 @@ export default function AboutPage() {
 function AboutContent() {
     const t = useTranslations("about")
 
+    const bio = [t("bio.0"), t("bio.1")]
+
     return (
         <div className="container mx-auto max-w-4xl px-4 py-12">
             {/* Personal Introduction */}
@@ -67,14 +69,14 @@ function AboutContent() {
                         {aboutConfig.name}
                     </h1>
                     <p className="mb-2 text-lg text-muted-foreground">
-                        {aboutConfig.role}
+                        {t("role")}
                     </p>
                     <p className="mb-4 flex items-center justify-center gap-1 text-sm text-muted-foreground sm:justify-start">
                         <MapPin className="h-3.5 w-3.5" />
                         {aboutConfig.location}
                     </p>
 
-                    {aboutConfig.bio.map((paragraph, i) => (
+                    {bio.map((paragraph, i) => (
                         <p
                             key={i}
                             className="mb-2 leading-7 text-muted-foreground"
@@ -147,20 +149,20 @@ function AboutContent() {
             <section className="mb-16">
                 <h2 className="mb-6 text-2xl font-bold">{t("experience")}</h2>
                 <div className="space-y-6 border-l-2 border-border pl-8">
-                    {timeline.map((item, i) => (
-                        <div key={i} className="relative">
+                    {timelineYears.map((year) => (
+                        <div key={year} className="relative">
                             <div className="absolute -left-[calc(2rem+5px)] top-1 h-3 w-3 rounded-full border-2 border-primary bg-background" />
                             <p className="text-sm font-medium text-muted-foreground">
-                                {item.year}
+                                {year}
                             </p>
                             <h3 className="text-lg font-semibold">
-                                {item.title}
+                                {t(`timeline${year}Title`)}
                             </h3>
                             <p className="text-sm text-muted-foreground">
-                                {item.role}
+                                {t(`timeline${year}Role`)}
                             </p>
                             <p className="mt-1 leading-7 text-muted-foreground">
-                                {item.description}
+                                {t(`timeline${year}Desc`)}
                             </p>
                         </div>
                     ))}

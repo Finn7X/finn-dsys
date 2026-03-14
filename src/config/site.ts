@@ -29,11 +29,11 @@ export const giscusConfig = {
 }
 
 export const navLinks = [
-    { title: "Blog", href: "/blog" },
-    { title: "Notes", href: "/notes" },
-    { title: "Projects", href: "/projects" },
-    { title: "Tags", href: "/tags" },
-    { title: "About", href: "/about" },
+    { key: "blog", href: "/blog" },
+    { key: "notes", href: "/notes" },
+    { key: "projects", href: "/projects" },
+    { key: "tags", href: "/tags" },
+    { key: "about", href: "/about" },
 ] as const
 
 export const socialLinks = [

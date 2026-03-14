@@ -74,7 +74,15 @@
         "experience": "经历",
         "contact": "联系方式",
         "contactCta": "想要联系我？",
-        "sendEmail": "发送邮件"
+        "sendEmail": "发送邮件",
+        "bio": ["热爱 Web 开发，专注于前端和全栈技术。喜欢用代码解决实际问题，享受构建产品的过程。", "目前主要使用 React、Next.js、TypeScript 和 Tailwind CSS 进行开发，也在持续学习 DevOps 和云原生技术。"],
+        "role": "全栈开发者",
+        "timeline2026Title": "Finn Days",
+        "timeline2026Role": "创建者",
+        "timeline2026Desc": "构建个人技术博客，分享 Web 开发实践与心得。",
+        "timeline2025Title": "全栈开发",
+        "timeline2025Role": "开发者",
+        "timeline2025Desc": "深入学习 React 生态、Next.js 和 TypeScript。"
     },
     "projects": {
         "title": "项目",

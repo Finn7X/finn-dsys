@@ -74,7 +74,15 @@
         "experience": "Experience",
         "contact": "Contact",
         "contactCta": "Want to get in touch?",
-        "sendEmail": "Send Email"
+        "sendEmail": "Send Email",
+        "bio": ["Passionate about web development, focusing on frontend and full-stack technologies. I enjoy solving real problems with code and building products.", "Currently working with React, Next.js, TypeScript, and Tailwind CSS, while continuously learning DevOps and cloud-native technologies."],
+        "role": "Full Stack Developer",
+        "timeline2026Title": "Finn Days",
+        "timeline2026Role": "Creator",
+        "timeline2026Desc": "Building a personal tech blog to share web development practices and insights.",
+        "timeline2025Title": "Full Stack Development",
+        "timeline2025Role": "Developer",
+        "timeline2025Desc": "Deep diving into React ecosystem, Next.js, and TypeScript."
     },
     "projects": {
         "title": "Projects",
