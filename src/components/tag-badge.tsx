@@ -13,7 +13,7 @@ export function TagBadge({
     count,
     linked = true,
 }: TagBadgeProps) {
-    const className = "text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+    const className = "text-sm text-accent transition-colors duration-200 hover:text-accent/80"
 
     if (linked) {
         return (
@@ -30,10 +30,10 @@ export function TagBadge({
     }
 
     return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-accent">
             {tag}
             {count !== undefined && (
-                <span> ({count})</span>
+                <span className="text-muted-foreground"> ({count})</span>
             )}
         </span>
     )

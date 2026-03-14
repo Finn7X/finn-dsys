@@ -1,11 +1,4 @@
 import { cn } from "@/lib/utils"
-import {
-    Info,
-    AlertTriangle,
-    CheckCircle,
-    XCircle,
-    type LucideIcon,
-} from "lucide-react"
 
 type CalloutType = "info" | "warning" | "success" | "error"
 
@@ -17,47 +10,41 @@ interface CalloutProps {
 
 const calloutConfig: Record<
     CalloutType,
-    { icon: LucideIcon; className: string }
+    { className: string; label?: string }
 > = {
     info: {
-        icon: Info,
-        className:
-            "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-100",
+        className: "border-border bg-secondary",
     },
     warning: {
-        icon: AlertTriangle,
         className:
-            "border-yellow-200 bg-yellow-50 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-100",
+            "border-[hsl(35,80%,50%)] bg-[hsl(35,40%,95%)] dark:border-[hsl(35,60%,60%)] dark:bg-[hsl(35,20%,12%)]",
+        label: "Warning",
     },
     success: {
-        icon: CheckCircle,
-        className:
-            "border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950/50 dark:text-green-100",
+        className: "border-border bg-secondary",
     },
     error: {
-        icon: XCircle,
         className:
-            "border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-100",
+            "border-[hsl(0,70%,55%)] bg-[hsl(0,40%,96%)] dark:border-[hsl(0,55%,60%)] dark:bg-[hsl(0,20%,12%)]",
+        label: "Danger",
     },
 }
 
 export function Callout({ type = "info", title, children }: CalloutProps) {
     const config = calloutConfig[type]
-    const Icon = config.icon
 
     return (
         <div
             className={cn(
-                "my-6 flex gap-3 rounded-lg border p-4",
+                "my-8 rounded-lg border-l-[3px] p-4",
                 config.className,
             )}
             role="note"
         >
-            <Icon className="mt-0.5 h-5 w-5 shrink-0" />
-            <div className="min-w-0">
-                {title && <p className="mb-1 font-semibold">{title}</p>}
-                <div className="text-sm [&>p]:m-0">{children}</div>
-            </div>
+            {(title || config.label) && (
+                <p className="mb-1 text-sm font-bold">{title || config.label}</p>
+            )}
+            <div className="text-sm [&>p]:m-0">{children}</div>
         </div>
     )
 }

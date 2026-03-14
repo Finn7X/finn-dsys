@@ -47,7 +47,9 @@ export function Toc({ items }: TocProps) {
     return (
         <nav className="hidden xl:block">
             <div className="sticky top-20">
-                <h4 className="mb-3 text-sm font-semibold">{t("toc")}</h4>
+                <h4 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-3">
+                    {t("toc")}
+                </h4>
                 <TocList items={items} activeId={activeId} depth={0} />
             </div>
         </nav>
@@ -65,28 +67,31 @@ function TocList({
 }) {
     return (
         <ul className="space-y-1 text-sm">
-            {items.map((item) => (
-                <li key={item.url}>
-                    <a
-                        href={item.url}
-                        className={cn(
-                            "block truncate py-1 text-muted-foreground transition-colors hover:text-foreground",
-                            depth > 0 && "pl-4",
-                            activeId === item.url.slice(1) &&
-                                "font-medium text-foreground",
+            {items.map((item) => {
+                const isActive = activeId === item.url.slice(1)
+                return (
+                    <li key={item.url}>
+                        <a
+                            href={item.url}
+                            className={cn(
+                                "block truncate py-1 text-muted-foreground transition-colors duration-150 hover:text-foreground",
+                                depth > 0 && "pl-4",
+                                isActive &&
+                                    "border-l-2 border-accent pl-3 font-medium text-foreground",
+                            )}
+                        >
+                            {item.title}
+                        </a>
+                        {item.items && item.items.length > 0 && (
+                            <TocList
+                                items={item.items}
+                                activeId={activeId}
+                                depth={depth + 1}
+                            />
                         )}
-                    >
-                        {item.title}
-                    </a>
-                    {item.items && item.items.length > 0 && (
-                        <TocList
-                            items={item.items}
-                            activeId={activeId}
-                            depth={depth + 1}
-                        />
-                    )}
-                </li>
-            ))}
+                    </li>
+                )
+            })}
         </ul>
     )
 }

@@ -120,7 +120,7 @@ export default async function PostPage({
             <ReadingProgress />
 
             <div className="container mx-auto max-w-6xl px-4 py-12">
-                <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_minmax(0,_48rem)_14rem]">
+                <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_minmax(0,var(--content-width))_14rem]">
                     {/* Left spacer */}
                     <div className="hidden xl:block" />
 

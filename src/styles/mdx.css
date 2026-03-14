@@ -1,7 +1,17 @@
 /* MDX content typography styles */
 
+/* Article content container */
 .prose-custom {
-    @apply leading-7;
+    @apply leading-[1.8];
+    max-width: var(--content-width);
+}
+
+/* Code blocks break out of content width on desktop */
+@media (min-width: 1024px) {
+    .prose-custom [data-rehype-pretty-code-figure] {
+        margin-left: -40px;
+        margin-right: -40px;
+    }
 }
 
 /* Code blocks - rehype-pretty-code integration */
@@ -26,7 +36,7 @@ code[data-line-numbers] > [data-line]::before {
 
 /* Inline code */
 :not(pre) > code {
-    @apply rounded bg-muted px-1.5 py-0.5 font-mono text-sm;
+    @apply rounded bg-secondary px-1.5 py-0.5 font-mono text-sm;
 }
 
 /* Heading anchor links */

@@ -2,8 +2,6 @@
 
 import { useState, useSyncExternalStore } from "react"
 import { useTranslations } from "next-intl"
-import { Button } from "@/components/ui/button"
-import { Twitter, Linkedin, Link2, Check, Share2 } from "lucide-react"
 import {
     getTwitterShareUrl,
     getLinkedInShareUrl,
@@ -44,66 +42,49 @@ export function ShareButtons({ title, url, description }: ShareButtonsProps) {
         }
     }
 
-    const handleNativeShare = async () => {
-        await nativeShare(shareData)
-    }
-
     const openShareWindow = (shareUrl: string) => {
         window.open(shareUrl, "_blank", "width=600,height=400,noopener,noreferrer")
     }
 
+    const handleNativeShare = async () => {
+        await nativeShare(shareData)
+    }
+
+    const linkClass = "text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
+
     return (
-        <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground mr-1">{t("label")}</span>
-
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-full hover:bg-[#1DA1F2]/10 hover:text-[#1DA1F2]"
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <span className="mr-1">{t("label")}</span>
+            <button
                 onClick={() => openShareWindow(getTwitterShareUrl(shareData))}
-                aria-label={t("twitter")}
+                className={linkClass}
             >
-                <Twitter className="h-4 w-4" />
-            </Button>
-
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-full hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
+                X
+            </button>
+            <span>&middot;</span>
+            <button
                 onClick={() => openShareWindow(getLinkedInShareUrl(shareData))}
-                aria-label={t("linkedin")}
+                className={linkClass}
             >
-                <Linkedin className="h-4 w-4" />
-            </Button>
-
-            <Button
-                variant="ghost"
-                size="icon"
-                className={`h-9 w-9 rounded-full transition-colors ${
-                    copied
-                        ? "text-green-600 hover:bg-green-600/10"
-                        : "hover:bg-accent hover:text-accent-foreground"
-                }`}
+                LinkedIn
+            </button>
+            <span>&middot;</span>
+            <button
                 onClick={handleCopyLink}
-                aria-label={copied ? t("linkCopied") : t("copyLink")}
+                className={`${linkClass} ${copied ? "text-green-600" : ""}`}
             >
-                {copied ? (
-                    <Check className="h-4 w-4" />
-                ) : (
-                    <Link2 className="h-4 w-4" />
-                )}
-            </Button>
-
+                {copied ? t("linkCopied") : t("copyLink")}
+            </button>
             {showNativeShare && (
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-full hover:bg-accent hover:text-accent-foreground"
-                    onClick={handleNativeShare}
-                    aria-label={t("moreOptions")}
-                >
-                    <Share2 className="h-4 w-4" />
-                </Button>
+                <>
+                    <span>&middot;</span>
+                    <button
+                        onClick={handleNativeShare}
+                        className={linkClass}
+                    >
+                        {t("moreOptions")}
+                    </button>
+                </>
             )}
         </div>
     )

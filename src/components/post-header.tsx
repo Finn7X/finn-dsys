@@ -1,7 +1,6 @@
 import { useLocale } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { tagToSlug } from "@/lib/tag-utils"
-import { Calendar, Clock, RotateCw } from "lucide-react"
 
 interface PostHeaderProps {
     title: string
@@ -21,51 +20,45 @@ export function PostHeader({
     slug,
 }: PostHeaderProps) {
     const locale = useLocale()
-    const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
+
+    const formatDate = (d: string) => {
+        const dt = new Date(d)
+        return `${dt.getFullYear()}.${String(dt.getMonth() + 1).padStart(2, "0")}.${String(dt.getDate()).padStart(2, "0")}`
+    }
 
     return (
-        <header className="mb-8">
+        <header className="mb-16">
             <h1
-                className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl"
+                className="mb-4 font-heading text-4xl font-medium"
                 style={slug ? { viewTransitionName: `post-title-${slug}` } : undefined}
             >
                 {title}
             </h1>
 
             {/* Meta */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {new Date(date).toLocaleDateString(dateLocale, {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                    })}
-                </span>
+            <div className="text-sm text-muted-foreground">
+                <span>{formatDate(date)}</span>
                 {updated && (
-                    <span className="flex items-center gap-1">
-                        <RotateCw className="h-3.5 w-3.5" />
-                        {new Date(updated).toLocaleDateString(dateLocale, {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                        })}
-                    </span>
+                    <>
+                        <span className="mx-2">&middot;</span>
+                        <span>
+                            {locale === "zh" ? "更新于 " : "Updated "}
+                            {formatDate(updated)}
+                        </span>
+                    </>
                 )}
-                <span className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {readingTime}
-                </span>
+                <span className="mx-2">&middot;</span>
+                <span>{readingTime}</span>
             </div>
 
             {/* Tags */}
             {tags.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
                     {tags.map((tag) => (
                         <Link
                             key={tag}
                             href={`/tags/${tagToSlug(tag)}`}
-                            className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+                            className="text-sm text-accent transition-colors hover:text-accent/80"
                         >
                             {tag}
                         </Link>

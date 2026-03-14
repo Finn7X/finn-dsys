@@ -29,9 +29,9 @@ export function CodeBlock({
     }
 
     return (
-        <div className="group relative my-6 overflow-hidden rounded-lg border bg-muted/30">
+        <div className="group relative my-8 overflow-hidden rounded-lg border border-[hsl(var(--code-border))] bg-[hsl(var(--code-bg))]">
             {/* Top bar: filename + language label + copy button */}
-            <div className="flex items-center justify-between border-b bg-muted/50 px-4 py-2">
+            <div className="flex items-center justify-between border-b border-[hsl(var(--code-border))] bg-[hsl(var(--code-bg))] px-4 py-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {filename && (
                         <>
@@ -49,7 +49,7 @@ export function CodeBlock({
                 </div>
                 <button
                     onClick={handleCopy}
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity duration-150 hover:text-foreground group-hover:opacity-100"
                     aria-label={copied ? "Copied" : "Copy code"}
                 >
                     {copied ? (
@@ -63,7 +63,7 @@ export function CodeBlock({
             {/* Code area */}
             <pre
                 className={cn(
-                    "overflow-x-auto p-4 text-sm leading-relaxed",
+                    "overflow-x-auto p-4 text-sm leading-relaxed font-mono",
                     "[&_[data-highlighted-line]]:bg-primary/10 [&_[data-highlighted-line]]:border-l-2 [&_[data-highlighted-line]]:border-primary [&_[data-highlighted-line]]:pl-[calc(1rem-2px)]",
                     className,
                 )}

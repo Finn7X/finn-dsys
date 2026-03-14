@@ -87,8 +87,8 @@ export function Newsletter({ variant = "inline" }: NewsletterProps) {
         <div className="mt-12 pt-8 border-t">
             <div className="rounded-xl border bg-card p-6">
                 <div className="flex items-start gap-3 mb-4">
-                    <div className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 p-2">
-                        <Mail className="h-5 w-5 text-white" />
+                    <div className="rounded-full bg-primary p-2">
+                        <Mail className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold">{t("title")}</h3>
@@ -120,7 +120,7 @@ export function Newsletter({ variant = "inline" }: NewsletterProps) {
                     <Button
                         type="submit"
                         disabled={isPending}
-                        className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                        className="gap-2 bg-primary text-primary-foreground rounded-full"
                     >
                         {isPending ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
