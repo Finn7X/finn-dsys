@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
@@ -23,6 +23,7 @@ export function Newsletter({ variant = "inline" }: NewsletterProps) {
         },
         null
     )
+    const locale = useLocale()
     const t = useTranslations("newsletter")
 
     if (variant === "hero") {
@@ -36,6 +37,7 @@ export function Newsletter({ variant = "inline" }: NewsletterProps) {
                 </p>
 
                 <form action={formAction} className="flex gap-2">
+                    <input type="hidden" name="locale" value={locale} />
                     <input
                         type="text"
                         name="_gotcha"
@@ -97,6 +99,7 @@ export function Newsletter({ variant = "inline" }: NewsletterProps) {
                 </div>
 
                 <form action={formAction} className="flex flex-col sm:flex-row gap-2">
+                    <input type="hidden" name="locale" value={locale} />
                     <input
                         type="text"
                         name="_gotcha"

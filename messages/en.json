@@ -150,7 +150,13 @@
         "inlineDescription": "Weekly curated tech articles, delivered to your inbox. No spam, unsubscribe anytime.",
         "emailLabel": "Email address",
         "subscribe": "Subscribe",
-        "privacy": "We respect your privacy. Your email is only used to send the newsletter and will never be shared with third parties."
+        "privacy": "We respect your privacy. Your email is only used to send the newsletter and will never be shared with third parties.",
+        "errorInvalidEmail": "Please enter a valid email address",
+        "successSubscribed": "Subscribed! Please check your email to confirm.",
+        "errorUnavailable": "Subscription service is temporarily unavailable. Please try again later.",
+        "alreadySubscribed": "Already subscribed. Thanks for your support!",
+        "errorFailed": "Subscription failed. Please try again later.",
+        "errorNetwork": "Network error. Please check your connection and try again."
     },
     "series": {
         "label": "Series",

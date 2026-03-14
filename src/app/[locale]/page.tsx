@@ -4,7 +4,8 @@ import { getTranslations } from "next-intl/server"
 import { Link } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Github, Mail, ArrowRight, Calendar, Clock } from "lucide-react"
+import { Github, ArrowRight, Calendar, Clock } from "lucide-react"
+import { Newsletter } from "@/components/common/newsletter"
 import { getAllPosts } from "@/lib/content"
 import { siteConfig } from "@/config/site"
 import { getBaseOpenGraph } from "@/lib/metadata"
@@ -75,13 +76,7 @@ function HomeContent({
                     <p className="mb-8 text-xl text-muted-foreground">
                         {t("hero.description")}
                     </p>
-                    <div className="flex justify-center gap-4">
-                        <Button className="gap-2" asChild>
-                            <a href={`mailto:xujifennng@gmail.com`}>
-                                <Mail size={18} />
-                                {t("hero.subscribe")}
-                            </a>
-                        </Button>
+                    <div className="flex justify-center gap-4 mb-6">
                         <Button variant="outline" className="gap-2" asChild>
                             <a
                                 href="https://github.com/Finn7X"
@@ -93,6 +88,7 @@ function HomeContent({
                             </a>
                         </Button>
                     </div>
+                    <Newsletter variant="hero" />
                 </div>
             </section>
 

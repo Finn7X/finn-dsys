@@ -150,7 +150,13 @@
         "inlineDescription": "每周精选技术文章，直达你的收件箱。不发垃圾邮件，随时退订。",
         "emailLabel": "邮箱地址",
         "subscribe": "订阅",
-        "privacy": "我们尊重你的隐私，邮箱信息仅用于发送 Newsletter，不会分享给第三方。"
+        "privacy": "我们尊重你的隐私，邮箱信息仅用于发送 Newsletter，不会分享给第三方。",
+        "errorInvalidEmail": "请输入有效的邮箱地址",
+        "successSubscribed": "订阅成功！请检查邮箱确认订阅。",
+        "errorUnavailable": "订阅服务暂时不可用，请稍后再试",
+        "alreadySubscribed": "该邮箱已订阅，感谢你的关注！",
+        "errorFailed": "订阅失败，请稍后再试",
+        "errorNetwork": "网络错误，请检查网络连接后重试"
     },
     "series": {
         "label": "系列文章",

@@ -1,5 +1,8 @@
 "use server"
 
+import zhMessages from "../../../messages/zh.json"
+import enMessages from "../../../messages/en.json"
+
 interface SubscribeResult {
     success: boolean
     message: string
@@ -9,11 +12,15 @@ export async function subscribeToNewsletter(
     formData: FormData
 ): Promise<SubscribeResult> {
     const email = formData.get("email") as string
+    const locale = (formData.get("locale") as string) || "zh"
+
+    const messages = locale === "en" ? enMessages : zhMessages
+    const t = messages.newsletter
 
     if (!email || !email.includes("@")) {
         return {
             success: false,
-            message: "请输入有效的邮箱地址",
+            message: t.errorInvalidEmail,
         }
     }
 
@@ -21,7 +28,7 @@ export async function subscribeToNewsletter(
     if (honeypot) {
         return {
             success: true,
-            message: "订阅成功！请检查邮箱确认订阅。",
+            message: t.successSubscribed,
         }
     }
 
@@ -30,7 +37,7 @@ export async function subscribeToNewsletter(
         console.error("BUTTONDOWN_API_KEY is not configured")
         return {
             success: false,
-            message: "订阅服务暂时不可用，请稍后再试",
+            message: t.errorUnavailable,
         }
     }
 
@@ -53,14 +60,14 @@ export async function subscribeToNewsletter(
         if (response.ok) {
             return {
                 success: true,
-                message: "订阅成功！请检查邮箱确认订阅。",
+                message: t.successSubscribed,
             }
         }
 
         if (response.status === 409) {
             return {
                 success: true,
-                message: "该邮箱已订阅，感谢你的关注！",
+                message: t.alreadySubscribed,
             }
         }
 
@@ -69,13 +76,13 @@ export async function subscribeToNewsletter(
 
         return {
             success: false,
-            message: "订阅失败，请稍后再试",
+            message: t.errorFailed,
         }
     } catch (error) {
         console.error("Newsletter subscription error:", error)
         return {
             success: false,
-            message: "网络错误，请检查网络连接后重试",
+            message: t.errorNetwork,
         }
     }
 }
