@@ -159,20 +159,22 @@
 }
 
 /* Shared element transitions for post title and cover */
-::view-transition-group(post-title-*),
-::view-transition-group(post-cover-*) {
-  animation-duration: 300ms;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
+@supports (view-transition-name: test) {
+  ::view-transition-group(post-title-*),
+  ::view-transition-group(post-cover-*) {
+    animation-duration: 300ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-::view-transition-old(post-title-*),
-::view-transition-old(post-cover-*) {
-  animation: none;
-}
+  ::view-transition-old(post-title-*),
+  ::view-transition-old(post-cover-*) {
+    animation: none;
+  }
 
-::view-transition-new(post-title-*),
-::view-transition-new(post-cover-*) {
-  animation: none;
+  ::view-transition-new(post-title-*),
+  ::view-transition-new(post-cover-*) {
+    animation: none;
+  }
 }
 
 /* Respect reduced motion preference */

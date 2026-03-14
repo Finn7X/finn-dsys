@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "velite --watch & next dev --turbopack",
     "build": "velite && next build",
-    "start": "next start -p 8200",
+    "start": "HOSTNAME=0.0.0.0 PORT=8200 node .next/standalone/server.js",
+    "start:next": "next start -p 8200",
     "lint": "eslint ."
   },
   "dependencies": {
