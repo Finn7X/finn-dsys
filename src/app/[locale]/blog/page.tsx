@@ -3,9 +3,7 @@ import { useTranslations } from "next-intl"
 import { getTranslations } from "next-intl/server"
 import { Link } from "@/i18n/routing"
 import { getAllPosts, getPostsByTag, getAllTags } from "@/lib/content"
-import { PostCard } from "@/components/post-card"
 import { Pagination } from "@/components/pagination"
-import { cn } from "@/lib/utils"
 import { FileText } from "lucide-react"
 import { siteConfig } from "@/config/site"
 import { getBaseOpenGraph } from "@/lib/metadata"
@@ -71,9 +69,15 @@ export default async function BlogPage({
             activeTag={activeTag}
             currentPage={currentPage}
             totalPages={totalPages}
-            totalPosts={filteredPosts.length}
         />
     )
+}
+
+function formatShortDate(dateStr: string) {
+    const d = new Date(dateStr)
+    const month = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    return `${month}.${day}`
 }
 
 function BlogContent({
@@ -82,7 +86,6 @@ function BlogContent({
     activeTag,
     currentPage,
     totalPages,
-    totalPosts,
 }: {
     posts: {
         title: string
@@ -97,73 +100,84 @@ function BlogContent({
     activeTag?: string
     currentPage: number
     totalPages: number
-    totalPosts: number
 }) {
     const t = useTranslations("blog")
 
+    // Group posts by year
+    const postsByYear = posts.reduce(
+        (groups, post) => {
+            const year = new Date(post.date).getFullYear().toString()
+            if (!groups[year]) groups[year] = []
+            groups[year].push(post)
+            return groups
+        },
+        {} as Record<string, typeof posts>,
+    )
+
     return (
-        <div className="container mx-auto max-w-4xl px-4 py-12">
+        <div className="mx-auto max-w-[var(--content-width)] px-4 py-16">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="mb-2 text-3xl font-bold">{t("title")}</h1>
-                <p className="text-muted-foreground">
-                    {activeTag
-                        ? `${activeTag} (${totalPosts} ${t("posts")})`
-                        : `${t("allPosts")} (${totalPosts} ${t("posts")})`}
-                </p>
-            </div>
+            <h1 className="font-heading text-3xl font-medium mb-8">
+                {t("title")}
+            </h1>
 
             {/* Tag Filter */}
             {allTags.length > 0 && (
-                <div className="mb-8 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-8">
                     <Link
                         href="/blog"
-                        className={cn(
-                            "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium transition-colors",
+                        className={
                             !activeTag
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-                        )}
+                                ? "text-foreground font-medium"
+                                : "hover:text-foreground transition-colors duration-200"
+                        }
                     >
                         {t("allPosts")}
                     </Link>
-                    {allTags.slice(0, 10).map(({ tag, count }) => (
+                    {allTags.slice(0, 10).map(({ tag }) => (
                         <Link
                             key={tag}
                             href={`/blog?tag=${encodeURIComponent(tag)}`}
-                            className={cn(
-                                "inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors",
+                            className={
                                 activeTag === tag
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-                            )}
+                                    ? "text-foreground font-medium"
+                                    : "hover:text-foreground transition-colors duration-200"
+                            }
                         >
                             {tag}
-                            <span className="text-xs opacity-70">
-                                {count}
-                            </span>
                         </Link>
                     ))}
                 </div>
             )}
 
-            {/* Post Grid or Empty State */}
+            {/* Post Index or Empty State */}
             {posts.length > 0 ? (
                 <>
-                    <div className="grid gap-6 sm:grid-cols-2">
-                        {posts.map((post) => (
-                            <PostCard
-                                key={post.slugAsParams}
-                                title={post.title}
-                                description={post.description}
-                                date={post.date}
-                                readingTime={post.readingTime}
-                                tags={post.tags}
-                                slug={post.slugAsParams}
-                                cover={post.cover}
-                            />
+                    {Object.entries(postsByYear)
+                        .sort(([a], [b]) => Number(b) - Number(a))
+                        .map(([year, yearPosts]) => (
+                            <section key={year}>
+                                <h2 className="font-heading italic text-sm text-muted-foreground mb-4 mt-12 first:mt-0">
+                                    {year}
+                                </h2>
+                                <div className="space-y-1">
+                                    {yearPosts.map((post) => (
+                                        <Link
+                                            key={post.slugAsParams}
+                                            href={`/blog/${post.slugAsParams}`}
+                                            className="group flex items-baseline gap-4 py-2 transition-colors duration-200"
+                                        >
+                                            <time className="shrink-0 text-sm tabular-nums text-muted-foreground">
+                                                {formatShortDate(post.date)}
+                                            </time>
+                                            <span className="text-base font-medium text-foreground group-hover:text-accent transition-colors duration-200">
+                                                {post.title}
+                                            </span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </section>
                         ))}
-                    </div>
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}

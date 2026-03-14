@@ -20,23 +20,20 @@ export function NoteCard({ note, locale = "zh", className }: NoteCardProps) {
     return (
         <article
             id={note.slugAsParams}
-            className={cn(
-                "scroll-mt-20 rounded-lg border bg-card p-5 transition-colors hover:bg-muted/30",
-                className,
-            )}
+            className={cn("scroll-mt-20", className)}
         >
             {/* Title */}
-            <h3 className="mb-2 font-semibold leading-tight">
+            <h3 className="text-base font-medium leading-tight mb-1">
                 {note.title}
             </h3>
 
             {/* Content */}
-            <div className="prose-sm max-w-none">
+            <div className="prose-sm max-w-none text-muted-foreground">
                 <MdxContent code={note.content} />
             </div>
 
             {/* Meta */}
-            <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                 <time dateTime={note.date}>
                     {new Date(note.date).toLocaleDateString(dateLocale, {
                         month: "short",
@@ -45,12 +42,9 @@ export function NoteCard({ note, locale = "zh", className }: NoteCardProps) {
                 </time>
 
                 {note.tags.length > 0 && (
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-2">
                         {note.tags.map((tag) => (
-                            <span
-                                key={tag}
-                                className="rounded-full bg-muted px-2 py-0.5 text-xs"
-                            >
+                            <span key={tag} className="text-sm text-muted-foreground">
                                 {tag}
                             </span>
                         ))}

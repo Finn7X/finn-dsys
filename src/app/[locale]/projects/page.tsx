@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import { useTranslations } from "next-intl"
 import { getTranslations } from "next-intl/server"
-import { getAllProjects, getFeaturedProjects } from "@/lib/content"
-import { ProjectCard } from "@/components/project-card"
+import { getAllProjects } from "@/lib/content"
 import { Rocket } from "lucide-react"
 import { siteConfig } from "@/config/site"
 import { getBaseOpenGraph } from "@/lib/metadata"
@@ -37,31 +36,24 @@ export async function generateMetadata({
     }
 }
 
-export default function ProjectsPage() {
-    const featured = getFeaturedProjects()
-    const allProjects = getAllProjects()
-    const other = allProjects.filter((p) => !p.featured)
+function formatProjectDate(dateStr: string) {
+    const d = new Date(dateStr)
+    return d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+    })
+}
 
-    return (
-        <ProjectsContent featured={featured} other={other} />
-    )
+export default function ProjectsPage() {
+    const allProjects = getAllProjects()
+
+    return <ProjectsContent projects={allProjects} />
 }
 
 function ProjectsContent({
-    featured,
-    other,
+    projects,
 }: {
-    featured: {
-        title: string
-        description: string
-        date: string
-        github?: string
-        demo?: string
-        cover?: string
-        tags: string[]
-        featured: boolean
-    }[]
-    other: {
+    projects: {
         title: string
         description: string
         date: string
@@ -73,51 +65,62 @@ function ProjectsContent({
     }[]
 }) {
     const t = useTranslations("projects")
-    const hasProjects = featured.length > 0 || other.length > 0
 
     return (
-        <div className="container mx-auto max-w-4xl px-4 py-12">
-            <div className="mb-8">
-                <h1 className="mb-2 text-3xl font-bold">{t("title")}</h1>
-                <p className="text-muted-foreground">{t("description")}</p>
-            </div>
+        <div className="mx-auto max-w-[var(--content-width)] px-4 py-16">
+            <h1 className="font-heading text-3xl font-medium mb-2">
+                {t("title")}
+            </h1>
+            <p className="text-muted-foreground mb-12">{t("description")}</p>
 
-            {hasProjects ? (
-                <>
-                    {/* Featured Projects */}
-                    {featured.length > 0 && (
-                        <section className="mb-12">
-                            <h2 className="mb-6 text-xl font-semibold">
-                                {t("featured")}
-                            </h2>
-                            <div className="grid gap-6 sm:grid-cols-2">
-                                {featured.map((project) => (
-                                    <ProjectCard
-                                        key={project.title}
-                                        {...project}
-                                    />
-                                ))}
+            {projects.length > 0 ? (
+                <div className="space-y-12">
+                    {projects.map((project) => (
+                        <article key={project.title} className="group">
+                            <div className="flex items-baseline justify-between mb-1">
+                                <h3 className="font-heading text-xl font-medium text-foreground">
+                                    {project.title}
+                                </h3>
+                                <time className="text-sm text-muted-foreground">
+                                    {formatProjectDate(project.date)}
+                                </time>
                             </div>
-                        </section>
-                    )}
-
-                    {/* Other Projects */}
-                    {other.length > 0 && (
-                        <section>
-                            <h2 className="mb-6 text-xl font-semibold">
-                                {t("other")}
-                            </h2>
-                            <div className="grid gap-6 sm:grid-cols-2">
-                                {other.map((project) => (
-                                    <ProjectCard
-                                        key={project.title}
-                                        {...project}
-                                    />
+                            <p className="text-muted-foreground mb-3">
+                                {project.description}
+                            </p>
+                            <div className="flex items-center gap-4 text-sm">
+                                {project.tags.map((tag) => (
+                                    <span
+                                        key={tag}
+                                        className="text-muted-foreground"
+                                    >
+                                        {tag}
+                                    </span>
                                 ))}
+                                {project.github && (
+                                    <a
+                                        href={project.github}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-accent hover:underline"
+                                    >
+                                        GitHub
+                                    </a>
+                                )}
+                                {project.demo && (
+                                    <a
+                                        href={project.demo}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-accent hover:underline"
+                                    >
+                                        Demo
+                                    </a>
+                                )}
                             </div>
-                        </section>
-                    )}
-                </>
+                        </article>
+                    ))}
+                </div>
             ) : (
                 <div className="py-20 text-center">
                     <Rocket className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />

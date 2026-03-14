@@ -46,34 +46,28 @@ export default async function NotesPage({
     const groupedNotes = groupNotesByDate(allNotes, locale)
 
     return (
-        <div className="container mx-auto max-w-2xl px-4 py-12">
+        <div className="mx-auto max-w-[var(--content-width)] px-4 py-16">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">
-                    {t("title")}
-                </h1>
-                <p className="mt-2 text-muted-foreground">
-                    {t("description")}
-                </p>
-            </div>
+            <h1 className="font-heading text-3xl font-medium mb-2">
+                {t("title")}
+            </h1>
+            <p className="text-muted-foreground mb-12">
+                {t("description")}
+            </p>
 
             {/* Timeline */}
             {allNotes.length > 0 ? (
-                <div className="space-y-8">
+                <div className="space-y-10">
                     {Object.entries(groupedNotes).map(
                         ([dateLabel, notes]) => (
                             <div key={dateLabel}>
-                                {/* Date separator */}
-                                <div className="sticky top-16 z-10 mb-4 flex items-center gap-3">
-                                    <div className="h-px flex-1 bg-border" />
-                                    <span className="text-sm font-medium text-muted-foreground">
-                                        {dateLabel}
-                                    </span>
-                                    <div className="h-px flex-1 bg-border" />
-                                </div>
+                                {/* Date group header */}
+                                <h2 className="font-heading italic text-sm text-muted-foreground mb-4">
+                                    {dateLabel}
+                                </h2>
 
                                 {/* Notes */}
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     {notes.map((note) => (
                                         <NoteCard
                                             key={note.slugAsParams}

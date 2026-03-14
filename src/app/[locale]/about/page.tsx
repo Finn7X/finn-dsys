@@ -2,9 +2,6 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import { useTranslations } from "next-intl"
 import { getTranslations } from "next-intl/server"
-import { Github, Twitter, Mail, MapPin } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { aboutConfig, techStack, timelineYears } from "@/config/about"
 import { siteConfig } from "@/config/site"
 import { getBaseOpenGraph } from "@/lib/metadata"
@@ -49,153 +46,113 @@ function AboutContent() {
     const bio = [t("bio.0"), t("bio.1")]
 
     return (
-        <div className="container mx-auto max-w-4xl px-4 py-12">
+        <div className="mx-auto max-w-[var(--content-width)] px-4 py-16">
             {/* Personal Introduction */}
-            <section className="mb-16 flex flex-col items-center gap-8 text-center sm:flex-row sm:items-start sm:text-left">
-                {/* Avatar */}
-                <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-full border-4 border-primary/10 shadow-lg">
-                    <Image
-                        src={aboutConfig.avatar}
-                        alt={aboutConfig.name}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
+            <section className="mb-16">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full">
+                        <Image
+                            src={aboutConfig.avatar}
+                            alt={aboutConfig.name}
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                    </div>
+                    <div>
+                        <h1 className="font-heading text-2xl font-medium">
+                            {aboutConfig.name}
+                        </h1>
+                        <p className="text-muted-foreground">
+                            {t("role")}
+                        </p>
+                    </div>
                 </div>
 
-                {/* Info */}
-                <div>
-                    <h1 className="mb-1 text-3xl font-bold">
-                        {aboutConfig.name}
-                    </h1>
-                    <p className="mb-2 text-lg text-muted-foreground">
-                        {t("role")}
+                {bio.map((paragraph, i) => (
+                    <p
+                        key={i}
+                        className="mb-3 text-muted-foreground leading-relaxed"
+                    >
+                        {paragraph}
                     </p>
-                    <p className="mb-4 flex items-center justify-center gap-1 text-sm text-muted-foreground sm:justify-start">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {aboutConfig.location}
-                    </p>
+                ))}
+            </section>
 
-                    {bio.map((paragraph, i) => (
-                        <p
-                            key={i}
-                            className="mb-2 leading-7 text-muted-foreground"
-                        >
-                            {paragraph}
-                        </p>
+            {/* Timeline */}
+            <section className="mb-16">
+                <h2 className="font-heading text-lg font-medium mb-6">
+                    {t("experience")}
+                </h2>
+                <div className="space-y-4">
+                    {timelineYears.map((year) => (
+                        <div key={year} className="flex gap-3">
+                            <span className="shrink-0 text-sm tabular-nums text-muted-foreground pt-0.5">
+                                {year}
+                            </span>
+                            <div>
+                                <p className="font-medium text-foreground">
+                                    {t(`timeline${year}Title`)}
+                                    <span className="text-muted-foreground font-normal">
+                                        {" "}
+                                        &middot; {t(`timeline${year}Role`)}
+                                    </span>
+                                </p>
+                                <p className="text-sm text-muted-foreground leading-relaxed mt-0.5">
+                                    {t(`timeline${year}Desc`)}
+                                </p>
+                            </div>
+                        </div>
                     ))}
-
-                    {/* Social Links */}
-                    <div className="mt-4 flex justify-center gap-2 sm:justify-start">
-                        <Button variant="outline" size="sm" asChild>
-                            <a
-                                href={siteConfig.author.github}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Github className="mr-1.5 h-4 w-4" />
-                                GitHub
-                            </a>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                            <a
-                                href={siteConfig.author.twitter}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Twitter className="mr-1.5 h-4 w-4" />
-                                Twitter
-                            </a>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                            <a href={`mailto:${siteConfig.author.email}`}>
-                                <Mail className="mr-1.5 h-4 w-4" />
-                                Email
-                            </a>
-                        </Button>
-                    </div>
                 </div>
             </section>
 
             {/* Tech Stack */}
             <section className="mb-16">
-                <h2 className="mb-6 text-2xl font-bold">{t("techStack")}</h2>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <h2 className="font-heading text-lg font-medium mb-6">
+                    {t("techStack")}
+                </h2>
+                <div className="space-y-3">
                     {Object.entries(techStack).map(([category, items]) => (
-                        <Card key={category}>
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-base">
-                                    {category}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex flex-wrap gap-2">
-                                    {items.map((item) => (
-                                        <span
-                                            key={item}
-                                            className="inline-flex items-center rounded-md bg-secondary px-2.5 py-1 text-sm font-medium"
-                                        >
-                                            {item}
-                                        </span>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <p key={category} className="text-muted-foreground leading-relaxed">
+                            <span className="text-foreground font-medium">
+                                {category}:
+                            </span>{" "}
+                            {items.join(", ")}
+                        </p>
                     ))}
                 </div>
             </section>
 
-            {/* Timeline */}
-            <section className="mb-16">
-                <h2 className="mb-6 text-2xl font-bold">{t("experience")}</h2>
-                <div className="space-y-6 border-l-2 border-border pl-8">
-                    {timelineYears.map((year) => (
-                        <div key={year} className="relative">
-                            <div className="absolute -left-[calc(2rem+5px)] top-1 h-3 w-3 rounded-full border-2 border-primary bg-background" />
-                            <p className="text-sm font-medium text-muted-foreground">
-                                {year}
-                            </p>
-                            <h3 className="text-lg font-semibold">
-                                {t(`timeline${year}Title`)}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                                {t(`timeline${year}Role`)}
-                            </p>
-                            <p className="mt-1 leading-7 text-muted-foreground">
-                                {t(`timeline${year}Desc`)}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Contact CTA */}
+            {/* Contact */}
             <section>
-                <Card>
-                    <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
-                        <h2 className="text-xl font-semibold">
-                            {t("contactCta")}
-                        </h2>
-                        <div className="flex gap-3">
-                            <Button asChild>
-                                <a href={`mailto:${siteConfig.author.email}`}>
-                                    <Mail className="mr-1.5 h-4 w-4" />
-                                    {t("sendEmail")}
-                                </a>
-                            </Button>
-                            <Button variant="outline" asChild>
-                                <a
-                                    href={siteConfig.author.github}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Github className="mr-1.5 h-4 w-4" />
-                                    GitHub
-                                </a>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+                <h2 className="font-heading text-lg font-medium mb-4">
+                    {t("contactCta")}
+                </h2>
+                <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                    <a
+                        href={siteConfig.author.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent hover:underline"
+                    >
+                        GitHub
+                    </a>
+                    <a
+                        href={siteConfig.author.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent hover:underline"
+                    >
+                        Twitter
+                    </a>
+                    <a
+                        href={`mailto:${siteConfig.author.email}`}
+                        className="text-accent hover:underline"
+                    >
+                        {siteConfig.author.email}
+                    </a>
+                </div>
             </section>
         </div>
     )
