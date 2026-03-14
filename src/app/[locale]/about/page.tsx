@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import { useTranslations } from "next-intl"
 import { getTranslations } from "next-intl/server"
 import { aboutConfig, techStack, timelineYears } from "@/config/about"
@@ -49,24 +48,13 @@ function AboutContent() {
         <div className="mx-auto max-w-[var(--content-width)] px-4 py-16">
             {/* Personal Introduction */}
             <section className="mb-16">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full">
-                        <Image
-                            src={aboutConfig.avatar}
-                            alt={aboutConfig.name}
-                            fill
-                            className="object-cover"
-                            priority
-                        />
-                    </div>
-                    <div>
-                        <h1 className="font-heading text-2xl font-medium">
-                            {aboutConfig.name}
-                        </h1>
-                        <p className="text-muted-foreground">
-                            {t("role")}
-                        </p>
-                    </div>
+                <div className="mb-6">
+                    <h1 className="font-heading text-2xl font-medium">
+                        {aboutConfig.name}
+                    </h1>
+                    <p className="text-muted-foreground">
+                        {t("role")}
+                    </p>
                 </div>
 
                 {bio.map((paragraph, i) => (
