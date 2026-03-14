@@ -12,11 +12,6 @@ import {
     Twitter,
     Search,
     ExternalLink,
-    Home,
-    BookOpen,
-    StickyNote,
-    Hash,
-    FileText,
 } from "lucide-react"
 import {
     CommandDialog,
