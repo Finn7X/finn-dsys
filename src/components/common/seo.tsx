@@ -11,14 +11,6 @@ export function WebSiteJsonLd({ url, name, description }: WebSiteJsonLdProps) {
         url,
         name,
         description,
-        potentialAction: {
-            "@type": "SearchAction",
-            target: {
-                "@type": "EntryPoint",
-                urlTemplate: `${url}/tags/{search_term_string}`,
-            },
-            "query-input": "required name=search_term_string",
-        },
     }
 
     return (
