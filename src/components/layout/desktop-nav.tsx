@@ -20,13 +20,16 @@ export function DesktopNav() {
                         key={item.href}
                         href={item.href}
                         className={cn(
-                            "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                            "relative rounded-md px-3 py-1.5 text-sm transition-colors duration-150",
                             isActive
-                                ? "bg-accent text-foreground"
-                                : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                                ? "text-foreground"
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary",
                         )}
                     >
                         {t(item.key)}
+                        {isActive && (
+                            <span className="absolute inset-x-1 -bottom-[7px] h-0.5 rounded-full bg-accent" />
+                        )}
                     </Link>
                 )
             })}

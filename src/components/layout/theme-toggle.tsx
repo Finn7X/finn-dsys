@@ -13,7 +13,7 @@ export function ThemeToggle() {
 
     if (!mounted) {
         return (
-            <Button variant="ghost" size="icon" aria-label="Toggle theme">
+            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Toggle theme">
                 <Sun className="h-4 w-4" />
             </Button>
         )
@@ -29,6 +29,7 @@ export function ThemeToggle() {
         <Button
             variant="ghost"
             size="icon"
+            className="h-8 w-8"
             onClick={cycleTheme}
             aria-label="Toggle theme"
         >

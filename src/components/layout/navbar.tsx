@@ -1,4 +1,3 @@
-import Image from "next/image"
 import { Link } from "@/i18n/routing"
 import { getLocale } from "next-intl/server"
 import { siteConfig } from "@/config/site"
@@ -15,20 +14,13 @@ export async function Navbar() {
 
     return (
         <header
-            className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md"
+            className="sticky top-0 z-50 border-b border-border/40 bg-background"
             style={{ viewTransitionName: "header" }}
         >
-            <div className="container mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
+            <div className="mx-auto flex h-12 max-w-[var(--nav-width)] items-center justify-between px-4">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-2">
-                    <Image
-                        src="/favicon.svg"
-                        alt="Logo"
-                        width={28}
-                        height={28}
-                        className="rounded-sm"
-                    />
-                    <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-lg font-bold text-transparent">
+                <Link href="/" className="flex items-center">
+                    <span className="font-heading italic text-xl text-foreground">
                         {siteConfig.name}
                     </span>
                 </Link>
