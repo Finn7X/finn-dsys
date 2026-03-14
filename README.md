@@ -1,88 +1,114 @@
-<p align="center">
-  <img src="public/blog-logo.svg" alt="Finn Days" width="80" />
-</p>
+# Finn Days
 
-<h1 align="center">Finn Days</h1>
+个人技术博客，基于 Next.js 构建，原生支持中英双语。
 
-<p align="center">
-  Write. Think. Ship. — in two languages.<br/>
-  书写、思考、交付 —— 用两种语言。
-</p>
-
-<p align="center">
-  <a href="https://finn7x.com">finn7x.com</a>
-</p>
+**在线访问：** [finn7x.com](https://finn7x.com)
 
 ---
 
-## English
+## 技术栈
 
-**Finn Days** is where I document my journey as a developer — the things I build, the problems I solve, and the ideas that keep me up at night. Every article is written natively in both Chinese and English, not translated, but thought through in both languages.
+| 层 | 技术 |
+|---|------|
+| 框架 | Next.js 16 (App Router) + React 19 + TypeScript |
+| 样式 | Tailwind CSS 4 + CSS 变量主题系统 |
+| 内容 | Velite + MDX（文件驱动，零数据库）|
+| 字体 | Newsreader（衬线标题）+ Noto Serif SC（中文标题）+ JetBrains Mono（代码）|
+| 代码高亮 | Shiki + rehype-pretty-code（双主题、行高亮、文件名标签）|
+| 国际化 | next-intl（路由级双语，`/` = 中文，`/en` = English）|
+| 搜索 | Command Palette (cmdk) |
+| 评论 | Giscus (GitHub Discussions) |
+| 订阅 | Buttondown Newsletter |
+| 分析 | Umami（自托管，隐私友好）|
+| 部署 | Docker (node:22-alpine) + GitHub Actions CI/CD |
 
-### Why this exists
+## 功能
 
-I believe the best technical writing comes from real practice, not abstractions. This blog is my commitment to writing honestly about what I learn — whether it's a deep dive into React Server Components, a deployment war story, or a three-line CSS trick that took me two hours to figure out.
+- **双语内容** — 中英文独立写作，非翻译；通过 `translationSlug` 关联对应版本
+- **博客系统** — 索引式列表、标签筛选、系列文章导航、阅读时间估算
+- **笔记系统** — 短篇技术备忘，按日期分组的时间流
+- **项目展示** — 编辑化列表，GitHub/Demo 链接
+- **文章排版** — 660px 窄幅阅读区、代码块外扩 740px、衬线标题、1.8 行高
+- **MDX 组件** — Callout（三档语义）、Tabs、Steps、Accordion、FileTree、LinkCard、CodePlayground
+- **暗色模式** — 蓝调深色背景、三阶层级递进、暖白文字
+- **SEO** — Open Graph、JSON-LD 结构化数据、动态 OG 图片、Sitemap、RSS/Atom
+- **性能** — standalone 输出、AVIF/WebP 图片、View Transitions
 
-### What makes it different
-
-- **Bilingual by design** — Not a translation layer. Both languages are first-class citizens.
-- **Reading experience first** — Clean typography, dark mode, zero distractions. The content is the interface.
-- **Interactive where it matters** — Live code playgrounds, series navigation, command palette. Tools that serve the reader, not the author's ego.
-- **Privacy respected** — Self-hosted analytics. No ads. No tracking. Your attention is not for sale.
-
-### Where it's going
-
-This project is built in phases — from a solid content foundation to interactive experiences that push what a personal blog can be:
-
-1. **Foundation** — Bilingual content system, clean layouts, RSS, dark mode
-2. **Engagement** — Comments, full-text search, social sharing, series navigation
-3. **Infrastructure** — SEO, CI/CD, performance optimization, containerized deployment
-4. **Craft** — Command palette, custom MDX components, code playgrounds, view transitions
-
-> Architecture docs and implementation details live in [`docs/`](./docs/).
-
-### Quick start
+## 快速开始
 
 ```bash
-npm install && npm run dev
+# 安装依赖
+npm install
+
+# 启动开发服务器（Velite watch + Next.js Turbopack）
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 启动生产服务（端口 8200）
+npm run start
 ```
 
+## 项目结构
+
+```
+├── content/              # MDX 内容
+│   ├── blog/             # 博客文章（*.mdx）
+│   ├── notes/            # 技术笔记
+│   └── projects/         # 项目描述
+├── messages/             # i18n 翻译文件（zh.json / en.json）
+├── src/
+│   ├── app/[locale]/     # 页面路由（首页/博客/笔记/项目/标签/关于）
+│   ├── components/       # React 组件
+│   │   ├── layout/       #   导航栏、页脚、主题切换、语言切换
+│   │   ├── mdx/          #   MDX 自定义组件（Callout, Tabs, Steps...）
+│   │   ├── blog/         #   博客相关（阅读进度、分享、作者卡片）
+│   │   └── ui/           #   基础 UI（shadcn/ui）
+│   ├── config/           # 站点配置（site.ts, about.ts）
+│   ├── lib/              # 工具函数（内容查询、Feed生成、SEO）
+│   └── i18n/             # 国际化配置
+├── Dockerfile            # 多阶段 Docker 构建
+├── docker-compose.yml    # Blog + Umami + PostgreSQL
+└── .github/workflows/    # CI（lint/typecheck）+ CD（Docker 部署）
+```
+
+## 写文章
+
+在 `content/blog/` 下创建 `.mdx` 文件：
+
+```yaml
+---
+title: "文章标题"
+description: "简短描述"
+date: "2026-03-15"
+tags: ["React", "Next.js"]
+locale: zh                    # zh 或 en
+translationSlug: my-post      # 关联另一语言版本（可选）
+draft: false
 ---
 
-## 中文
+正文内容，支持所有 MDX 组件...
+```
 
-**Finn Days** 是我作为开发者的记录空间 —— 记录我构建的东西、解决的问题、以及那些让我深夜还在思考的想法。每篇文章都以中文和英文原生写作，不是翻译，而是用两种语言思考。
+笔记放在 `content/notes/`，项目放在 `content/projects/`，格式类似。
 
-### 为什么做这个
-
-我相信最好的技术写作源于真实的实践，而非抽象的理论。这个博客是我对自己的承诺：诚实地写下我学到的一切 —— 无论是对 React Server Components 的深入探索、一次部署踩坑记录、还是一个花了两小时才搞定的三行 CSS 技巧。
-
-### 有什么不同
-
-- **原生双语** —— 不是翻译层，两种语言都是一等公民。
-- **阅读体验优先** —— 干净的排版、暗色模式、零干扰。内容本身就是界面。
-- **恰到好处的交互** —— 实时代码演练场、系列文章导航、命令面板。服务读者的工具，而非作者的炫技。
-- **尊重隐私** —— 自托管分析、无广告、无追踪。你的注意力不是商品。
-
-### 未来规划
-
-项目分阶段推进 —— 从扎实的内容基础，到突破个人博客边界的交互体验：
-
-1. **基础** —— 双语内容系统、布局组件、RSS、暗色模式
-2. **互动** —— 评论、全文搜索、社交分享、系列文章导航
-3. **基建** —— SEO、CI/CD、性能优化、容器化部署
-4. **匠心** —— 命令面板、自定义 MDX 组件、代码演练场、页面过渡动画
-
-> 架构文档和实现细节在 [`docs/`](./docs/) 目录中。
-
-### 快速开始
+## 部署
 
 ```bash
-npm install && npm run dev
+# Docker 构建并启动
+docker compose up -d
+
+# 或使用 GitHub Actions 自动部署（推送 v* 标签触发）
+git tag v1.0.0 && git push --tags
 ```
+
+环境变量参见 `.env.example`。
+
+## 许可
+
+MIT
 
 ---
 
-<p align="center">
-  <a href="https://github.com/Finn7X">Finn7X</a>
-</p>
+[English version](./README.en.md)
