@@ -1,0 +1,32 @@
+---
+title: "View Transitions API 让页面跳转也能有动画"
+date: 2026-03-05
+tags:
+  - web-api
+  - css
+---
+
+View Transitions API 是浏览器原生的页面过渡动画方案，Next.js 已经提供了实验性支持：
+
+```ts
+// next.config.ts
+const nextConfig = {
+  experimental: {
+    viewTransition: true,
+  },
+}
+```
+
+只需在 CSS 中定义过渡效果，浏览器会自动在路由切换时应用：
+
+```css
+::view-transition-old(root) {
+  animation: 200ms ease-out fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 200ms ease-in fade-in;
+}
+```
+
+Chrome 111+, Safari 18+, Firefox 125+ 已支持。

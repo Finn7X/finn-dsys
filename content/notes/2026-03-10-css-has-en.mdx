@@ -1,0 +1,25 @@
+---
+title: "CSS :has() selector finally enables parent selection"
+date: 2026-03-10
+tags:
+  - css
+locale: en
+translationSlug: css-has
+---
+
+Today I discovered that the CSS `:has()` selector is now supported across all major browsers. This means we can finally select parent elements based on the state of their children!
+
+```css
+/* Add special styles to cards that contain images */
+.card:has(img) {
+  grid-column: span 2;
+}
+
+/* Disable submit button when the form has invalid inputs */
+form:has(:invalid) button[type="submit"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+```
+
+Reference: [MDN - :has()](https://developer.mozilla.org/en-US/docs/Web/CSS/:has)

@@ -9,6 +9,7 @@ interface PostHeaderProps {
     updated?: string
     readingTime: string
     tags: string[]
+    slug?: string
 }
 
 export function PostHeader({
@@ -17,13 +18,17 @@ export function PostHeader({
     updated,
     readingTime,
     tags,
+    slug,
 }: PostHeaderProps) {
     const locale = useLocale()
     const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
 
     return (
         <header className="mb-8">
-            <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1
+                className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl"
+                style={slug ? { viewTransitionName: `post-title-${slug}` } : undefined}
+            >
                 {title}
             </h1>
 

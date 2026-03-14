@@ -1,0 +1,25 @@
+---
+title: "CSS :has() 选择器终于可以实现父选择器了"
+date: 2026-03-10
+tags:
+  - css
+locale: zh
+translationSlug: css-has
+---
+
+今天发现 CSS `:has()` 选择器已经在所有主流浏览器中获得支持。这意味着我们终于可以根据子元素的状态来选择父元素了！
+
+```css
+/* 当 card 内部有图片时，给 card 添加特殊样式 */
+.card:has(img) {
+  grid-column: span 2;
+}
+
+/* 当表单中有无效输入时，禁用提交按钮 */
+form:has(:invalid) button[type="submit"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+```
+
+参考：[MDN - :has()](https://developer.mozilla.org/en-US/docs/Web/CSS/:has)

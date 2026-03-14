@@ -111,3 +111,102 @@
 .dark [data-rehype-pretty-code-figure] code[data-theme="dark"] {
   display: block;
 }
+
+/* ===== Steps component counter ===== */
+.steps-container {
+  counter-reset: step;
+}
+
+.step-counter::before {
+  counter-increment: step;
+  content: counter(step);
+}
+
+/* ===== View Transitions ===== */
+
+/* Page-level fade transition */
+::view-transition-old(root) {
+  animation: 200ms ease-out vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 200ms ease-in vt-fade-in;
+}
+
+@keyframes vt-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Header stays fixed during transitions */
+::view-transition-old(header),
+::view-transition-new(header) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Shared element transitions for post title and cover */
+::view-transition-group(post-title-*),
+::view-transition-group(post-cover-*) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(post-title-*),
+::view-transition-old(post-cover-*) {
+  animation: none;
+}
+
+::view-transition-new(post-title-*),
+::view-transition-new(post-cover-*) {
+  animation: none;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none !important;
+  }
+}
+
+/* ===== Accordion animation ===== */
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.animate-accordion-down {
+  animation: accordion-down 200ms ease-out;
+}
+
+.animate-accordion-up {
+  animation: accordion-up 200ms ease-out;
+}

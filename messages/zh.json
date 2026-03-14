@@ -5,6 +5,7 @@
     },
     "nav": {
         "blog": "博客",
+        "notes": "笔记",
         "projects": "项目",
         "tags": "标签",
         "about": "关于"
@@ -54,6 +55,11 @@
         "notFoundDescription": "你访问的文章不存在或已被删除",
         "backToList": "返回博客列表"
     },
+    "notes": {
+        "title": "笔记",
+        "description": "技术备忘、日常学习和灵感记录",
+        "noNotes": "暂无笔记"
+    },
     "tags": {
         "title": "标签",
         "description": "按标签浏览文章",
@@ -88,6 +94,24 @@
         "notFound": "页面未找到",
         "notFoundDescription": "你访问的页面不存在",
         "switchLang": "English"
+    },
+    "command": {
+        "title": "命令面板",
+        "button": "搜索...",
+        "placeholder": "输入命令或搜索...",
+        "noResults": "没有找到相关结果",
+        "navigation": "页面导航",
+        "home": "首页",
+        "blog": "博客",
+        "notes": "笔记",
+        "tags": "标签",
+        "about": "关于",
+        "posts": "文章搜索",
+        "theme": "主题",
+        "lightMode": "浅色模式",
+        "darkMode": "深色模式",
+        "systemMode": "跟随系统",
+        "links": "外部链接"
     },
     "search": {
         "title": "搜索文章",

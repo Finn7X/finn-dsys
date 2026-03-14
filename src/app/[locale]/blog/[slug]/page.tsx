@@ -124,6 +124,7 @@ export default async function PostPage({
                             updated={post.updated}
                             readingTime={post.readingTime}
                             tags={post.tags}
+                            slug={slug}
                         />
 
                         {isFallback && (

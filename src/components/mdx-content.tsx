@@ -2,7 +2,8 @@
 
 import * as runtime from "react/jsx-runtime"
 import { Children, isValidElement, useMemo } from "react"
-import { CopyButton } from "./copy-button"
+import { CodeBlock } from "./mdx/code-block"
+import { mdxComponents } from "./mdx"
 
 function extractText(node: React.ReactNode): string {
     if (typeof node === "string") return node
@@ -70,22 +71,13 @@ const components = {
         ...props
     }: React.HTMLAttributes<HTMLPreElement> & {
         "data-language"?: string
+        "data-filename"?: string
     }) => {
         const codeText = extractText(children)
         return (
-            <div className="group relative my-4">
-                {codeText && (
-                    <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
-                        <CopyButton text={codeText} />
-                    </div>
-                )}
-                <pre
-                    className="overflow-x-auto rounded-lg border bg-muted/50 p-4 text-sm leading-relaxed"
-                    {...props}
-                >
-                    {children}
-                </pre>
-            </div>
+            <CodeBlock raw={codeText} {...props}>
+                {children}
+            </CodeBlock>
         )
     },
     code: (props: React.HTMLAttributes<HTMLElement>) => {
@@ -122,7 +114,7 @@ export function MdxContent({ code }: MdxContentProps) {
     const render = useMDXComponent(code)
     return (
         <article className="prose-custom">
-            {render({ components })}
+            {render({ components: { ...components, ...mdxComponents } })}
         </article>
     )
 }

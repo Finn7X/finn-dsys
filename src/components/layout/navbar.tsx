@@ -1,18 +1,23 @@
 import Image from "next/image"
 import { Link } from "@/i18n/routing"
+import { getLocale } from "next-intl/server"
 import { siteConfig } from "@/config/site"
 import { DesktopNav } from "./desktop-nav"
 import { MobileNav } from "./mobile-nav"
 import { ThemeToggle } from "./theme-toggle"
 import { LanguageSwitcher } from "./language-switcher"
-import { SearchDialog } from "@/components/search/search-dialog"
+import { CommandPalette } from "@/components/search/command-palette"
 import { getSearchableContent } from "@/lib/search"
 
-export function Navbar() {
-    const searchPosts = getSearchableContent()
+export async function Navbar() {
+    const locale = await getLocale()
+    const searchPosts = getSearchableContent(locale)
 
     return (
-        <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
+        <header
+            className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md"
+            style={{ viewTransitionName: "header" }}
+        >
             <div className="container mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
@@ -33,7 +38,7 @@ export function Navbar() {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-1">
-                    <SearchDialog posts={searchPosts} />
+                    <CommandPalette posts={searchPosts} />
                     <LanguageSwitcher />
                     <ThemeToggle />
                     <MobileNav />

@@ -56,7 +56,7 @@ export function MobileNav() {
                                                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
                                         )}
                                     >
-                                        {t(item.title.toLowerCase() as "blog" | "projects" | "tags" | "about")}
+                                        {t(item.title.toLowerCase() as "blog" | "notes" | "projects" | "tags" | "about")}
                                     </Link>
                                 )
                             })}

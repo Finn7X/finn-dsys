@@ -30,6 +30,7 @@ export const giscusConfig = {
 
 export const navLinks = [
     { title: "Blog", href: "/blog" },
+    { title: "Notes", href: "/notes" },
     { title: "Projects", href: "/projects" },
     { title: "Tags", href: "/tags" },
     { title: "About", href: "/about" },

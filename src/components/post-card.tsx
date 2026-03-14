@@ -39,7 +39,10 @@ export function PostCard({
             >
                 {/* Cover Image */}
                 {cover && (
-                    <div className="relative aspect-video overflow-hidden">
+                    <div
+                        className="relative aspect-video overflow-hidden"
+                        style={{ viewTransitionName: `post-cover-${slug}` }}
+                    >
                         <Image
                             src={cover}
                             alt={title}
@@ -64,7 +67,10 @@ export function PostCard({
                     </div>
 
                     {/* Title */}
-                    <h3 className="mb-2 line-clamp-2 text-lg font-semibold transition-colors group-hover:text-primary">
+                    <h3
+                        className="mb-2 line-clamp-2 text-lg font-semibold transition-colors group-hover:text-primary"
+                        style={{ viewTransitionName: `post-title-${slug}` }}
+                    >
                         {title}
                     </h3>
 

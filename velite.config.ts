@@ -74,6 +74,26 @@ const projects = defineCollection({
         })),
 })
 
+const notes = defineCollection({
+    name: "Note",
+    pattern: "notes/**/*.mdx",
+    schema: s
+        .object({
+            title: s.string().max(200),
+            date: s.isodate(),
+            tags: s.array(s.string()).default([]),
+            locale: s.enum(["zh", "en"]).default("zh"),
+            translationSlug: s.string().optional(),
+            slug: s.path(),
+            content: s.mdx(),
+            metadata: s.metadata(),
+        })
+        .transform((data) => ({
+            ...data,
+            slugAsParams: data.slug.split("/").slice(1).join("/"),
+        })),
+})
+
 export default defineConfig({
     root: "content",
     output: {
@@ -83,7 +103,7 @@ export default defineConfig({
         name: "[name]-[hash:6].[ext]",
         clean: true,
     },
-    collections: { posts, projects },
+    collections: { posts, projects, notes },
     mdx: {
         remarkPlugins: [remarkGfm],
         rehypePlugins: [
