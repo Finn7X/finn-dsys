@@ -45,7 +45,7 @@ export function SeriesNav({
                 aria-controls="series-post-list"
             >
                 <div className="flex items-center gap-3">
-                    <BookOpen className="h-5 w-5 text-purple-600 shrink-0" />
+                    <BookOpen className="h-5 w-5 text-accent shrink-0" />
                     <div>
                         <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
                             {t("label")}
@@ -79,13 +79,13 @@ export function SeriesNav({
                                             className="flex items-center gap-3 px-5 py-3 bg-accent/50"
                                             aria-current="page"
                                         >
-                                            <span className="flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-medium shrink-0">
+                                            <span className="flex items-center justify-center h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-medium shrink-0">
                                                 {post.order}
                                             </span>
                                             <span className="font-medium text-sm">
                                                 {post.title}
                                             </span>
-                                            <span className="ml-auto text-xs text-purple-600 font-medium shrink-0">
+                                            <span className="ml-auto text-xs text-accent font-medium shrink-0">
                                                 {t("current")}
                                             </span>
                                         </div>
@@ -94,7 +94,7 @@ export function SeriesNav({
                                             href={`/blog/${post.slug}`}
                                             className="flex items-center gap-3 px-5 py-3 hover:bg-accent/30 transition-colors group"
                                         >
-                                            <span className="flex items-center justify-center h-6 w-6 rounded-full border text-xs font-medium text-muted-foreground group-hover:border-purple-600 group-hover:text-purple-600 transition-colors shrink-0">
+                                            <span className="flex items-center justify-center h-6 w-6 rounded-full border text-xs font-medium text-muted-foreground group-hover:border-accent group-hover:text-accent transition-colors shrink-0">
                                                 {post.order}
                                             </span>
                                             <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">

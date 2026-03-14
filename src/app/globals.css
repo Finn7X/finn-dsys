@@ -132,6 +132,9 @@
   .dark body {
     -webkit-font-smoothing: antialiased;
   }
+  .dark .prose-custom {
+    font-weight: 430;
+  }
 }
 
 /* rehype-pretty-code dual theme switching */

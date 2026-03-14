@@ -33,7 +33,7 @@ export function PostCard({
         <Link href={`/blog/${slug}`}>
             <Card
                 className={cn(
-                    "group h-full overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
+                    "group h-full overflow-hidden transition-colors duration-200 hover:border-primary/30",
                     className,
                 )}
             >

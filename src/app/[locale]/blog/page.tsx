@@ -129,7 +129,7 @@ function BlogContent({
                         className={
                             !activeTag
                                 ? "text-foreground font-medium"
-                                : "hover:text-foreground transition-colors duration-200"
+                                : "hover:text-foreground transition-colors duration-150"
                         }
                     >
                         {t("allPosts")}
@@ -141,7 +141,7 @@ function BlogContent({
                             className={
                                 activeTag === tag
                                     ? "text-foreground font-medium"
-                                    : "hover:text-foreground transition-colors duration-200"
+                                    : "hover:text-foreground transition-colors duration-150"
                             }
                         >
                             {tag}

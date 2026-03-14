@@ -33,7 +33,7 @@ export function ProjectCard({
     return (
         <Card
             className={cn(
-                "group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
+                "group overflow-hidden transition-colors duration-200 hover:border-primary/30",
                 featured && "border-primary/30 shadow-md",
             )}
         >

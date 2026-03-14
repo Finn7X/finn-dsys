@@ -88,7 +88,7 @@ function TagsContent({
                                 key={tag}
                                 href={`/tags/${tagToSlug(tag)}`}
                                 className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition-all hover:-translate-y-0.5 hover:shadow-md",
+                                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition-colors duration-150",
                                     "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                                     sizeClass,
                                 )}

@@ -80,7 +80,7 @@ function TagContent({
 
             {/* Header */}
             <div className="mb-8">
-                <h1 className="mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-3xl font-bold text-transparent">
+                <h1 className="mb-2 text-3xl font-bold text-foreground">
                     {tag}
                 </h1>
                 <p className="text-muted-foreground">

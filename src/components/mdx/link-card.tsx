@@ -26,7 +26,7 @@ export function LinkCard({
             className={cn(
                 "group my-6 flex items-center gap-4 rounded-lg border p-4",
                 "transition-all duration-200",
-                "hover:border-primary/50 hover:bg-muted/50 hover:shadow-md",
+                "hover:border-primary/50 hover:bg-muted/50",
                 "no-underline",
                 className,
             )}

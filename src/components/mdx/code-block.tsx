@@ -64,7 +64,7 @@ export function CodeBlock({
             <pre
                 className={cn(
                     "overflow-x-auto p-4 text-sm leading-relaxed font-mono",
-                    "[&_[data-highlighted-line]]:bg-primary/10 [&_[data-highlighted-line]]:border-l-2 [&_[data-highlighted-line]]:border-primary [&_[data-highlighted-line]]:pl-[calc(1rem-2px)]",
+                    "[&_[data-highlighted-line]]:bg-accent/10 [&_[data-highlighted-line]]:border-l-2 [&_[data-highlighted-line]]:border-accent [&_[data-highlighted-line]]:pl-[calc(1rem-2px)]",
                     className,
                 )}
                 {...props}

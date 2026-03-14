@@ -113,7 +113,7 @@ function HomeContent({
                                     key={post.slugAsParams}
                                     href={`/blog/${post.slugAsParams}`}
                                 >
-                                    <Card className="h-full transition-shadow hover:shadow-lg">
+                                    <Card className="h-full transition-colors duration-200 hover:border-primary/30">
                                         <CardContent className="pt-6">
                                             <div className="mb-2 flex items-center gap-3 text-sm text-muted-foreground">
                                                 <span className="flex items-center gap-1">
