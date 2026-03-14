@@ -6,7 +6,7 @@ export async function Footer() {
 
     return (
         <footer className="border-t border-border/40">
-            <div className="mx-auto flex max-w-[var(--nav-width)] items-center justify-between px-4 py-6">
+            <div className="mx-auto flex max-w-[var(--nav-width)] items-center justify-between px-4 pt-24 pb-16">
                 <span className="font-heading italic text-sm text-muted-foreground">
                     Finn Days
                 </span>
