@@ -20,7 +20,8 @@ export async function generateMetadata({
 }: {
     params: Promise<{ tag: string }>
 }): Promise<Metadata> {
-    const { tag } = await params
+    const { tag: rawTag } = await params
+    const tag = decodeURIComponent(rawTag)
     const allTagNames = getTagSlugs()
     const originalTag = slugToTag(tag, allTagNames)
     return {
@@ -33,7 +34,8 @@ export default async function TagPage({
 }: {
     params: Promise<{ locale: string; tag: string }>
 }) {
-    const { locale, tag } = await params
+    const { locale, tag: rawTag } = await params
+    const tag = decodeURIComponent(rawTag)
     const allTagNames = getTagSlugs()
     const originalTag = slugToTag(tag, allTagNames)
 
