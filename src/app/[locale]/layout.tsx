@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist, Geist_Mono, Newsreader, Noto_Serif_SC, JetBrains_Mono } from "next/font/google"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages, getTranslations } from "next-intl/server"
 import { notFound } from "next/navigation"
@@ -19,6 +19,26 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
+})
+
+const newsreader = Newsreader({
+    variable: "--font-heading",
+    subsets: ["latin"],
+    style: ["normal", "italic"],
+    display: "swap",
+})
+
+const notoSerifSC = Noto_Serif_SC({
+    variable: "--font-heading-cjk",
+    weight: ["400", "500", "700"],
+    subsets: ["latin"],
+    display: "swap",
+})
+
+const jetbrainsMono = JetBrains_Mono({
+    variable: "--font-mono",
+    subsets: ["latin"],
+    display: "swap",
 })
 
 export async function generateMetadata({
@@ -85,7 +105,7 @@ export default async function LocaleLayout({
     return (
         <html lang={locale} suppressHydrationWarning>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} ${notoSerifSC.variable} ${jetbrainsMono.variable} antialiased`}
             >
                 <WebSiteJsonLd
                     url={siteConfig.url}
