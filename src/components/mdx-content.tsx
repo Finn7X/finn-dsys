@@ -28,10 +28,10 @@ const components = {
         <h1 className="font-heading mt-16 scroll-m-20 text-3xl font-medium" {...props} />
     ),
     h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-        <h2 className="font-heading mt-16 mb-4 scroll-m-20 text-2xl font-medium" {...props} />
+        <h2 className="font-heading mt-16 mb-4 scroll-m-20 text-[28px] font-medium" {...props} />
     ),
     h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-        <h3 className="mt-12 scroll-m-20 text-xl font-semibold" {...props} />
+        <h3 className="mt-12 scroll-m-20 text-[22px] font-semibold" {...props} />
     ),
     h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
         <h4 className="mt-8 scroll-m-20 text-lg font-semibold" {...props} />

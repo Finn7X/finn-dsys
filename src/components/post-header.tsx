@@ -29,7 +29,7 @@ export function PostHeader({
     return (
         <header className="mb-16">
             <h1
-                className="mb-4 font-heading text-4xl font-medium"
+                className="mb-4 font-heading text-4xl font-medium leading-[1.25]"
                 style={slug ? { viewTransitionName: `post-title-${slug}` } : undefined}
             >
                 {title}
