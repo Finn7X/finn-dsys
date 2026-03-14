@@ -1,23 +1,37 @@
 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .bg { fill: #161412; }
-    .fg { fill: #faf9f7; }
-    @media (prefers-color-scheme: dark) {
-      .bg { fill: #faf9f7; }
-      .fg { fill: #161412; }
-    }
-  </style>
+    <!-- 圆角矩形背景 -->
+    <rect width="32" height="32" fill="#1a1a1a" rx="6" />
 
-  <!-- Squircle container -->
-  <rect class="bg" width="32" height="32" rx="7"/>
+    <!-- 重新定位的字母F -->
+    <path d="
+        M9 8
+        h10
+        v3
+        h-7
+        v4
+        h6
+        v3
+        h-6
+        v6
+        h-3
+        V8
+        Z"
+          fill="#ffffff"
+          stroke="#ffffff"
+          stroke-width="0.5"
+          stroke-linejoin="round"
+    />
 
-  <!-- Italic serif "f" — Finn Days brand mark -->
-  <g transform="translate(16, 16) rotate(2) translate(-16, -16)">
-    <!-- Stem -->
-    <rect class="fg" x="14" y="10" width="3.2" height="16" rx="1"/>
-    <!-- Top hook -->
-    <path class="fg" d="M17.2 10 C17.2 7.5 18.5 6.5 20.5 6.5 C21 6.5 21.5 6.6 21.8 6.8 L21 9 C20.7 8.8 20.3 8.7 20 8.7 C19 8.7 18.2 9.2 17.8 10 Z"/>
-    <!-- Crossbar -->
-    <rect class="fg" x="10" y="15.5" width="12" height="2.8" rx="1"/>
-  </g>
+    <!-- 重新定位的装饰点 -->
+    <circle cx="24" cy="9" r="2" fill="#ffffff" opacity="0.9">
+        <animate
+                attributeName="opacity"
+                values="0.9;1;0.9"
+                dur="3s"
+                repeatCount="indefinite"
+        />
+    </circle>
+
+    <!-- 调整后的光晕效果 -->
+    <circle cx="24" cy="9" r="2.8" fill="#ffffff" opacity="0.15" />
 </svg>
