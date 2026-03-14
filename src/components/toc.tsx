@@ -66,7 +66,7 @@ function TocList({
     depth: number
 }) {
     return (
-        <ul className="space-y-1 text-sm">
+        <ul className="space-y-1 text-[13px]">
             {items.map((item) => {
                 const isActive = activeId === item.url.slice(1)
                 return (
@@ -74,10 +74,10 @@ function TocList({
                         <a
                             href={item.url}
                             className={cn(
-                                "block truncate py-1 text-muted-foreground transition-colors duration-150 hover:text-foreground",
+                                "block truncate py-1 text-secondary-foreground transition-colors duration-150 hover:text-foreground",
                                 depth > 0 && "pl-4",
                                 isActive &&
-                                    "border-l-2 border-accent pl-3 font-medium text-foreground",
+                                    "border-l-2 border-accent pl-3 -ml-[2px] font-medium text-foreground",
                             )}
                         >
                             {item.title}
