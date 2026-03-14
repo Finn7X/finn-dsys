@@ -2,22 +2,23 @@ import { Feed } from "feed"
 import { siteConfig } from "@/config/site"
 import { getAllPosts } from "./content"
 
-export function generateFeed() {
-    const posts = getAllPosts()
+export function generateFeed(locale: string = "zh") {
+    const posts = getAllPosts(locale)
+    const prefix = locale === "zh" ? "" : `/${locale}`
 
     const feed = new Feed({
         title: siteConfig.name,
         description: siteConfig.description,
         id: siteConfig.url,
-        link: siteConfig.url,
-        language: "zh",
+        link: `${siteConfig.url}${prefix}`,
+        language: locale === "en" ? "en" : "zh",
         image: `${siteConfig.url}/favicon.svg`,
         favicon: `${siteConfig.url}/favicon.svg`,
         copyright: `© ${new Date().getFullYear()} ${siteConfig.author.name}`,
         updated: posts.length > 0 ? new Date(posts[0].date) : new Date(),
         feedLinks: {
-            rss2: `${siteConfig.url}/feed.xml`,
-            atom: `${siteConfig.url}/atom.xml`,
+            rss2: `${siteConfig.url}${prefix}/feed.xml`,
+            atom: `${siteConfig.url}${prefix}/atom.xml`,
         },
         author: {
             name: siteConfig.author.name,

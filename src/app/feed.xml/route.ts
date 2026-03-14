@@ -4,7 +4,7 @@ export const dynamic = "force-static"
 export const revalidate = false
 
 export function GET() {
-    const feed = generateFeed()
+    const feed = generateFeed("zh")
     return new Response(feed.rss2(), {
         headers: {
             "Content-Type": "application/xml; charset=utf-8",
