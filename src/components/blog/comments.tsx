@@ -20,7 +20,11 @@ const isGiscusConfigured =
     giscusConfig.repoId !== "REPLACE_WITH_REPO_ID" &&
     giscusConfig.categoryId !== "REPLACE_WITH_CATEGORY_ID"
 
-export function Comments() {
+interface CommentsProps {
+    slug: string
+}
+
+export function Comments({ slug }: CommentsProps) {
     const { resolvedTheme } = useTheme()
     const mounted = useMounted()
     const [isVisible, setIsVisible] = useState(false)
@@ -69,6 +73,7 @@ export function Comments() {
                     category={giscusConfig.category}
                     categoryId={giscusConfig.categoryId}
                     mapping={giscusConfig.mapping}
+                    term={`blog/${slug}`}
                     reactionsEnabled={giscusConfig.reactionsEnabled}
                     emitMetadata={giscusConfig.emitMetadata}
                     inputPosition={giscusConfig.inputPosition}

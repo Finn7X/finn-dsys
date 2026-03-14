@@ -21,7 +21,7 @@ export const giscusConfig = {
     repoId: "R_kgDON7l_Pg",
     category: "General",
     categoryId: "DIC_kwDON7l_Ps4C4LEJ",
-    mapping: "pathname" as const,
+    mapping: "specific" as const,
     reactionsEnabled: "1" as const,
     emitMetadata: "0" as const,
     inputPosition: "top" as const,

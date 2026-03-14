@@ -177,7 +177,7 @@ export default async function PostPage({
                         <ReadTracker slug={slug} title={post.title} />
 
                         {/* Comments */}
-                        <Comments />
+                        <Comments slug={slug} />
                     </div>
 
                     {/* TOC sidebar */}
