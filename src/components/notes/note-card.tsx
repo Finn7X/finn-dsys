@@ -14,7 +14,6 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, locale = "zh", className }: NoteCardProps) {
-    const dateLocale = locale === "zh" ? "zh-CN" : "en-US"
     const notesPath = locale === "zh" ? "/notes" : `/${locale}/notes`
 
     return (
@@ -35,10 +34,13 @@ export function NoteCard({ note, locale = "zh", className }: NoteCardProps) {
             {/* Meta */}
             <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                 <time dateTime={note.date}>
-                    {new Date(note.date).toLocaleDateString(dateLocale, {
-                        month: "short",
-                        day: "numeric",
-                    })}
+                    {(() => {
+                        const d = new Date(note.date)
+                        const y = d.getFullYear()
+                        const m = String(d.getMonth() + 1).padStart(2, "0")
+                        const day = String(d.getDate()).padStart(2, "0")
+                        return `${y}.${m}.${day}`
+                    })()}
                 </time>
 
                 {note.tags.length > 0 && (

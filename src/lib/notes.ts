@@ -28,28 +28,10 @@ export function groupNotesByDate(
     return groups
 }
 
-function formatDateLabel(date: Date, locale: string): string {
-    const now = new Date()
-    const diffDays = Math.floor(
-        (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
-    )
-
-    if (locale === "zh") {
-        if (diffDays === 0) return "今天"
-        if (diffDays === 1) return "昨天"
-        if (diffDays < 7) return `${diffDays} 天前`
-    } else {
-        if (diffDays === 0) return "Today"
-        if (diffDays === 1) return "Yesterday"
-        if (diffDays < 7) return `${diffDays} days ago`
-    }
-
-    return date.toLocaleDateString(
-        locale === "zh" ? "zh-CN" : "en-US",
-        {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        },
-    )
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function formatDateLabel(date: Date, _locale: string): string {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, "0")
+    const d = String(date.getDate()).padStart(2, "0")
+    return `${y}.${m}.${d}`
 }
