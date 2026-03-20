@@ -1,78 +1,279 @@
 ---
-title: "企业知识库 RAG 系统的检索架构实践"
-description: "三路并行检索、多路融合与 Rerank 精排在企业知识库场景下的工程取舍和踩坑记录"
+title: "企业知识库的混合检索架构：三路融合与精排实践"
+description: "从 ES Native KNN + BM25 三路并行检索，到 Min-Max 归一化融合，再到 Rerank 服务端 prompt 优化的完整工程实践"
 date: 2026-01-15
-tags: ["RAG", "Elasticsearch", "Rerank", "Architecture"]
+tags: ["RAG", "Elasticsearch", "Rerank", "Information Retrieval"]
 category: "AI"
 locale: zh
 ---
 
-去年下半年我在做一个企业内部的知识库问答系统。知识库里有产品手册、周报月报、培训课程等各类文档，chunk 数量大概几十万量级。最开始用的是单路向量检索，效果还行，但随着文档量增长，有些场景开始暴露问题——比如用户搜产品型号 "R6900 G5" 的时候，纯语义检索经常把其他型号的文档也召回来；反过来，用户问"设备为什么老重启"这种口语化表达时，关键词检索又完全不知道该匹配什么。
+## 背景
 
-这篇记录一下最后演化出来的三路并行检索架构，以及过程中的一些工程决策和反思。
+在企业知识库场景下，文档类型多样——产品手册、周报月报、培训教材、配置指南——用户的查询方式也千差万别。有人搜精确型号 "R6900 G5"，有人问自然语言"设备频繁重启可能是什么原因"，也有人混着来"R6900 的内存兼容规则是什么"。
 
-## 为什么最终选了三路并行
+单一检索策略很难同时覆盖这些场景。纯向量检索对"R6900 G5"这种精确术语容易召回其他型号的文档；纯 BM25 对"设备频繁重启"这种口语化表达又无法关联到"异常断电""系统崩溃"等同义表述。
 
-单路检索的核心矛盾在于：向量检索擅长理解语义但对精确术语无力，BM25 擅长关键词匹配但不理解自然语言。没有一种策略能同时覆盖所有场景。
+这篇文章记录我们最终演化出的三路并行检索架构，重点在融合算法的设计和 Rerank 的服务端优化。
 
-我们最终跑的三路策略：
+## 三路并行策略
 
-**Hybrid**（KNN + BM25 混合）—— 向量和关键词同时参与，ES 8.x 原生支持 `knn` + `query` 并行执行，最终分数叠加。这是主力策略，大部分 query 靠它就够了。
+<Tabs defaultValue="hybrid">
+  <TabsList>
+    <TabsTrigger value="hybrid">Hybrid（KNN + BM25）</TabsTrigger>
+    <TabsTrigger value="semantic">Semantic（纯 KNN）</TabsTrigger>
+    <TabsTrigger value="phrase">Phrase（短语匹配）</TabsTrigger>
+  </TabsList>
 
-**Semantic**（纯 KNN）—— 把向量搜索的召回窗口开到 k=80（Hybrid 只用 k=50），作为语义兜底。为什么 Hybrid 里已经有 KNN 了还要单独跑一路？因为 Hybrid 的最终排序会被 BM25 分数干扰——一个文档如果语义高度相关但没有关键词命中，它在 Hybrid 中的排名会被 BM25 高分的文档压下去。纯 Semantic 路能把这些被"误伤"的文档捞回来。
+  <TabsContent value="hybrid">
 
-**Phrase**（短语精确匹配）—— 专门处理产品型号、技术术语等精确匹配需求。权重设为 0.6（低于前两路的 1.0），防止纯字面匹配的文档排名过高。
+**主力策略**，利用 ES 8.x 原生的 `knn` + `query` 并行能力，向量和关键词同时参与检索，最终分数叠加。
 
-三路用 `ThreadPoolExecutor` 并行执行，各自有独立的超时（Hybrid 1500ms、Semantic 1200ms、Phrase 800ms）和降级策略。任何一路失败不影响其他两路。
+```python title="hybrid_strategy.py" {3-5,8-10}
+knn_hybrid = {
+    "field": "vector",
+    "query_vector": vector,
+    "k": 50,
+    "num_candidates": 400,
+    "boost": 1.6            # 向量权重
+}
+bool_query = {
+    "should": [
+        {"match": {"content": {"query": query, "boost": 0.2}}},
+        {"match_phrase": {"content": {"query": query, "slop": slop, "boost": 0.1}}}
+    ],
+    "minimum_should_match": 1
+}
+# ES 最终分数 = knn_score × 1.6 + bm25_score × 0.2
+```
 
-## 多路融合：归一化 + 加权 + 去重
+`TEXT_BOOST=0.2` 看起来很低，但 BM25 原始分数范围在 5~50+，而 KNN cosine 分数只有 0~1。不压低 BM25，关键词匹配会碾压语义相关性。
 
-三路返回的分数量纲完全不同——BM25 分数范围 5\~50+，KNN cosine 分数 0\~1，直接比较没有意义。融合流程分三步：
+<Callout type="info" title="为什么 k=50 而不是更大？">
+Hybrid 有 BM25 兜底召回关键词命中的文档，向量侧不需要特别大的召回窗口。k=50 配合 num_candidates=400 的比值（8:1）在精度和延迟之间取得了较好的平衡。
+</Callout>
 
-**第一步，Min-Max 归一化。** 对每一路独立做 `(score - min) / (max - min)`，把分数映射到 [0, 1]。这里有个边界 case：如果某路只返回一个结果，`max == min`，归一化会除零，代码里直接跳过了。
+  </TabsContent>
 
-**第二步，乘以策略权重。** `hybrid × 1.0, semantic × 1.0, phrase × 0.6`。Phrase 乘 0.6 意味着即使它给某文档打了归一化满分 1.0，加权后也只有 0.6，不会压过 Hybrid/Semantic 的高分文档。
+  <TabsContent value="semantic">
 
-**第三步，按文档 ID 合并去重。** 同一个文档可能被多路同时命中。去重策略是取该文档在所有策略中的最高加权分，同时记录命中来源。
+**语义兜底策略**，纯 KNN 搜索，k 放大到 80，num_candidates 放大到 500。
 
-举个实际的数值例子。假设 Hybrid 给 doc\_A 打了 12.5 分（归一化后 1.0 × 1.0 = 1.0），Semantic 也给它打了 0.87（归一化后 1.0 × 1.0 = 1.0），最终 doc\_A 的分数还是 1.0——因为取的是 max 而非累加。这其实是当前设计的一个缺陷：**多路命中这个信号被浪费了**。如果改成累加 + 命中次数加分，doc\_A 可以拿到更高的分数，更好地和单路命中的文档拉开差距。
+```python title="semantic_strategy.py"
+knn_semantic = {
+    "field": "vector",
+    "query_vector": vector,
+    "k": 80,                # 比 Hybrid 大，更宽的召回面
+    "num_candidates": 500
+}
+# 无 BM25 查询，排序完全由向量相似度决定
+```
 
-## Rerank 的服务端优化
+一个常见的疑问是：**Hybrid 里已经有 KNN，为什么还要单独一路 Semantic？**
 
-粗排之后我们用 Qwen3-Reranker-8B 做精排。Cross-Encoder 的准确率比 Bi-Encoder 高不少，但部署的时候遇到一个问题：默认的 prompt 模板下，Reranker 输出的分数区分度很差——相关文档和不相关文档的分数都集中在 0.3\~0.7 之间，用 `min_score=0.5` 过滤时要么漏掉好结果、要么放进来一堆垃圾。
+因为 Hybrid 的最终排序会被 BM25 分数干扰。一个文档如果语义高度相关但没有关键词命中（比如用"系统崩溃"搜索，文档标题是"异常断电恢复流程"），它在 Hybrid 中的 BM25 分量为零，排名被其他关键词命中的文档压下去。纯 Semantic 路没有这个干扰，能把这些被"误伤"的文档捞回来。
 
-解决方案是在 vLLM 和业务代码之间加了一层 FastAPI 代理，用自定义 Jinja2 模板改写了输入 prompt。关键改动是在模板里加了 `<think>\n\n</think>` 空思考标记——引导模型跳过推理过程直接输出判断，配合 `classifier_from_token: ["no", "yes"]` 让 vLLM 直接输出 "yes" token 的 softmax 概率作为分数。
+  </TabsContent>
 
-优化后分数分布变得极端化：相关文档集中在 0.70\~0.98，不相关文档集中在 0.02\~0.30，`min_score=0.5` 的分界效果好了很多。
+  <TabsContent value="phrase">
+
+**精确匹配补充**，专门处理产品型号、技术术语等需要字面严格匹配的场景。
+
+```python title="phrase_strategy.py"
+phrase_query = {
+    "match_phrase": {
+        "content": {
+            "query": query,
+            "slop": 0 if len(words) <= 2 else 1
+        }
+    }
+}
+```
+
+短查询（≤2 词）用 `slop=0` 要求严格相邻匹配，长查询允许 `slop=1` 的一个词位移容错。权重设为 0.6（低于前两路的 1.0），防止纯字面匹配的文档排名过高。
+
+  </TabsContent>
+</Tabs>
+
+三路通过 `ThreadPoolExecutor` 并行执行，各自有独立的超时控制（1500ms / 1200ms / 800ms）。任一路超时不影响其他两路返回结果。
+
+## 多路融合算法
+
+三路返回的分数量纲完全不同——BM25 是 0~50+，KNN cosine 是 0~1，Phrase 是 0~50+——不能直接比较。融合分三步进行：
+
+<Steps>
+  <Step title="Min-Max 归一化（每路独立）">
+
+将每路的分数映射到 [0, 1] 区间，消除量纲差异：
+
+```python title="normalize.py" {5}
+def normalize_scores(hits):
+    scores = [hit['_score'] for hit in hits]
+    min_s, max_s = min(scores), max(scores)
+    if max_s == min_s:          # 边界保护
+        return hits             # 只有 1 个结果或分数相同时跳过
+    for hit in hits:
+        hit['_score'] = (hit['_score'] - min_s) / (max_s - min_s)
+    return hits
+```
+
+用一组真实数据走一遍。假设用户查询 "内存兼容性规则"，三路返回：
+
+```
+Hybrid 原始分:  doc_A=12.5  doc_B=8.3   doc_C=6.1
+  归一化 (range=6.4):  doc_A=1.000  doc_B=0.344  doc_C=0.000
+
+Semantic 原始分: doc_A=0.87  doc_D=0.72  doc_B=0.65
+  归一化 (range=0.22): doc_A=1.000  doc_D=0.318  doc_B=0.000
+
+Phrase 原始分:   doc_C=15.2  doc_E=9.8
+  归一化 (range=5.4):  doc_C=1.000  doc_E=0.000
+```
+
+<Callout type="warning" title="Min-Max 的陷阱">
+注意 Semantic 路的 doc_B：原始 cosine 分数 0.65 并不低（通常代表中度相关），但归一化后变成了 0.000，因为它是该路的最低分。Min-Max 只关注相对位置，不保留绝对语义。Z-score 归一化或分位数归一化在这方面更稳健。
+</Callout>
+
+  </Step>
+
+  <Step title="乘以策略权重">
+
+```python title="weighting.py"
+WEIGHTS = {'hybrid': 1.0, 'semantic': 1.0, 'phrase': 0.6}
+weighted_score = normalized_score * WEIGHTS[strategy_name]
+```
+
+加权后：
+```
+Hybrid  (×1.0):  doc_A=1.000  doc_B=0.344  doc_C=0.000
+Semantic(×1.0):  doc_A=1.000  doc_D=0.318  doc_B=0.000
+Phrase  (×0.6):  doc_C=0.600  doc_E=0.000
+```
+
+Phrase 乘 0.6 的效果：即使 Phrase 给 doc_C 打了归一化满分 1.0，加权后也只有 0.6——不会压过 Hybrid/Semantic 的高分文档。
+
+  </Step>
+
+  <Step title="按文档 ID 合并去重">
+
+同一个文档被多路命中时，取**最高加权分**，同时记录命中来源：
+
+```python title="merge.py" {7-9}
+doc_scores = {}
+for strategy_name, hits in results.items():
+    for hit in normalize_and_weight(hits, strategy_name):
+        doc_id = hit['_id']
+        weighted = hit['_score'] * WEIGHTS[strategy_name]
+        if doc_id not in doc_scores:
+            doc_scores[doc_id] = {'score': weighted, 'types': [strategy_name]}
+        else:
+            if weighted > doc_scores[doc_id]['score']:
+                doc_scores[doc_id]['score'] = weighted
+            doc_scores[doc_id]['types'].append(strategy_name)
+```
+
+最终排序结果：
+
+| 排名 | 文档 | 最终分数 | 命中策略 | 说明 |
+|------|------|---------|---------|------|
+| 1 | doc_A | 1.000 | hybrid, semantic | 两路满分，但取 max 后和单路满分一样 |
+| 2 | doc_C | 0.600 | hybrid, phrase | Phrase 把它从 0.000 拉到 0.600 |
+| 3 | doc_B | 0.344 | hybrid, semantic | Hybrid 贡献了主要分数 |
+| 4 | doc_D | 0.318 | semantic | 仅语义命中 |
+| 5 | doc_E | 0.000 | phrase | Phrase 路最低分 |
+
+  </Step>
+</Steps>
+
+<Callout type="error" title="当前 Max Score 策略的设计缺陷">
+doc_A 被两路都给了满分，但最终分数和只被一路命中完全一样——**多路命中这个信号被浪费了**。改为累加 + 命中次数 bonus 会更合理：`final = sum_score × (1 + 0.1 × (hit_count - 1))`，这样 doc_A 能拿到 `2.0 × 1.1 = 2.2`，拉开与单路命中文档的差距。
+</Callout>
+
+## Rerank 精排：服务端 Prompt 优化
+
+粗排之后用 Cross-Encoder（Qwen3-Reranker-8B）做精排。Bi-Encoder（粗排）将 query 和 document 分别编码再比较方向，Cross-Encoder 则将二者拼接后一起推理，能捕捉更细粒度的交互关系。
+
+部署时遇到一个实际问题：默认 prompt 模板下 Reranker 输出的分数**区分度很差**。
+
+```
+优化前（默认 prompt，分数集中）:
+  相关文档:   0.45 ~ 0.70
+  不相关文档: 0.25 ~ 0.55    ← 大量重叠
+  → min_score=0.5 过滤时误伤/漏放都很严重
+
+优化后（自定义 template + think 标记）:
+  相关文档:   0.70 ~ 0.98
+  不相关文档: 0.02 ~ 0.30    ← 清晰分离
+  → min_score=0.5 分界效果显著提升
+```
+
+核心做法是在 vLLM 和业务代码之间加了一层 FastAPI 代理，用自定义 Jinja2 模板改写输入 prompt。关键改动：
+
+```jinja2 title="qwen3_rerank_template.jinja" {5-6}
+{% set prefix = '<|im_start|>system
+Judge whether the Document meets the requirements based on the Query
+and the Instruct provided. Note that the answer can only be "yes" or "no".
+<|im_end|>\n<|im_start|>user\n' %}
+{% set suffix = '<|im_end|>\n<|im_start|>assistant
+<think>\n\n</think>\n\n' %}
+
+{{ prefix }}<Instruct>: Given a web search query, retrieve relevant passages
+<Query>: {{ query }}
+<Document>: {{ document }}{{ suffix }}
+```
+
+`<think>\n\n</think>` 是空思考标记——引导模型跳过推理直接输出判断。配合 vLLM 的 `classifier_from_token: ["no", "yes"]` 配置，让引擎直接输出 "yes" token 的 softmax 概率作为相关性分数，而非走完整的文本生成流程。
 
 ## 超时降级
 
-三路策略的超时降级策略不同，因为瓶颈不同：
+三路策略的降级思路不同，因为瓶颈来源不同：
 
-Hybrid 超时通常是 BM25 的 Bool Query 太复杂，降级策略是砍掉 BM25 只保留 KNN——去掉复杂度瓶颈，快速返回纯语义结果。Semantic 超时是 KNN 遍历候选太多，降级策略是把 `num_candidates` 从 500 缩小到 150——缩小搜索范围，牺牲一些召回换速度。
+| | Hybrid 降级 | Semantic 降级 |
+|---|---|---|
+| 瓶颈 | BM25 Bool Query 复杂度 | KNN 候选集遍历量 |
+| 降级操作 | 砍掉 BM25，只保留 KNN | 保留 KNN，candidates 500→150 |
+| 质量影响 | 丢失关键词匹配能力 | 召回窗口缩小 |
 
-降级后结果质量会下降，但总比超时返回空好。这里有个后续可以改进的点：降级发生时应该在结果中标记 `degraded: true`，方便线上监控降级频率。
+降级后仍可能失败——此时该路整体返回空，但不影响其他两路。这是三路并行的容错优势：任意一路甚至两路失败，只要有一路返回结果，系统就不会给用户空答案。
 
-## 数据处理层面的优化
+## 数据处理层的优化
 
-检索质量不光取决于检索策略，数据处理也很关键。我们做了两个专项优化：
+检索质量不只取决于检索算法，数据入库阶段的处理同样关键。
 
-一是**表格结构化保留**。网页文档里经常有表格，如果直接提取为纯文本，行列关系会完全丢失。我们写了一个 HTML 解析器，用状态机追踪表格上下文（支持嵌套表格，用栈管理），在提取时保留 `<table>/<tr>/<td>` 标记。超长表格每 20 行自动分页并重复表头，这样即使 chunk 切分在表格中间，每个片段都有完整的表头信息。
+**表格结构化保留。** 网页文档中的表格如果提取为纯文本，行列关系会完全丢失。我们在 HTML 解析阶段用状态机追踪表格上下文（嵌套表格用栈管理），输出时保留 `<table>/<tr>/<td>` 标记。超长表格每 20 行自动分页并**重复表头**——确保 chunk 切分后每个片段都是自包含的。
 
-二是**PPT 的视觉模型分析**。PPT 和文本文档不同，它是视觉化的——图表、排版、色彩标注都承载信息。我们用视觉模型（VLM）对每页 PPT 截图做两步分析：先分类（标题页/目录页/内容页/感谢页），再提取内容。目录页会额外识别当前高亮的章节，用来给内容页建立章节归属关系。最终入库时，非内容页被过滤掉，内容页的路径前缀包含了章节信息（如 `"项目总结.pptx / 二、技术方案"`），检索时 LLM 可以准确回答"这个方案在文档的哪个部分"。
+**PPT 视觉模型分析。** PPT 是视觉化文档，用视觉模型（VLM）对每页截图做两步分析：页面分类（标题页/目录页/内容页/感谢页）→ 内容提取。目录页额外识别高亮章节，用来给内容页建立章节归属（如 `项目总结.pptx / 二、技术方案`）。非内容页过滤不入库，减少检索噪声。
 
-## 回过头看
+## 局限与演进方向
 
-这套架构跑了几个月，整体效果还行，但有几个地方如果重做会换个方式：
-
-Min-Max 归一化对极端值太敏感。某路有一个异常高分文档时，其余文档的归一化分数都被压缩到很低。Z-score 或分位数归一化会更稳健。
-
-策略权重硬编码不够灵活。关键词型 query（"R6900 G5 内存规格"）理应让 Phrase 权重更高，自然语言 query（"这个产品内存兼容性怎么样"）理应让 Semantic 权重更高。后来在另一个模块里做了 Query Classification 来动态调权，但检索服务本身还没接入。
-
-自适应质量过滤有个 bug：`query.split()` 判断"短查询"，对中文完全无效——中文没有空格分词，所有中文 query 都被当成"短查询"处理。这个问题发现得比较晚，暴露了纯单测不够、需要中文 query 评测集的问题。
+<Accordion type="multiple">
+  <AccordionItem value="normalization">
+    <AccordionTrigger>Min-Max 归一化对极端值过于敏感</AccordionTrigger>
+    <AccordionContent>
+      某路出现一个异常高分文档时，其余文档的归一化分数都被压缩。Z-score `(x - mean) / std` 或分位数归一化保留了分数的分布特征，比 Min-Max 更稳健。另一个方案是直接使用 RRF（Reciprocal Rank Fusion）`score = Σ 1/(k + rank_i)`，完全不看分数只看排名，免去归一化问题。
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="weights">
+    <AccordionTrigger>策略权重应该根据 Query 类型动态调整</AccordionTrigger>
+    <AccordionContent>
+      当前 `hybrid=1.0, semantic=1.0, phrase=0.6` 是固定值。但关键词型 query（"R6900 G5 内存规格"）理应提高 Phrase 权重，自然语言 query（"这个产品内存兼容性怎么样"）理应提高 Semantic 权重。后续可以引入 Query Classification（NATURAL/KEYWORD/SHORT），根据类型动态设置权重。
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="chinese">
+    <AccordionTrigger>自适应质量过滤的中文适配问题</AccordionTrigger>
+    <AccordionContent>
+      过滤器用 `len(query.split()) <= 2` 判断"短查询"——但中文没有空格分词，所有中文 query 的 `split()` 结果都是长度 1。这意味着所有中文查询都被当作"短查询"，始终使用更宽松的过滤阈值 0.10，长查询该用的 0.15 从未生效。修复方案是改用字符长度 `len(query) <= 6` 或接入分词器。
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
 
 <LinkCard
   href="https://arxiv.org/abs/2501.09136"
   title="Agentic Retrieval-Augmented Generation: A Survey"
-  description="2025 年的 Agentic RAG 综述，覆盖了从单次检索到 Agent 自主循环检索的演进。"
+  description="从单次检索到 Agent 自主循环检索的演进综述"
+/>
+
+<LinkCard
+  href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+  title="Effective Context Engineering for AI Agents"
+  description="Anthropic 关于 Agent 上下文管理的工程实践，与检索结果的组装和压缩密切相关"
 />

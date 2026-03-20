@@ -1,129 +1,255 @@
 ---
-title: "从零到生产：构建多助手 Agent 的 Harness 框架"
-description: "中间件约束、会话管理、异常恢复、可观测性——让 Agent 在生产环境中可靠运行的工程实践"
+title: "用中间件模式约束 Agent：一个生产级 Harness 框架的设计"
+description: "ForceFirstSearch、MinToolCalls、超时恢复、会话状态管理——让 Agent 在生产环境中可控运行的中间件工程"
 date: 2026-02-08
-tags: ["Agent", "LLM", "Harness Engineering", "Architecture"]
+tags: ["Agent", "Harness Engineering", "Middleware", "LangGraph"]
 category: "AI"
 locale: zh
 ---
 
-做 Agent 系统最让人头疼的不是 prompt 写得好不好，是 Agent 上线后各种"不听话"。模型有时候不搜索就直接编答案，有时候搜了十几次同一个关键词停不下来，有时候超时了给用户返回一个半成品回复。
+## 问题
 
-我们团队有七八个不同的助手（周报、培训、产品文档、交付等），最初每个助手各写一套 Agent 逻辑，维护成本极高。后来抽象出了一个公共框架，统一处理这些生产环境的"脏活"。今年 OpenAI 发了 Harness Engineering 的论文之后回头看，我们做的本质上就是同一件事——不是优化模型，而是优化模型的控制系统。
+LLM Agent 在 demo 中表现得很好，部署到生产环境后会暴露一系列可靠性问题。以下是实际遇到的几种典型异常：
 
-## Agent 在生产环境中"不听话"的几种方式
+<Callout type="error" title="Agent 在生产中的四种典型异常">
+1. **不检索就编答案** — 用户问产品参数，Agent 直接输出一个看似合理但完全编造的数字
+2. **无限循环搜索** — 搜"张工 工作"→"张工 工作内容"→"张工 工作进展"，本质是同一个 query，但 Agent 停不下来
+3. **多轮对话丢上下文** — 第一轮讨论运营商网络部署，第二轮用户说"只看联通的"，Agent 不知道在筛选什么
+4. **超时后返回残缺回复** — 做了大量检索但来不及整合，给用户返回空字符串或"我需要更多信息"
+</Callout>
 
-先列几个实际遇到的问题，后面的设计都是为了解决这些：
+这些问题的共同点是：**不能靠调 prompt 解决**。你在 system prompt 里写"必须先搜索"，Agent 大概率会遵守——但不是 100%。而生产环境需要的是 100%。
 
-**不搜索就直接答。** 用户问"R6900 G5 支持多大内存"，Agent 直接说"512GB"——结果是它自己编的。正确答案要从知识库检索。
+## 框架总览
 
-**无限循环搜索。** Agent 搜"许计峰 工作"没找到满意结果，然后搜"许计峰 工作内容"、"许计峰 工作进展"——本质上是同一个 query，但它停不下来，一直搜到递归上限报错。
+我们的方案是在 LLM 调用前后插入一系列中间件，用确定性的代码逻辑约束概率性的模型行为。整个框架的结构如下：
 
-**多轮对话丢上下文。** 第一轮讨论运营商网络部署，第二轮用户说"只看联通的"，Agent 不知道"联通"是在筛选上文的什么内容，把它当成一个全新的问题处理。
+<FileTree>
+  <Folder name="deepagent" defaultOpen>
+    <Folder name="middleware" defaultOpen>
+      <File name="builder.py" active />
+      <File name="force_first_search.py" />
+      <File name="min_tool_calls.py" />
+      <File name="max_tool_calls.py" />
+      <File name="stale_message_cleanup.py" />
+    </Folder>
+    <Folder name="postprocess">
+      <File name="answer_consolidation.py" />
+      <File name="message_extractor.py" />
+      <File name="response_formatter.py" />
+    </Folder>
+    <File name="service.py" />
+    <File name="builder.py" />
+    <File name="session_manager.py" />
+    <File name="config.py" />
+  </Folder>
+</FileTree>
 
-**超时后回复残缺。** Agent 做了大量检索但来不及整合就超时了，给用户返回"我需要更多信息"或者空字符串。
+每次 `generate_reply()` 调用都经过以下流程：
 
-## 中间件链：用确定性逻辑约束概率性行为
+```
+用户 Query
+  → SessionManager.resolve_session()     冷/热判断 + 话题检测 + Query 改写
+  → MemoryRetriever.retrieve()           长期记忆检索（3s 超时降级）
+  → build_deep_agent()                   组装 system prompt + 中间件链 + 工具
+  → agent.invoke()                       LangGraph 执行（含中间件拦截）
+  → MessageExtractor                     提取当前轮 AI 回复
+  → ResponseFormatter                    清理中间件残留文本
+  → AnswerConsolidator                   答案质量检测 + 不完整补救
+```
 
-我们的方案是在 LLM 调用前后插入一系列中间件，形成一条执行链。每个中间件负责一个具体的行为约束：
+## 中间件链：设计与执行顺序
 
-```python
-# 中间件按执行顺序排列，顺序很重要
+```python title="middleware/builder.py" {3,6,9,12,18}
 middleware = [
-    StaleMessageCleanupMiddleware(),     # 清理上轮残留指令
-    ForceFirstSearchMiddleware(),        # 强制首次检索
-    MinToolCallsMiddleware(),            # 最小工具调用次数
-    MaxToolCallsMiddleware(),            # 最大工具调用（安全网）
-    ContextEditingMiddleware(),          # 清理早期工具输出
-    SummarizationMiddleware(),           # 上下文摘要压缩
-    ModelFallbackMiddleware(),           # 模型降级
+    # 0. 必须第一个：清理上轮残留的中间件指令
+    StaleMessageCleanupMiddleware(),
+
+    # 1. 强制首次搜索
+    ForceFirstSearchMiddleware(required_tool="knowledge_search", max_injection_count=2),
+
+    # 2. 最小工具调用次数
+    MinToolCallsMiddleware(min_search_calls=2, min_total_calls=3),
+
+    # 2.5 最大工具调用（安全网）
+    MaxToolCallsMiddleware(max_tool_calls=25, max_search_calls=15),
+
+    # 3. 上下文编辑（清理早期工具输出，防 token 溢出）
+    ContextEditingMiddleware(trigger=48000, keep=10),
+
+    # 4. 上下文摘要压缩
+    SummarizationMiddleware(model=model, trigger=54400, keep=12800),
+
+    # 5. 模型降级
+    ModelFallbackMiddleware(fallback_model_1, fallback_model_2),
 ]
 ```
 
-**ForceFirstSearch** 解决"不搜索就直接答"的问题。工作原理是在第一次 LLM 调用前注入一条系统指令要求先搜索，如果 LLM 的回复中没有工具调用，再注入一条更强硬的提醒。最多注入 2 次就放弃——避免无限注入撑爆 context。
+<Callout type="warning" title="StaleMessageCleanup 为什么必须排第一？">
+多轮对话中，checkpointer 恢复上一轮的完整 state，其中包含 ForceFirstSearch 上一轮注入的"必须先搜索"SystemMessage。如果不先清理，新一轮的 ForceFirstSearch 看到这条残留指令会误判"已经注入过了"，跳过强制搜索——恰恰和设计意图相反。
+</Callout>
 
-**MaxToolCalls** 解决无限循环。设了两个阈值：总工具调用不超过 25 次、搜索不超过 15 次。超过后强制停止工具调用，让 Agent 基于已有结果回答。这个值是根据线上数据统计的：正常查询 3\~8 次，复杂查询 10\~15 次，超过 25 次基本是死循环。
+### ForceFirstSearch 的消息序列
 
-**执行顺序为什么重要？** StaleMessageCleanup 必须排第一。因为多轮对话中，checkpointer 会恢复上一轮的完整 state，其中包含 ForceFirstSearch 上一轮注入的"强制搜索"指令。如果不先清理这些残留指令，新一轮的 ForceFirstSearch 会看到旧指令误判状态。
+这个中间件通过 4 个 hook 工作。以下是一次完整的消息序列对比：
+
+```
+══════ 无 ForceFirstSearch ══════
+
+  HumanMessage: "R6900 G5 支持多大内存？"
+  AIMessage: "R6900 G5 最大支持 512GB 内存"     ← Agent 直接编造了答案
+
+══════ 有 ForceFirstSearch ══════
+
+  HumanMessage: "R6900 G5 支持多大内存？"
+
+  [before_model 第1次] 检测到首次模型调用且未搜索
+    → 注入 SystemMessage: "【强制检索要求】回答前必须先调用 knowledge_search..."
+
+  AIMessage: tool_calls=[{name: "knowledge_search", args: {question: "R6900 G5 内存规格"}}]
+
+  [after_model] 检测到 tool_calls 包含 knowledge_search
+    → 标记 _has_searched = True，后续不再干预
+
+  ToolMessage: {status: "success", results: [{title: "R6900 G5 产品规格", content: "最大支持 1TB DDR5..."}]}
+
+  AIMessage: "根据产品文档，R6900 G5 最大支持 1TB DDR5 内存 [参考来源：R6900 G5 产品规格]"
+```
+
+如果 Agent 在第一次注入后仍然不调用工具（直接回答），中间件会再注入一次更强硬的提醒。最多 `max_injection_count=2` 次后放弃，避免无限注入撑爆 context。
+
+### 上下文压缩的分级策略
+
+<Tabs defaultValue="editing">
+  <TabsList>
+    <TabsTrigger value="editing">ContextEditing（规则清理）</TabsTrigger>
+    <TabsTrigger value="summarization">Summarization（LLM 摘要）</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="editing">
+
+**触发条件：** token 数超过 `max_input_tokens × 0.75`（约 48000 tokens）
+
+**策略：** 直接删除早期的 ToolMessage（工具输出通常是最大的 token 消耗者，一次搜索返回 5 个文档约 4000 tokens），只保留最近 10 个。被删除的内容替换为占位符。
+
+**优势：** 零延迟（纯规则，不调 LLM），释放空间最明显。
+
+  </TabsContent>
+
+  <TabsContent value="summarization">
+
+**触发条件：** token 数超过 `max_input_tokens × 0.85`（约 54400 tokens）
+
+**策略：** 对早期的 HumanMessage + AIMessage 调用主模型生成摘要，保留最近 12800 tokens 的原始消息。
+
+**参数选择：** 框架默认 `keep=0.10`（6400 tokens），我们改为 `keep=0.20`（12800 tokens）——因为多轮追问场景下，用户说"上面那个结果"时最近 2-3 轮的完整消息必须保留。
+
+  </TabsContent>
+</Tabs>
+
+两者是分级协作：ContextEditing 先清理工具输出（成本最低、效果最明显），如果仍然超限再触发 Summarization 做更精细的压缩。
 
 ## 会话管理：冷启动 vs 热继续
 
-多轮对话的核心问题是：Agent 怎么知道用户的新 query 是接着上一轮聊，还是换了个话题？
+<Tabs defaultValue="cold">
+  <TabsList>
+    <TabsTrigger value="cold">冷启动</TabsTrigger>
+    <TabsTrigger value="hot">热继续</TabsTrigger>
+  </TabsList>
 
-我们的方案分两级判断：
+  <TabsContent value="cold">
 
-**第一级，关键词快速路径。** 用户说"重新查"、"不对"、"错了"、"接着说"这些，肯定不是话题切换——直接返回"不切换"，不调 LLM。这一步零延迟。
+**触发条件：** checkpointer 中无 session，或话题检测判定为切换。
 
-**第二级，LLM 判断。** 把最近 5 条用户消息和当前 query 传给一个轻量模型，让它判断是否切换了话题。temperature 设为 0 保证确定性。
+- 新建 session（bump version → 新 thread_id）
+- 注入虚拟文件（skills、references）到 Agent state
+- 将历史摘要注入 system prompt
+- 对 Query 做简单规则改写（个人代词替换："帮我查" → "帮张工查"）
 
-判断结果决定两种不同的处理路径：
+  </TabsContent>
 
-- **冷启动**：新建 session，注入虚拟文件（skills、references）和历史摘要到 system prompt
-- **热继续**：从 checkpointer 恢复上一轮的完整 state，对 query 做上下文感知改写
+  <TabsContent value="hot">
 
-上下文改写是热继续的关键。用户说"只分析联通"，原始 query 缺少上下文。我们检测到这是过滤筛选类表达后，自动改写为"帮我分析三大运营商的5G核心网部署情况，只分析联通"——把上一轮的话题拼进去，让检索工具能理解搜什么。
+**触发条件：** checkpointer 中有有效 session，且话题未切换。
+
+- 从 checkpointer 恢复完整 state（所有历史消息 + 工具结果）
+- **不注入**虚拟文件（已在 state 中）
+- 不注入历史摘要（checkpointer 已有完整历史）
+- 对 Query 做**上下文感知改写**
+
+  </TabsContent>
+</Tabs>
+
+话题检测用两级策略：**第一级**，关键词快速路径——"重新查"、"不对"、"错了"、"接着说"这些一定不是话题切换，零延迟返回。**第二级**，用轻量 LLM（temperature=0）判断当前 query 与最近 5 条消息是否同一话题。
+
+上下文感知改写是热继续的关键。用户说"只分析联通"时缺少上下文，改写逻辑检测到这是过滤筛选类表达后，自动补全为"帮我分析三大运营商的5G核心网部署情况，只分析联通"。
 
 ## 异常恢复：从半成品中抢救答案
 
-Agent 超时或递归超限时，不能直接返回错误。用户等了几十秒，至少应该拿到一个基于已有检索结果的回答。
+Agent 超时或递归超限（`GraphRecursionError`）时，不能直接返回错误——用户已经等了几十秒。
 
-恢复策略分两层：
+<Steps>
+  <Step title="策略一（优先）：从工具结果整合">
 
-**策略一（优先）：从工具结果整合。** 从 checkpointer 的 partial state 中提取所有成功的 ToolMessage，用一个独立的 LLM 调用基于这些工具结果重新生成回答。通常 Agent 超时是因为在整合阶段卡住了，但之前的检索结果都是好的——用这些结果重新生成比什么都没有强得多。
+从 checkpointer 的 partial state 中提取所有成功的 ToolMessage，用一个独立的 LLM 调用重新生成回答。
 
-**策略二（回退）：提取最后的 AI 回复。** 如果 Agent 在超时前已经开始输出回复（>=100 字），直接截取。虽然不完整，但比空好。
+通常 Agent 超时是因为在整合阶段卡住，但之前的检索结果是好的——用这些结果重新生成比什么都没有强得多。实测成功率 ~70%。
 
-实际跑下来，策略一成功率在 70% 以上——大部分超时场景都是 Agent 做了 5\~6 次检索后在整合时超限，工具结果本身是有价值的。
+  </Step>
+  <Step title="策略二（回退）：提取最后的 AI 回复">
 
-## 后处理：答案质量兜底
+如果策略一失败（没有可用的工具结果），检查 Agent 在超时前是否已经开始输出回复。如果最后的 AIMessage 内容 ≥100 字，直接截取作为回复——虽然不完整，但比空好。
 
-Agent 有时候会返回技术上"成功"但内容上残缺的答案——比如只说"已为您整理以下信息"但后面没有实际内容，或者回复中混入了中间件注入的系统指令文本。
+  </Step>
+</Steps>
 
-我们有一个 `AnswerConsolidator` 做最后一道检查：
+## 答案质量兜底
 
-```python
+Agent 有时返回技术上"成功"但内容残缺的回答。`AnswerConsolidator` 做最后一道检查：
+
+```python title="answer_consolidation.py" {2-3,9-10}
 # 检测模式
 INCOMPLETE_PATTERNS = ["已为您整理", "已为您梳理", "如需了解"]
 MIDDLEWARE_LEAKAGE = ["【强制检索要求】", "【系统指令】"]
-RAW_TOOL_MARKERS = ["<|tool_calls_section_begin|>"]
 
-# 判断逻辑
-if tool_calls_count >= 4 and len(answer) < 150:
-    # 搜了 4 次但回答不到 150 字，大概率内容丢了
-    → 触发整合：从 ToolMessage 中重新生成完整答案
+def is_incomplete_answer(answer, tool_calls_count):
+    # 有工具调用但回答太短 → 内容可能丢失
+    if tool_calls_count >= 4 and len(answer) < 150:
+        return True, "搜了4次但回答不到150字"
+    # 包含中间件残留文本
+    if any(p in answer for p in MIDDLEWARE_LEAKAGE):
+        return True, "回复混入了中间件指令"
+    return False, ""
 ```
 
-这个检查器是保守策略——只在明显异常时触发，避免对正常回答做不必要的二次处理。
+检测到不完整时，从消息历史中提取 ToolMessage 重新整合——和超时恢复的策略一相同。这是保守策略，只在明显异常时触发。
 
-## 可观测性
+## Harness Engineering 视角
 
-上面说的所有环节，如果看不到内部状态就没法调优。我们用 Langfuse 做全链路追踪，在 `generate_reply()` 的关键节点创建 Span：
+2026 年 OpenAI 发表了 Harness Engineering 论文后回头看，我们的框架和它的理念高度一致。Harness 是围绕 LLM Agent 的一切控制系统——不是模型本身，而是让模型可靠工作的"缰绳"。
 
-```
-generate_reply()
-  → session_resolve (冷/热判断、话题检测结果)
-  → memory_retrieval (记忆召回耗时和命中情况)
-  → query_rewrite (改写前后对比)
-  → agent_build (工具列表、skill 文件数)
-  → [LangGraph invoke] (框架自动追踪每次 LLM 调用和工具调用)
-  → tool_call_stats (工具调用次数、名称)
-  → answer_consolidation (是否触发补救)
-```
+对应到我们的系统：
 
-所有 Langfuse 操作都包在 try/except 里，失败时静默降级为空操作——可观测性不能影响主链路。
+| Harness 层 | 我们的实现 |
+|-----------|---------|
+| Context Engineering | 7 层 system prompt 组装 + SummarizationMiddleware |
+| Guardrails | ForceFirstSearch + MinToolCalls + MaxToolCalls |
+| State Management | SessionManager + RedisSaver Checkpointer |
+| Recovery | `_recover_from_partial_state` + AnswerConsolidator |
+| Observability | Langfuse ProcessTracer（关键节点 Span 追踪） |
 
-## 回过头看
-
-这套框架跑了几个月，几个观察：
-
-**中间件是最有价值的设计。** 它把"Agent 应该怎么做"从概率性的 prompt 指令变成了确定性的代码约束。ForceFirstSearch 不是在 prompt 里写"你必须先搜索"（Agent 可能忽略），而是检测到没搜索就注入系统消息强制要求，检测到还没搜就再来一次。这比单纯调 prompt 可靠得多。
-
-**话题检测的误判率比预期高。** 特别是用户说"汇总成表格"这种格式变换请求，LLM 经常误判为话题切换。关键词快速路径拦截了一部分常见追问，但不是所有 case 都能用关键词覆盖。这个问题目前还没有特别好的解。
-
-**MinToolCalls 有副作用。** 对"你好"这种闲聊，强制搜索 2 次完全是浪费。应该根据 query 类型动态跳过——但判断 query 类型本身又需要一次 LLM 调用。最后权衡下来觉得：浪费两次搜索的延迟可以接受，误漏搜索导致编造答案不可接受，所以保留了强制策略。
+<Callout type="success" title="核心收获">
+中间件是整个框架中价值最高的设计。它把"Agent 应该怎么做"从概率性的 prompt 指令变成了确定性的代码约束——不是在 prompt 里写"你必须先搜索"（Agent 可能忽略），而是在代码层检测到没搜索就注入系统消息强制要求。这比单纯调 prompt 可靠一个数量级。
+</Callout>
 
 <LinkCard
   href="https://openai.com/index/harness-engineering/"
   title="Harness Engineering: Leveraging Codex in an Agent-First World"
-  description="OpenAI 的 Harness Engineering 论文。我们的框架和他们的理念高度一致——竞争优势不在模型，而在控制系统。"
+  description="OpenAI 关于 Harness Engineering 的论文，核心观点：竞争优势不在模型，而在控制系统。"
+/>
+
+<LinkCard
+  href="https://docs.langchain.com/oss/python/deepagents/overview"
+  title="Deep Agents Overview — LangChain"
+  description="LangChain 的 Deep Agents 框架文档，包含中间件、虚拟文件系统和子代理的设计。"
 />

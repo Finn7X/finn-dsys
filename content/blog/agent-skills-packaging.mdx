@@ -1,142 +1,255 @@
 ---
 title: "用 Agent Skills 标准封装可复用的检索能力"
-description: "把散落在多个助手中的检索流程提取为一个跨平台、可组合的 Skill 模块"
+description: "从散落在多个助手中的检索 prompt 提取为跨平台 Skill 模块：渐进式加载、Standards 规范和 MCP 双栈架构"
 date: 2026-03-12
-tags: ["Agent Skills", "Harness Engineering", "Architecture", "MCP"]
+tags: ["Agent Skills", "Harness Engineering", "MCP", "Architecture"]
 category: "AI"
 locale: zh
 ---
 
-我们有七八个不同的助手，底层都在做同一件事：从知识库检索文档、获取详情、整理回答。但每个助手的 prompt.py 里各写了一遍检索流程——120 行的 Python f-string，内联了索引路由规则、工具使用策略、检索深度要求等等。改一个检索策略要改七八个文件，经常漏改。
+## 问题：N 个助手复制粘贴同一套检索逻辑
 
-今年 Anthropic 开放了 Agent Skills 标准之后，我试着把"知识检索问答"这个能力从各助手中提取出来，封装成一个独立的 Skill。过程中对 Skill 的设计哲学有了一些体会，记录一下。
+我们有七八个不同领域的 Agent 助手（周报、培训、产品文档、项目交付等），底层都在做同一件事——从知识库检索文档、获取详情、整理回答。但每个助手的 prompt 文件里各写了一遍检索流程：120 行的 Python f-string，内联了索引路由规则、工具使用策略、检索深度要求。
 
-## Skill 的本质：一个目录
+改一个检索策略要改七八个文件，经常漏改。更糟糕的是，新增一个助手时不得不复制粘贴这些内容，然后手动调整——几乎所有 Agent 系统在扩展助手数量时都会遇到这个问题。
 
-Agent Skills 的格式其实很简单——一个目录，里面有一个 `SKILL.md` 文件。就这样。
+<Callout type="info" title="Agent Skills 标准">
+2024 年底 Anthropic 发布了 Agent Skills 开放标准。一个 Skill 就是一个目录，里面用 Markdown + YAML 定义一项可复用的 Agent 能力。Microsoft、OpenAI、Cursor、GitHub 已经采纳了这个标准。它正在成为 Agent 能力的通用封装格式。
+</Callout>
 
-```
-knowledge-retrieval/
-├── SKILL.md              ← YAML 元数据 + Markdown 指令
-├── references/           ← Agent 按需读取的参考文档
-│   ├── index-catalog.md
-│   ├── retrieval-strategy.md
-│   └── output-format.md
-└── assets/               ← 框架消费的结构化配置
-    └── index-routing.yaml
-```
+## Skill 的结构
 
-SKILL.md 分两部分：YAML frontmatter 声明"我是谁、什么时候该用我、需要什么工具"，Markdown 正文写"具体怎么做"。
+以我们封装的知识检索 Skill 为例：
 
-```yaml
+<FileTree>
+  <Folder name="knowledge-retrieval" defaultOpen>
+    <File name="SKILL.md" active />
+    <Folder name="references" defaultOpen>
+      <File name="index-catalog.md" />
+      <File name="retrieval-strategy.md" />
+      <File name="output-format.md" />
+    </Folder>
+    <Folder name="assets">
+      <File name="index-routing.yaml" />
+    </Folder>
+  </Folder>
+</FileTree>
+
+`SKILL.md` 分两部分——YAML frontmatter 声明元数据，Markdown 正文写指令：
+
+```yaml title="SKILL.md (frontmatter)" {2-6}
 ---
 name: knowledge-retrieval
 description: >
-  Enterprise knowledge base retrieval and Q&A skill.
-  Use when user asks about project progress, weekly reports,
-  product documentation, training materials...
+  Enterprise knowledge base retrieval and Q&A skill. Searches knowledge bases
+  using semantic hybrid retrieval, fetches full page content when truncated,
+  and generates well-cited answers. Triggers on: 项目进展, 周报, 产品文档, 培训课程...
 allowed-tools: knowledge_search fetch_page_content
+metadata:
+  author: team-ai
+  version: "1.0"
 ---
 ```
 
-这个 description 是关键——Agent 启动时只加载每个 Skill 的 name 和 description（大概 100 tokens），用来判断当前 query 该不该激活这个 Skill。只有决定激活之后才读 SKILL.md 正文，正文中引用的 references/ 文件则是 Agent 觉得需要时才读。这就是所谓的"渐进式加载"（Progressive Disclosure）。
+`description` 是 Skill 发现的唯一依据——Agent 启动时只加载每个 Skill 的 name + description（约 100 tokens），用来判断当前 query 该不该激活这个 Skill。只有决定激活后才读 SKILL.md 正文，正文中引用的 references/ 文件则是 Agent 觉得需要时才读。
 
-## 渐进式加载到底省了多少
+这就是 **渐进式加载（Progressive Disclosure）** 的核心设计。
 
-算一笔账。我们的检索能力涉及四块内容：核心流程（800 tokens）、索引说明（600）、检索策略（800）、输出格式（600），加起来 2800 tokens。
+## 渐进式加载的量化分析
 
-如果全量注入 system prompt（之前的做法）——不管用户问什么，每次 LLM 调用都带着 2800 tokens 的检索指令。
+```
+三层加载，按需展开：
 
-用渐进式加载之后：
+Layer 1 — 元数据（~100 tokens/skill）
+  Agent 启动时加载 name + description，用于发现匹配
+  12 个 Skill × 100 = ~1,200 tokens
 
-简单事实查询（"R6900 支持多大内存"）——激活 Skill 读正文 800 tokens，写回答时读 output-format 600 tokens，不需要读索引说明和检索策略。总共 1400 tokens，**省了 50%**。
+Layer 2 — 指令（~800 tokens）
+  激活后读取 SKILL.md 正文
 
-复杂多角度查询（"对比三大运营商的 5G 部署"）——需要选索引、需要深度检索策略，全部 reference 都会被读取。总共 2800 tokens，和全量注入一样。但这种复杂查询的频率大概只占 20%。
+Layer 3 — 参考资料（按需）
+  Agent 调用 read_file 读取 references/ 中的文件
+```
 
-按查询类型分布加权算，平均 token 消耗降低约 40%。这不只是省钱——更重要的是减少了注意力稀释，LLM 对真正需要关注的指令执行得更好。
+以我们的 knowledge-retrieval Skill 为例，四块内容的 token 消耗：
 
-## 从 prompt.py 里提取了什么、保留了什么
+| 内容 | tokens | 何时加载 |
+|------|--------|---------|
+| SKILL.md 正文 | ~800 | Skill 激活时（每次） |
+| index-catalog.md | ~600 | Step 2 选索引时（需要时） |
+| retrieval-strategy.md | ~800 | 搜索不理想时（需要时） |
+| output-format.md | ~600 | 写回答时（每次） |
 
-这是整个 Skill 化过程中最需要想清楚的问题。原则是：**Skill 定义不变的能力，prompt 定义变化的上下文。**
+不同场景下的实际 token 消耗：
 
-提取到 Skill 中的（跨助手不变）：
-- 检索流程的 5 步骤（分析问题 → 选索引 → 执行检索 → 构建回答 → 个人问题处理）
-- 工具使用规范（怎么用 knowledge\_search、什么时候用 fetch\_page\_content）
+```
+简单事实查询（"R6900 支持多大内存"）
+  加载：SKILL.md + output-format = ~1400 tokens
+  不需要：index-catalog（默认索引够用）+ retrieval-strategy（一次命中）
+  → 比全量 2800 tokens 省了 50%
+
+复杂多角度查询（"对比三大运营商 5G 部署"）
+  加载：全部 4 个文件 = ~2800 tokens
+  → 和全量注入一样
+
+按查询类型分布加权：平均 token 消耗降低约 40%
+```
+
+<Callout type="warning" title="token 节省不是唯一目标">
+更重要的是减少**注意力稀释**。研究表明 LLM 推理性能在 context 超过 ~3000 tokens 后开始退化。渐进式加载让 Agent 在简单查询时只看到 1400 tokens 的精简指令，注意力更集中。
+</Callout>
+
+## 从 prompt.py 提取了什么、保留了什么
+
+封装 Skill 时最关键的设计决策是：**什么属于"不变的能力"（放进 Skill），什么属于"变化的上下文"（留在各助手 prompt 中）。**
+
+<Tabs defaultValue="extracted">
+  <TabsList>
+    <TabsTrigger value="extracted">提取到 Skill 中</TabsTrigger>
+    <TabsTrigger value="retained">保留在各助手 prompt 中</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="extracted">
+
+**跨助手不变的检索能力定义：**
+
+- 5 步检索流程（分析 → 选索引 → 执行检索 → 构建回答 → 个人问题处理）
+- 工具使用规范（knowledge\_search 怎么调、fetch\_page\_content 何时用）
 - 输出格式要求（纯文本、引用规范、禁止行为）
-- 索引路由规则（关键词 → 索引映射）
+- 索引路由规则（关键词到索引的映射，YAML 配置化）
+- 检索质量自检清单（事实断言是否有来源、引用是否真实）
 
-保留在各助手 prompt 中的（每次调用可能不同）：
-- 当前时间 `current_time`
-- 用户信息 `user_info`（姓名、部门、职位）
-- 群聊上下文（SSP 群自动加 SSP 索引）
-- 历史对话摘要
+  </TabsContent>
 
-索引路由规则放在 `assets/index-routing.yaml` 里，而不是写在 SKILL.md 正文中——因为它是给框架代码解析的结构化数据，不是给 LLM 读的自然语言。不过 SKILL.md 正文的 Step 2 中仍然有一份人类可读的路由说明，算是双保险：框架自动路由 + Agent 也知道路由逻辑可以手动覆盖。
+  <TabsContent value="retained">
 
-## references/ 为什么拆成三个文件
+**每次调用可能不同的运行时上下文：**
 
-拆分的依据不是内容分类，而是 **Agent 需要的时机**：
+- 当前时间（`datetime.now()`）
+- 用户信息（姓名、部门、职位，从 Employee 表查询）
+- 群聊上下文（SSP 群自动添加 SSP 索引）
+- 历史对话摘要（SessionManager 生成）
+- 角色定位（soul.md，每个助手不同）
 
-- `index-catalog.md`——Step 2 选索引时才需要，简单查询（默认索引就够）完全不用读
-- `retrieval-strategy.md`——Step 3 首次搜索不理想时才需要，搜一次就命中的情况不用读
-- `output-format.md`——Step 4 写回答时才需要，每次都会读
+  </TabsContent>
+</Tabs>
 
-如果把三者合并成一个大文件，Agent 每次都要读全部，哪怕当前 query 只需要其中一部分。拆开之后 Agent 按需读取，减少了上下文噪声。
+## references/ 的拆分依据
 
-## Skill 和 MCP 是什么关系
+三个 reference 文件不是按内容分类拆的，而是**按 Agent 使用的时机**拆的：
 
-经常有人问 Skill 和 MCP（Model Context Protocol）有什么区别。简单说：
+<Steps>
+  <Step title="index-catalog.md — Step 2 选索引时">
 
-**MCP 定义 Agent 怎么连接工具**——类似 USB 接口标准，规定了 API 格式、认证方式、数据结构。我们的 `knowledge_search` 工具背后连接 Elasticsearch 的配置、`fetch_page_content` 连接 iCenter API 的逻辑，这些属于 MCP 层面。
+详细描述每个知识库索引的覆盖内容和典型查询示例。简单查询（默认索引就够）时 Agent 不需要读这个文件。
 
-**Skill 定义 Agent 连上工具后怎么用**——搜几次、怎么判断结果够不够、怎么组织回答。同样的 `knowledge_search` 工具，检索产品文档和检索周报的策略完全不同（前者侧重精确型号匹配，后者侧重多角度人员/项目/时间交叉搜索）。
+  </Step>
+  <Step title="retrieval-strategy.md — Step 3 搜索不理想时">
 
-所以它们是互补的：MCP 负责"接上"，Skill 负责"用好"。只有 MCP 没有 Skill，Agent 有工具但不知道怎么高效使用；只有 Skill 没有 MCP，Agent 有流程但连不上工具。
+深度检索策略：多角度搜索模式、改写技巧、fetch\_page\_content 分段策略。如果第一次搜索就命中了，Agent 不会读这个文件。
+
+  </Step>
+  <Step title="output-format.md — Step 4 写回答时">
+
+格式规范、引用规则、禁止行为清单。每次回答都需要参考，所以这个文件加载频率最高。
+
+  </Step>
+</Steps>
+
+`assets/index-routing.yaml` 不在 references/ 中，因为它的消费者是**框架代码**（解析 YAML → 匹配关键词 → 返回索引列表），不是给 LLM 阅读的自然语言。
+
+```yaml title="assets/index-routing.yaml"
+default_indexes:
+  - weekly_all
+
+keyword_routing:
+  - name: training
+    keywords: ["培训", "课程", "学习", "考试"]
+    add_indexes: ["kb_training_latest"]
+  - name: product-doc
+    keywords: ["产品", "网元", "5G", "核心网"]
+    add_indexes: ["kb_ccn_product_doc"]
+  - name: ssp
+    keywords: ["SSP", "存储", "服务器"]
+    add_indexes: ["ssp_internal", "kb_ssp_model_all"]
+```
+
+新增一个知识库只需要在 YAML 里加一条路由规则，不需要改任何代码。
+
+## Skills 与 MCP 的双栈关系
+
+Agent Skills 和 MCP（Model Context Protocol）经常被放在一起讨论。它们是互补的两层标准：
+
+```
+MCP  = Agent 如何连接外部工具/数据源     → "怎么插上"
+Skill = Agent 连上工具后如何执行任务     → "插上后怎么用"
+```
+
+以我们的系统为例：MCP 层面定义了 `knowledge_search` 工具怎么连接 Elasticsearch（API 格式、认证、数据结构）；Skill 层面定义了拿到这个工具后**怎么搜**——搜几次、怎么判断结果够不够、怎么组织回答。
+
+同样的 `knowledge_search` 工具，检索产品文档和检索周报的**策略**完全不同（前者侧重精确型号匹配，后者侧重多角度交叉搜索）。这个差异由 Skill 定义，不由 MCP 定义。
 
 ## 跨助手复用的效果
 
-封装完成后，各助手的接入方式变了：
+封装完成后，接入方式从手动拼参数变为声明式配置：
 
-```python
-# 之前：每个助手手动拼十几个参数
+```python title="before_skill.py"
+# 之前：每个助手手动配置十几个参数
 service = DeepAgentService(
     service_name="weekly",
-    system_prompt_generator=gen_agentic_system_prompt,  # 120 行 Python 函数
+    system_prompt_generator=gen_agentic_system_prompt,  # 120 行函数
     index_names=["weekly_all"],
     soul_path="weekly/soul.md",
     output_rules_path="weekly/output_rules.md",
     enable_searcher_subagent=True,
-    # ... 更多参数
-)
-
-# 之后（目标）：Skill 声明检索能力，soul 声明角色
-service = DeepAgentService(
-    service_name="weekly",
-    soul_path="weekly/soul.md",           # 每个助手不同
-    skills=["knowledge-retrieval"],        # 共享的检索能力
+    # ...
 )
 ```
 
-新增一个助手不再需要复制粘贴 prompt.py，只要写一个 soul.md 声明角色定位就行。检索流程、索引路由、输出规范全部从 Skill 继承。
+```python title="after_skill.py"
+# 之后（目标）：Skill 声明能力，soul 声明角色
+service = DeepAgentService(
+    service_name="weekly",
+    soul_path="weekly/soul.md",           # 角色（每个助手不同）
+    skills=["knowledge-retrieval"],        # 能力（共享 Skill）
+)
+```
 
-SSP 助手有额外的型号过滤逻辑（wildcard filter + 双知识库合并），这部分不适合放进通用 Skill，可以封装为独立的 `ssp-product-filter` Skill，和 `knowledge-retrieval` 组合使用。
+<Callout type="success" title="Skill 组合">
+对于有额外逻辑的助手（如 SSP 的设备型号过滤），可以通过 Skill 组合解决：`skills=["knowledge-retrieval", "ssp-product-filter"]`。通用检索能力由共享 Skill 提供，SSP 的型号过滤逻辑封装为独立的专属 Skill。
+</Callout>
 
-## 回过头看
+## Skill 在 Harness 中的位置
 
-Skill 本质上是把 Harness Engineering 中的"能力层"标准化了。之前的中间件约束了 Agent 的行为边界，记忆系统提供了持久化知识，而 Skill 定义了 Agent 的可复用能力——三者组合在一起就是一个完整的 Harness。
+从 Harness Engineering 的视角看，Skill 是 Harness 七层架构中的**"可插拔能力层"**：
 
-一个比较有意思的观察：Skill 的渐进式加载设计和人类认知其实很像。你不会在接到任何任务时都把所有知识装进脑子里——你先想"这个任务需要什么技能"，然后只调取相关的经验和知识。Agent 也应该如此。全量注入等于让 Agent 每次都"复习全部教材"，渐进式加载等于让它"按需翻阅参考手册"。
+```
+Agent Harness 架构:
+  Soul     → 定义"我是谁"（角色）           → 每个助手不同
+  Skill    → 定义"我会什么"（能力）          → 可跨助手共享
+  Middleware → 定义"我的边界"（行为约束）     → 框架统一管理
+  Memory   → 定义"我记住什么"（知识持久化）   → 框架统一管理
+  Recovery → 定义"出错怎么办"（容错降级）     → 框架统一管理
+  Eval     → 定义"做得好不好"（质量评估）     → 框架统一管理
+  State    → 定义"对话到哪了"（会话状态）     → 框架统一管理
+```
 
-目前 Skill 还只在我们内部框架中使用。因为 Agent Skills 是开放标准（Anthropic 发起，Microsoft、OpenAI、Cursor 等已经采纳），理论上同一个 Skill 可以直接迁移到其他支持该标准的平台上——不过跨平台移植时工具名称映射还是需要适配层的。
+之前的系列文章分别讨论了 Middleware、Memory、Recovery 这些层。Skill 是最后一块拼图——它把"能力"从 prompt 字符串中解放出来，变成独立的、版本化的、可组合的模块。
 
 <LinkCard
   href="https://agentskills.io/specification"
   title="Agent Skills Specification"
-  description="Agent Skills 的完整格式规范，包括 frontmatter 字段定义、目录结构和渐进式加载设计。"
+  description="Agent Skills 的完整格式规范，包括 SKILL.md frontmatter、目录结构和渐进式加载设计"
 />
 
 <LinkCard
   href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills"
   title="Equipping Agents for the Real World with Agent Skills"
-  description="Anthropic 关于 Agent Skills 设计理念的工程博客。"
+  description="Anthropic 关于为什么要做 Agent Skills 标准的工程博客"
+/>
+
+<LinkCard
+  href="https://openai.com/index/harness-engineering/"
+  title="Harness Engineering — OpenAI"
+  description="Harness Engineering 的概念定义。Skill 是 Harness 中可插拔的能力层"
 />
