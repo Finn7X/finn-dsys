@@ -208,20 +208,21 @@ doc_A 被两路都给了满分，但最终分数和只被一路命中完全一�
 
 核心做法是在 vLLM 和业务代码之间加了一层 FastAPI 代理，用自定义 Jinja2 模板改写输入 prompt。关键改动：
 
-```jinja2 title="qwen3_rerank_template.jinja" {5-6}
-{% set prefix = '<|im_start|>system
-Judge whether the Document meets the requirements based on the Query
-and the Instruct provided. Note that the answer can only be "yes" or "no".
-<|im_end|>\n<|im_start|>user\n' %}
-{% set suffix = '<|im_end|>\n<|im_start|>assistant
-<think>\n\n</think>\n\n' %}
-
-{{ prefix }}<Instruct>: Given a web search query, retrieve relevant passages
-<Query>: {{ query }}
-<Document>: {{ document }}{{ suffix }}
+```text title="qwen3_rerank_template.jinja（结构简化）"
+[system] Judge whether the Document meets the requirements
+  based on the Query and the Instruct provided.
+  Note that the answer can only be "yes" or "no".
+[user]
+  [Instruct]: Given a web search query, retrieve relevant passages
+  [Query]: ...用户查询...
+  [Document]: ...候选文档...
+[assistant]
+  [think]                  ← 空思考标记：引导模型跳过推理
+  [/think]
+                           ← 直接输出 yes/no 判断
 ```
 
-`<think>\n\n</think>` 是空思考标记——引导模型跳过推理直接输出判断。配合 vLLM 的 `classifier_from_token: ["no", "yes"]` 配置，让引擎直接输出 "yes" token 的 softmax 概率作为相关性分数，而非走完整的文本生成流程。
+模板中的空思考标记（`[think][/think]`）引导模型跳过推理过程直接输出判断。配合 vLLM 的 `classifier_from_token: ["no", "yes"]` 配置，让引擎直接输出 "yes" token 的 softmax 概率作为相关性分数，而非走完整的文本生成流程。
 
 ## 超时降级
 
