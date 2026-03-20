@@ -112,6 +112,16 @@ function AboutContent() {
                 </div>
             </section>
 
+            {/* Beyond Code */}
+            <section className="mb-16">
+                <h2 className="font-heading text-lg font-medium mb-4">
+                    {t("beyondCode")}
+                </h2>
+                <p className="text-muted-foreground leading-relaxed">
+                    {t("beyondCodeText")}
+                </p>
+            </section>
+
             {/* Contact */}
             <section>
                 <h2 className="font-heading text-lg font-medium mb-4">

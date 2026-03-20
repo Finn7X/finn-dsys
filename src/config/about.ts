@@ -11,4 +11,4 @@ export const techStack = {
     DevOps: ["Docker", "GitHub Actions", "Linux", "Nginx"],
 }
 
-export const timelineYears = ["2026", "2025"] as const
+export const timelineYears = ["2026", "2025", "2024", "2021"] as const

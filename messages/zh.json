@@ -60,14 +60,22 @@
         "contact": "联系方式",
         "contactCta": "想要联系我？",
         "sendEmail": "发送邮件",
-        "bio": ["专注于企业级 AI Agent 系统的设计与落地。围绕 LLM 构建了包含 RAG 检索、中间件管控、记忆系统和质量评估的完整 Agent 平台，服务于多个内部业务场景。", "技术栈以 Python + LangGraph 为核心，搭配 Elasticsearch 混合检索、vLLM 模型推理和 Langfuse 可观测性。工作之余用 Next.js 搭建了这个博客，记录工程实践中的思考。"],
-        "role": "AI 工程师",
+        "beyondCode": "Beyond Code",
+        "beyondCodeText": "不写代码的时候，我在跑步、听音乐，或者拆点硬件。",
+        "bio": ["我是 Finn，一个 AI 工程师。过去两年主要在做 LLM Agent 系统——从 RAG 检索、中间件编排到记忆系统和评测闭环，把一个想法做成生产环境里真正跑起来的东西。", "技术栈围绕 Python + LangGraph，搭配 Elasticsearch 做混合检索、vLLM 做模型推理。工作之外用 Next.js 搭了这个博客，算是逼自己把实践中的思考写下来。本科学的自动化（NJUST），对硬件也一直有兴趣。"],
+        "role": "AI Engineer",
         "timeline2026Title": "Finn Days",
         "timeline2026Role": "创建者",
-        "timeline2026Desc": "搭建个人技术博客，输出 Agent 工程与 RAG 系统的实践总结。",
-        "timeline2025Title": "企业 AI Agent 平台",
+        "timeline2026Desc": "搭建个人博客，写 Agent 和 RAG 的工程实践。",
+        "timeline2025Title": "AI Agent 平台",
         "timeline2025Role": "AI 工程师",
-        "timeline2025Desc": "设计并落地多助手 Agent 系统，涵盖 RAG 检索管线、中间件框架、记忆系统与评估体系。"
+        "timeline2025Desc": "设计并落地多助手 Agent 系统，覆盖 RAG、中间件、记忆与评估。",
+        "timeline2024Title": "ChatBot & 代码评审",
+        "timeline2024Role": "开发者",
+        "timeline2024Desc": "从零搭建运维场景 ChatBot，独立开发 CI/CD 自动化代码评审系统。",
+        "timeline2021Title": "NJUST · 自动化",
+        "timeline2021Role": "本科",
+        "timeline2021Desc": "对机器人和赛车投入了大量热情，然后进入了软件开发的世界。"
     },
     "projects": {
         "title": "项目",
@@ -150,7 +158,7 @@
         "next": "下一篇"
     },
     "author": {
-        "bio": "AI 工程师，专注于 Agent 系统与 RAG 检索架构。在这里分享工程实践中的经验与思考。"
+        "bio": "AI 工程师，做 Agent 系统和 RAG 检索。在这里写下工程实践中踩过的坑和学到的东西。"
     },
     "reading": {
         "progress": "阅读进度"

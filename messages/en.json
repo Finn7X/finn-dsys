@@ -60,14 +60,22 @@
         "contact": "Contact",
         "contactCta": "Want to get in touch?",
         "sendEmail": "Send Email",
-        "bio": ["Focused on designing and shipping enterprise AI Agent systems. Built a full Agent platform around LLMs — covering RAG retrieval, middleware orchestration, memory systems, and quality evaluation — serving multiple internal business scenarios.", "Core stack is Python + LangGraph, with Elasticsearch hybrid search, vLLM model serving, and Langfuse observability. Built this blog with Next.js on the side to document engineering insights."],
+        "beyondCode": "Beyond Code",
+        "beyondCodeText": "When I'm not coding, I'm either running, listening to music, or tinkering with hardware.",
+        "bio": ["I'm Finn, an AI engineer. For the past two years I've been building LLM Agent systems — RAG retrieval, middleware orchestration, memory systems, and evaluation loops. I like turning ideas into things that actually run in production.", "My core stack is Python + LangGraph, with Elasticsearch for hybrid search and vLLM for model serving. I built this blog with Next.js as a way to force myself to write down what I learn. I studied automation at NJUST and still have a soft spot for hardware."],
         "role": "AI Engineer",
         "timeline2026Title": "Finn Days",
         "timeline2026Role": "Creator",
-        "timeline2026Desc": "Building a personal tech blog to share Agent engineering and RAG system practices.",
-        "timeline2025Title": "Enterprise AI Agent Platform",
+        "timeline2026Desc": "Building a personal blog to write about Agent and RAG engineering practices.",
+        "timeline2025Title": "AI Agent Platform",
         "timeline2025Role": "AI Engineer",
-        "timeline2025Desc": "Designed and shipped a multi-assistant Agent system covering RAG pipelines, middleware framework, memory system, and evaluation."
+        "timeline2025Desc": "Designed and shipped a multi-assistant Agent system covering RAG, middleware, memory, and evaluation.",
+        "timeline2024Title": "ChatBot & Code Review",
+        "timeline2024Role": "Developer",
+        "timeline2024Desc": "Built an ops-scenario ChatBot from scratch and independently developed a CI/CD automated code review system.",
+        "timeline2021Title": "NJUST · Automation",
+        "timeline2021Role": "Undergrad",
+        "timeline2021Desc": "Poured a lot of energy into robotics and racing, then found my way into software."
     },
     "projects": {
         "title": "Projects",
@@ -150,7 +158,7 @@
         "next": "Next"
     },
     "author": {
-        "bio": "AI engineer focused on Agent systems and RAG retrieval architecture. Sharing engineering practices and insights here."
+        "bio": "AI engineer working on Agent systems and RAG retrieval. Writing about the pitfalls and lessons from real-world engineering here."
     },
     "reading": {
         "progress": "Reading progress"
