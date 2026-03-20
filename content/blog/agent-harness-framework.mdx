@@ -166,9 +166,9 @@ middleware = [
 - 将历史摘要注入 system prompt
 - 对 Query 做简单规则改写（个人代词替换："帮我查" → "帮张工查"）
 
-  </TabsContent>
+</TabsContent>
 
-  <TabsContent value="hot">
+<TabsContent value="hot">
 
 **触发条件：** checkpointer 中有有效 session，且话题未切换。
 
@@ -177,7 +177,7 @@ middleware = [
 - 不注入历史摘要（checkpointer 已有完整历史）
 - 对 Query 做**上下文感知改写**
 
-  </TabsContent>
+</TabsContent>
 </Tabs>
 
 话题检测用两级策略：**第一级**，关键词快速路径——"重新查"、"不对"、"错了"、"接着说"这些一定不是话题切换，零延迟返回。**第二级**，用轻量 LLM（temperature=0）判断当前 query 与最近 5 条消息是否同一话题。
