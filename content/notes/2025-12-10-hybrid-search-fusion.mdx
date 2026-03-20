@@ -1,0 +1,23 @@
+---
+title: "三路并行检索的分数融合: Min-Max 归一化 + 加权 Max Score"
+date: 2025-12-10
+tags:
+  - RAG
+  - Elasticsearch
+locale: zh
+---
+
+单一检索策略都有盲区：纯向量检索对精确型号 "R6900 G5" 容易召回其他型号；纯 BM25 对口语化表达无法关联同义词。我们的方案是三路并行，然后融合。
+
+关键问题：三路策略的原始分数量纲不同（BM25 范围 5~50+，KNN cosine 只有 0~1），不能直接加权。
+
+```python
+# 先对每路结果独立做 Min-Max 归一化到 [0, 1]
+normalized = (score - min_score) / (max_score - min_score + 1e-10)
+
+# 再按策略权重取加权最高分
+WEIGHTS = {'hybrid': 1.0, 'semantic': 1.0, 'phrase': 0.6}
+final_score = max(w * normalized_score for strategy, w in WEIGHTS)
+```
+
+Phrase 策略权重最低（0.6）因为它只对精确短语有效，单独用时召回率不够，但作为补充策略能显著提升精确匹配场景的准确率。

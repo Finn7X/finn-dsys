@@ -1,0 +1,22 @@
+---
+title: "Celery 异步记忆提取的竞态: Turn 2 看不到 Turn 1 的发现"
+date: 2026-03-08
+tags:
+  - Agent
+  - Celery
+  - Architecture
+locale: zh
+---
+
+多轮对话中的竞态条件：Turn 1 结束后通过 `extract_memories_async.delay()` 提交 Celery 任务（LLM 提取需 3~8 秒），但用户通常 2 秒后就发 Turn 2 —— Celery 还没完成，Turn 2 的记忆检索查不到 Turn 1 的新发现。
+
+```
+Turn 1: Agent 发现"张工参与了 Beta 项目" → reply → Celery 异步提取...
+Turn 2 (2s 后): 用户问"他在 Beta 项目做什么"
+  → 记忆检索 → DB 中还没有"Beta 项目" → Agent 不知道
+  → 用户: "你刚才不是说了吗？"
+```
+
+修复方案：加一层 Redis 会话级缓存（TTL = session TTL），每轮结束后立即写入 Q/A 摘要。下一轮检索时先查缓存再查 DB，约 20 行代码解决。
+
+这比改 Celery 为同步简单得多——同步提取会让每轮响应多 3~8 秒，用户体验更差。

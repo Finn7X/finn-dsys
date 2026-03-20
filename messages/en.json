@@ -60,14 +60,14 @@
         "contact": "Contact",
         "contactCta": "Want to get in touch?",
         "sendEmail": "Send Email",
-        "bio": ["Passionate about web development, focusing on frontend and full-stack technologies. I enjoy solving real problems with code and building products.", "Currently working with React, Next.js, TypeScript, and Tailwind CSS, while continuously learning DevOps and cloud-native technologies."],
-        "role": "Full Stack Developer",
+        "bio": ["Focused on designing and shipping enterprise AI Agent systems. Built a full Agent platform around LLMs — covering RAG retrieval, middleware orchestration, memory systems, and quality evaluation — serving multiple internal business scenarios.", "Core stack is Python + LangGraph, with Elasticsearch hybrid search, vLLM model serving, and Langfuse observability. Built this blog with Next.js on the side to document engineering insights."],
+        "role": "AI Engineer",
         "timeline2026Title": "Finn Days",
         "timeline2026Role": "Creator",
-        "timeline2026Desc": "Building a personal tech blog to share web development practices and insights.",
-        "timeline2025Title": "Full Stack Development",
-        "timeline2025Role": "Developer",
-        "timeline2025Desc": "Deep diving into React ecosystem, Next.js, and TypeScript."
+        "timeline2026Desc": "Building a personal tech blog to share Agent engineering and RAG system practices.",
+        "timeline2025Title": "Enterprise AI Agent Platform",
+        "timeline2025Role": "AI Engineer",
+        "timeline2025Desc": "Designed and shipped a multi-assistant Agent system covering RAG pipelines, middleware framework, memory system, and evaluation."
     },
     "projects": {
         "title": "Projects",
@@ -150,7 +150,7 @@
         "next": "Next"
     },
     "author": {
-        "bio": "Full-stack developer, passionate about open source and knowledge sharing. Focused on React, Next.js, and modern web development."
+        "bio": "AI engineer focused on Agent systems and RAG retrieval architecture. Sharing engineering practices and insights here."
     },
     "reading": {
         "progress": "Reading progress"

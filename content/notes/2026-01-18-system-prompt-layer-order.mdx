@@ -1,0 +1,25 @@
+---
+title: "System Prompt 的 7 层组装: 利用 Lost in the Middle 效应"
+date: 2026-01-18
+tags:
+  - Context Engineering
+  - LLM
+  - Prompt Engineering
+locale: zh
+---
+
+LLM 对 context 的注意力呈 U 型曲线：开头和结尾强，中间弱（Lost in the Middle 效应）。利用这个特性设计 system prompt 的组装顺序：
+
+```
+开头（高注意力）→ Soul 角色定义 + Memory 个性化记忆
+中间（低注意力）→ 任务指令 + 检索规则 + 输出格式
+结尾（高注意力）→ 语言约束 + 工具约束
+```
+
+这样设计的好处：
+
+- 角色一致性靠位置保障，不需要在 prompt 中反复强调"你是 XX 助手"
+- 语言和工具约束放在最后，模型最后看到的硬规则最不容易被忽略
+- 中间的任务指令虽然注意力弱，但会被后续 tool results 反复"刷新"，影响不大
+
+实际验证：语言约束从中间移到结尾后，中文回复混入英语的频率从约 8% 降到不足 1%。

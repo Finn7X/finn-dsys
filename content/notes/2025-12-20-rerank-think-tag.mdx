@@ -1,0 +1,28 @@
+---
+title: "Rerank 分数挤在 0.3~0.7？用空 think 标记拉开分布"
+date: 2025-12-20
+tags:
+  - Rerank
+  - vLLM
+  - Prompt Engineering
+locale: zh
+---
+
+Qwen3-Reranker 默认 prompt 下分数集中在 0.3~0.7，相关和不相关文档难以区分。原因是模型默认会"犹豫思考"，产生模糊的中间分数。
+
+技巧：在自定义 Jinja2 template 的 suffix 中加入空的 `<think>\n\n</think>` 标记，让模型跳过推理直接输出判断。
+
+```jinja2
+{% set suffix = '<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n' %}
+```
+
+效果：相关文档分数从 0.5~0.7 拉到 0.7~0.98，不相关文档从 0.3~0.5 压到 0.02~0.30。分数分离度大幅提升，top\_k 截断更精准。
+
+vLLM 部署时需要显式指定 score 模式和分类 token 映射：
+
+```bash
+vllm serve model --task score \
+  --chat-template rerank.jinja \
+  --hf-overrides '{"architectures":["Qwen3ForSequenceClassification"],
+                   "classifier_from_token":["no","yes"]}'
+```

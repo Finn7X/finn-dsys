@@ -60,14 +60,14 @@
         "contact": "联系方式",
         "contactCta": "想要联系我？",
         "sendEmail": "发送邮件",
-        "bio": ["热爱 Web 开发，专注于前端和全栈技术。喜欢用代码解决实际问题，享受构建产品的过程。", "目前主要使用 React、Next.js、TypeScript 和 Tailwind CSS 进行开发，也在持续学习 DevOps 和云原生技术。"],
-        "role": "全栈开发者",
+        "bio": ["专注于企业级 AI Agent 系统的设计与落地。围绕 LLM 构建了包含 RAG 检索、中间件管控、记忆系统和质量评估的完整 Agent 平台，服务于多个内部业务场景。", "技术栈以 Python + LangGraph 为核心，搭配 Elasticsearch 混合检索、vLLM 模型推理和 Langfuse 可观测性。工作之余用 Next.js 搭建了这个博客，记录工程实践中的思考。"],
+        "role": "AI 工程师",
         "timeline2026Title": "Finn Days",
         "timeline2026Role": "创建者",
-        "timeline2026Desc": "构建个人技术博客，分享 Web 开发实践与心得。",
-        "timeline2025Title": "全栈开发",
-        "timeline2025Role": "开发者",
-        "timeline2025Desc": "深入学习 React 生态、Next.js 和 TypeScript。"
+        "timeline2026Desc": "搭建个人技术博客，输出 Agent 工程与 RAG 系统的实践总结。",
+        "timeline2025Title": "企业 AI Agent 平台",
+        "timeline2025Role": "AI 工程师",
+        "timeline2025Desc": "设计并落地多助手 Agent 系统，涵盖 RAG 检索管线、中间件框架、记忆系统与评估体系。"
     },
     "projects": {
         "title": "项目",
@@ -150,7 +150,7 @@
         "next": "下一篇"
     },
     "author": {
-        "bio": "全栈开发者，热爱开源技术和知识分享。专注于 React、Next.js 和现代 Web 开发。"
+        "bio": "AI 工程师，专注于 Agent 系统与 RAG 检索架构。在这里分享工程实践中的经验与思考。"
     },
     "reading": {
         "progress": "阅读进度"

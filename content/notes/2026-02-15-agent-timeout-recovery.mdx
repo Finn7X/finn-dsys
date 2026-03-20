@@ -1,0 +1,22 @@
+---
+title: "Agent 超时别返回空: 从 Partial State 中抢救工具结果"
+date: 2026-02-15
+tags:
+  - Agent
+  - LangGraph
+  - Resilience
+locale: zh
+---
+
+Agent 超时或触发 `GraphRecursionError` 时，用户已经等了几十秒，直接返回错误体验极差。
+
+关键洞察：Agent 超时通常是在**整合回答**阶段卡住，但之前的检索结果（ToolMessage）是好的。从 checkpointer 的 partial state 中把这些结果拿出来，用一次独立的 LLM 调用重新整合。
+
+```
+策略 1（优先）：提取所有成功的 ToolMessage → 独立 LLM 调用整合回答
+策略 2（回退）：检查最后的 AIMessage，如果 ≥100 字就截取返回
+```
+
+策略 1 的实测成功率约 70%。它本质上是用"单次 LLM 调用 + 已有上下文"替代了"Agent 多轮迭代"，牺牲推理深度换取响应可用性。
+
+策略 2 是最后的兜底——不完整但比空好。

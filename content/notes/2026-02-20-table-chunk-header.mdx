@@ -1,0 +1,26 @@
+---
+title: "表格分块的表头重复: 防止 Chunk 切断列语义"
+date: 2026-02-20
+tags:
+  - RAG
+  - Chunking
+locale: zh
+---
+
+HTML 表格被 chunking 切断后，后续 chunk 只有 `<td>` 没有 `<th>`，LLM 不知道每列是什么意思。
+
+解决方案：用状态机 HTML 解析器跟踪表格嵌套深度，每 20 行或 800 字符自动分页，分页时**重复插入表头行**。
+
+```python
+# 状态机跟踪嵌套表格
+self.table_depth = 0
+self.table_stack = []
+self.table_headers = []  # 缓存当前表格的表头
+
+# 分页时重复表头
+if row_index % 20 == 0 or current_chars > 800:
+    output += '</table>\n<table>'
+    output += f'\n<tr>{header_cells}</tr>'  # 表头重复！
+```
+
+效果：表格类问题（如"R6900 各配置的内存上限"）的回答准确率从 ~45% 提升到 ~82%。原因是每个 chunk 都自包含了完整的列语义。
